@@ -1,0 +1,85 @@
+
+# ===============================
+# OS-SPECIFIC FILES
+# ===============================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+VolumeIcon.icns
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*~
+.nfs*
+
+# ===============================
+# EDITORS / IDEs
+# ===============================
+*.swp
+*.swo
+*.bak
+*.tmp
+*.save
+.*.un~
+.vscode/
+.idea/
+*.iml
+out/
+
+# ===============================
+# COMMON BUILD / TEST FILES
+# ===============================
+*.log
+*.out
+*.err
+build/
+dist/
+tmp/
+temp/
+*.dSYM
+coverage/
+*.coverage
+*.pid
+
+# ===============================
+# DEVCONTAINER
+# ===============================
+.devcontainer/.cache/
+.devcontainer/postCreate.log
+shell.env
+devcontainer-environment-variables.json
+.devcontainer/aws-profile-map.json
+
+# ===============================
+# PYTHON / NODE
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+node_modules/
+
+# ===============================
+# GO BUILD FILES
+# ===============================
+*.test
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.a
+
+# ===============================
+# GIT FILES
+# ===============================
+*.orig
+*.rej
