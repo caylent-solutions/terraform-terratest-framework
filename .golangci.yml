@@ -1,0 +1,38 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - gofmt
+    - gosimple
+    - errcheck
+    - revive
+    - unused
+    - gocritic
+    - ineffassign
+
+linters-settings:
+  revive:
+    ignore-generated-header: true
+    confidence: 0.8
+    severity: warning
+    rules:
+      - name: var-naming
+        arguments:
+          allow-leading-underscore: true
+  gofmt:
+    simplify: true
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - revive
+
+output:
+  format: colored-line-number

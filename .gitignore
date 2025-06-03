@@ -1,85 +1,38 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl
 
-# ===============================
-# OS-SPECIFIC FILES
-# ===============================
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon?
-._*
-.Spotlight-V100
-.Trashes
-.fseventsd
-VolumeIcon.icns
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.lnk
-*~
-.nfs*
-
-# ===============================
-# EDITORS / IDEs
-# ===============================
-*.swp
-*.swo
-*.bak
-*.tmp
-*.save
-.*.un~
-.vscode/
-.idea/
-*.iml
-out/
-
-# ===============================
-# COMMON BUILD / TEST FILES
-# ===============================
-*.log
-*.out
-*.err
-build/
-dist/
-tmp/
-temp/
-*.dSYM
-coverage/
-*.coverage
-*.pid
-
-# ===============================
-# DEVCONTAINER
-# ===============================
-.devcontainer/.cache/
-.devcontainer/postCreate.log
-shell.env
-devcontainer-environment-variables.json
-.devcontainer/aws-profile-map.json
-
-# ===============================
-# PYTHON / NODE
-# ===============================
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-node_modules/
-
-# ===============================
-# GO BUILD FILES
-# ===============================
-*.test
-bin/
+# Go
+/bin/
+/vendor/
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
-*.a
+*.test
+*.out
+coverage*.out
 
-# ===============================
-# GIT FILES
-# ===============================
-*.orig
-*.rej
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Devcontainer
+shell.env
+devcontainer-environment-variables.json
+aws-profile-map.json
+
+# Misc
+*.log
+*.bak
+*.tmp
