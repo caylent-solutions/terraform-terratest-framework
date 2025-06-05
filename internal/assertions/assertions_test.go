@@ -8,36 +8,8 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	testing_terratest "github.com/gruntwork-io/terratest/modules/testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"github.com/undefinedlabs/go-mpatch"
 )
-
-// MockTestContextSimple implements a simple test context for testing
-type MockTestContextSimple struct {
-	terraform *terraform.Options
-	outputs   map[string]string
-}
-
-func NewMockTestContextSimple() *MockTestContextSimple {
-	return &MockTestContextSimple{
-		terraform: &terraform.Options{},
-		outputs: map[string]string{
-			"test_key":         "test_value",
-			"output_file_path": "/tmp/test.txt",
-			"output_content":   "test content",
-		},
-	}
-}
-
-func (m *MockTestContextSimple) GetOutput(t testing.TB, key string) string {
-	if val, ok := m.outputs[key]; ok {
-		return val
-	}
-	return ""
-}
-
-func (m *MockTestContextSimple) GetTerraform() *terraform.Options {
-	return m.terraform
-}
 
 func TestAssertOutputEquals(t *testing.T) {
 	// Create a mock test context
@@ -114,37 +86,18 @@ func TestAssertOutputEmpty(t *testing.T) {
 	AssertOutputEmpty(t, mockCtx, "test_key")
 }
 
-// Mock for terraform.OutputMap
-type MockTerraformOptions struct {
-	mock.Mock
-}
-
-// Store original functions to restore later
-var origOutputMap func(t testing_terratest.TestingT, options *terraform.Options, key string) map[string]string
-var origOutputList func(t testing_terratest.TestingT, options *terraform.Options, key string) []string
-var origRunTerraformCommand func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string
-
-func init() {
-	// Store original functions
-	origOutputMap = terraform.OutputMap
-	origOutputList = terraform.OutputList
-	origRunTerraformCommand = terraform.RunTerraformCommand
-}
-
 func TestAssertOutputMapContainsKey(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.OutputMap = origOutputMap }()
-
-	// Create a local variable for the mock function
-	mockOutputMap := func(t testing_terratest.TestingT, options *terraform.Options, key string) map[string]string {
+	// Create a patch for the OutputMap function
+	patch, err := mpatch.PatchMethod(terraform.OutputMap, func(t testing_terratest.TestingT, options *terraform.Options, key string) map[string]string {
 		return map[string]string{
 			"test_key":    "test_value",
 			"another_key": "another_value",
 		}
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch OutputMap: %v", err)
 	}
-
-	// Assign the mock function to terraform.OutputMap
-	terraform.OutputMap = mockOutputMap
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -154,19 +107,17 @@ func TestAssertOutputMapContainsKey(t *testing.T) {
 }
 
 func TestAssertOutputMapKeyEquals(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.OutputMap = origOutputMap }()
-
-	// Create a local variable for the mock function
-	mockOutputMap := func(t testing_terratest.TestingT, options *terraform.Options, key string) map[string]string {
+	// Create a patch for the OutputMap function
+	patch, err := mpatch.PatchMethod(terraform.OutputMap, func(t testing_terratest.TestingT, options *terraform.Options, key string) map[string]string {
 		return map[string]string{
 			"test_key":    "test_value",
 			"another_key": "another_value",
 		}
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch OutputMap: %v", err)
 	}
-
-	// Assign the mock function to terraform.OutputMap
-	terraform.OutputMap = mockOutputMap
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -176,16 +127,14 @@ func TestAssertOutputMapKeyEquals(t *testing.T) {
 }
 
 func TestAssertOutputListContains(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.OutputList = origOutputList }()
-
-	// Create a local variable for the mock function
-	mockOutputList := func(t testing_terratest.TestingT, options *terraform.Options, key string) []string {
+	// Create a patch for the OutputList function
+	patch, err := mpatch.PatchMethod(terraform.OutputList, func(t testing_terratest.TestingT, options *terraform.Options, key string) []string {
 		return []string{"value1", "value2", "value3"}
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch OutputList: %v", err)
 	}
-
-	// Assign the mock function to terraform.OutputList
-	terraform.OutputList = mockOutputList
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -195,16 +144,14 @@ func TestAssertOutputListContains(t *testing.T) {
 }
 
 func TestAssertOutputListLength(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.OutputList = origOutputList }()
-
-	// Create a local variable for the mock function
-	mockOutputList := func(t testing_terratest.TestingT, options *terraform.Options, key string) []string {
+	// Create a patch for the OutputList function
+	patch, err := mpatch.PatchMethod(terraform.OutputList, func(t testing_terratest.TestingT, options *terraform.Options, key string) []string {
 		return []string{"value1", "value2", "value3"}
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch OutputList: %v", err)
 	}
-
-	// Assign the mock function to terraform.OutputList
-	terraform.OutputList = mockOutputList
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -224,19 +171,17 @@ func TestAssertOutputJSONContains(t *testing.T) {
 }
 
 func TestAssertResourceExists(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.RunTerraformCommand = origRunTerraformCommand }()
-
-	// Create a local variable for the mock function
-	mockRunTerraformCommand := func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
+	// Create a patch for the RunTerraformCommand function
+	patch, err := mpatch.PatchMethod(terraform.RunTerraformCommand, func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
 		if len(args) >= 2 && args[0] == "state" && args[1] == "list" {
 			return "aws_s3_bucket.example\naws_dynamodb_table.test\naws_lambda_function.handler"
 		}
 		return ""
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch RunTerraformCommand: %v", err)
 	}
-
-	// Assign the mock function to terraform.RunTerraformCommand
-	terraform.RunTerraformCommand = mockRunTerraformCommand
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -246,19 +191,17 @@ func TestAssertResourceExists(t *testing.T) {
 }
 
 func TestAssertResourceCount(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.RunTerraformCommand = origRunTerraformCommand }()
-
-	// Create a local variable for the mock function
-	mockRunTerraformCommand := func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
+	// Create a patch for the RunTerraformCommand function
+	patch, err := mpatch.PatchMethod(terraform.RunTerraformCommand, func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
 		if len(args) >= 2 && args[0] == "state" && args[1] == "list" {
 			return "aws_s3_bucket.example\naws_dynamodb_table.test\naws_lambda_function.handler"
 		}
 		return ""
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch RunTerraformCommand: %v", err)
 	}
-
-	// Assign the mock function to terraform.RunTerraformCommand
-	terraform.RunTerraformCommand = mockRunTerraformCommand
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -268,19 +211,17 @@ func TestAssertResourceCount(t *testing.T) {
 }
 
 func TestAssertNoResourcesOfType(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.RunTerraformCommand = origRunTerraformCommand }()
-
-	// Create a local variable for the mock function
-	mockRunTerraformCommand := func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
+	// Create a patch for the RunTerraformCommand function
+	patch, err := mpatch.PatchMethod(terraform.RunTerraformCommand, func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
 		if len(args) >= 2 && args[0] == "state" && args[1] == "list" {
 			return "aws_s3_bucket.example\naws_dynamodb_table.test\naws_lambda_function.handler"
 		}
 		return ""
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch RunTerraformCommand: %v", err)
 	}
-
-	// Assign the mock function to terraform.RunTerraformCommand
-	terraform.RunTerraformCommand = mockRunTerraformCommand
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()
@@ -290,19 +231,17 @@ func TestAssertNoResourcesOfType(t *testing.T) {
 }
 
 func TestAssertTerraformVersion(t *testing.T) {
-	// Save original function and restore after test
-	defer func() { terraform.RunTerraformCommand = origRunTerraformCommand }()
-
-	// Create a local variable for the mock function
-	mockRunTerraformCommand := func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
+	// Create a patch for the RunTerraformCommand function
+	patch, err := mpatch.PatchMethod(terraform.RunTerraformCommand, func(t testing_terratest.TestingT, options *terraform.Options, args ...string) string {
 		if len(args) >= 1 && args[0] == "version" {
 			return "Terraform v1.5.0\non darwin_amd64"
 		}
 		return ""
+	})
+	if err != nil {
+		t.Fatalf("Failed to patch RunTerraformCommand: %v", err)
 	}
-
-	// Assign the mock function to terraform.RunTerraformCommand
-	terraform.RunTerraformCommand = mockRunTerraformCommand
+	defer patch.Unpatch()
 
 	// Create a mock test context
 	mockCtx := NewMockTestContextSimple()

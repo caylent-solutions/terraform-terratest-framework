@@ -73,6 +73,7 @@ pre-commit:
 
 unit-test:
 	@echo "Running unit tests (verbose output)..."
+	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
 	@go test -v ./internal/... ./tftest-cli/... ; \
 	echo "\nSummarizing unit test results..." ; \
 	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
