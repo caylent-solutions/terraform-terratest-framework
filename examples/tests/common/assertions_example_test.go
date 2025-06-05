@@ -3,8 +3,8 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/tests/unit"
 )
 
 // Example of using various assertions in a test
@@ -21,34 +21,34 @@ func TestAssertionsExample(t *testing.T) {
 	})
 
 	// Basic assertions
-	assertions.AssertOutputEquals(t, ctx, "region", "us-west-2")
-	assertions.AssertOutputContains(t, ctx, "instance_id", "i-")
-	assertions.AssertOutputMatches(t, ctx, "instance_id", "^i-[a-f0-9]{17}$")
-	assertions.AssertOutputNotEmpty(t, ctx, "vpc_id")
-	assertions.AssertOutputEmpty(t, ctx, "error_message")
+	unit.AssertOutputEquals(t, ctx, "region", "us-west-2")
+	unit.AssertOutputContains(t, ctx, "instance_id", "i-")
+	unit.AssertOutputMatches(t, ctx, "instance_id", "^i-[a-f0-9]{17}$")
+	unit.AssertOutputNotEmpty(t, ctx, "vpc_id")
+	unit.AssertOutputEmpty(t, ctx, "error_message")
 
 	// File assertions
-	filePath := assertions.AssertFileExists(t, ctx)
+	filePath := unit.AssertFileExists(t, ctx)
 	t.Logf("File exists at: %s", filePath)
-	assertions.AssertFileContent(t, ctx)
+	unit.AssertFileContent(t, ctx)
 
 	// Collection assertions
-	assertions.AssertOutputMapContainsKey(t, ctx, "tags", "Name")
-	assertions.AssertOutputMapKeyEquals(t, ctx, "tags", "Environment", "test")
-	assertions.AssertOutputListContains(t, ctx, "subnet_ids", "subnet-12345")
-	assertions.AssertOutputListLength(t, ctx, "subnet_ids", 3)
+	unit.AssertOutputMapContainsKey(t, ctx, "tags", "Name")
+	unit.AssertOutputMapKeyEquals(t, ctx, "tags", "Environment", "test")
+	unit.AssertOutputListContains(t, ctx, "subnet_ids", "subnet-12345")
+	unit.AssertOutputListLength(t, ctx, "subnet_ids", 3)
 
 	// JSON assertions
-	assertions.AssertOutputJSONContains(t, ctx, "config_json", "region", "us-west-2")
+	unit.AssertOutputJSONContains(t, ctx, "config_json", "region", "us-west-2")
 
 	// Resource assertions
-	assertions.AssertResourceExists(t, ctx, "aws_vpc", "main")
-	assertions.AssertResourceCount(t, ctx, "aws_subnet", 3)
-	assertions.AssertNoResourcesOfType(t, ctx, "aws_db_instance")
+	unit.AssertResourceExists(t, ctx, "aws_vpc", "main")
+	unit.AssertResourceCount(t, ctx, "aws_subnet", 3)
+	unit.AssertNoResourcesOfType(t, ctx, "aws_db_instance")
 
 	// Environment assertions
-	assertions.AssertTerraformVersion(t, ctx, "1.0.0")
+	unit.AssertTerraformVersion(t, ctx, "1.0.0")
 
 	// Idempotency assertion
-	assertions.AssertIdempotent(t, ctx)
+	unit.AssertIdempotent(t, ctx)
 }

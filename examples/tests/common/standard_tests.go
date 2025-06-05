@@ -3,8 +3,8 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/tests/unit"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
@@ -73,7 +73,7 @@ func TestRequiredTags(t *testing.T, ctx testctx.TestContext, requiredTags []stri
 
 // TestIdempotency checks that the Terraform code is idempotent
 func TestIdempotency(t *testing.T, ctx testctx.TestContext) {
-	assertions.AssertIdempotent(t, ctx)
+	unit.AssertIdempotent(t, ctx)
 }
 
 // RunStandardTests runs all standard tests on a module

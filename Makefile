@@ -1,10 +1,39 @@
-.PHONY: install install-tools update-tools configure \
-        unit-test functional-test test test-coverage test-coverage-json test-html-coverage \
-        clean clean-coverage \
-        lint format build-cli release \
-        list-functional-tests run-specific-functional-test
+.PHONY: build-cli clean clean-coverage configure format functional-test \
+        install install-tools lint list-functional-tests pre-commit pre-commit-install \
+        release run-specific-functional-test test test-coverage test-coverage-json \
+        test-html-coverage unit-test update-tools
 
 COVERAGE_DIR := tmp/coverage
+
+build-cli:
+	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/tftest-cli.Version=v0.1.0'" ./tftest-cli
+	@echo "🎉 TFTest CLI built at bin/tftest"
+
+clean:
+	rm -rf .terraform terraform.tfstate* *.txt *.json bin/ *.out
+
+clean-coverage:
+	@echo "🧹 Cleaning coverage artifacts..."
+	@rm -rf $(COVERAGE_DIR)
+	@echo "✅ Coverage files removed."
+
+configure:
+	$(MAKE) install-tools
+	$(MAKE) install
+	$(MAKE) pre-commit-install
+	$(MAKE) pre-commit
+
+format:
+	@echo "Fixing code formatting and lint issues..."
+	./scripts/format-safely.sh
+	@echo "Format complete ✨"
+
+functional-test:
+	@echo "Running functional tests (verbose output)..."
+	@$(MAKE) build-cli
+	@go test -v ./tests/functional/... ; \
+	echo "\nSummarizing functional test results..." ; \
+	go test -json ./tests/functional/... | go run scripts/test-summary.go "Functional Test Summary" || true
 
 install:
 	go mod tidy
@@ -50,40 +79,53 @@ install-tools:
 		asdf reshim; \
 	fi
 
-update-tools:
-	@echo "Checking and updating asdf tools..."
-	@if ! command -v asdf >/dev/null 2>&1; then \
-		echo "asdf not found. Please run 'make install-tools' first."; \
-		exit 1; \
-	fi
-	@for plugin in $$(cut -d' ' -f1 .tool-versions); do \
-		echo "Ensuring plugin $$plugin is installed..."; \
-		asdf plugin add $$plugin 2>/dev/null || true; \
-	done
-	@echo "Installing/updating tools from .tool-versions..."
-	@asdf install
-	@asdf reshim
-	@echo "All tools are up to date."
+lint:
+	@echo "Checking code for linting issues..."
+	./scripts/lint-all.sh || echo "Lint check failed ❌"
+	@echo "Lint check complete"
 
-pre-commit-install:
-	pre-commit install
+list-functional-tests:
+	@echo "Loading asdf tools..."
+	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
+	@echo "Listing functional tests:"
+	@echo "------------------------"
+	@echo "Top-level tests (use these with FUNCTIONAL_TEST=TestName):"
+	@cd tests/functional && go test -list "^Test" ./... | grep -v "^ok" | sort | while read -r test_name; do \
+		if [ ! -z "$$test_name" ]; then \
+			echo "  - $$test_name"; \
+		fi; \
+	done
+	@echo ""
+	@echo "Note: Some tests contain subtests that run multiple examples that are not shown here."
 
 pre-commit:
 	pre-commit run --all-files
 
-unit-test:
-	@echo "Running unit tests (verbose output)..."
-	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
-	@go test -v ./internal/... ./tftest-cli/... ; \
-	echo "\nSummarizing unit test results..." ; \
-	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
+pre-commit-install:
+	pre-commit install
 
-functional-test:
-	@echo "Running functional tests (verbose output)..."
+release:
+	@echo "Creating a new release..."
+	@if [ -z "$(TYPE)" ]; then \
+		./scripts/bump-version.sh; \
+	else \
+		./scripts/bump-version.sh $(TYPE); \
+	fi
+	@echo "Release created! 🚀"
+	@echo "Run 'git push && git push --tags' to publish the release"
+
+run-specific-functional-test:
+	@if [ -z "$(FUNCTIONAL_TEST)" ]; then \
+		echo "Error: FUNCTIONAL_TEST environment variable must be set."; \
+		echo "Usage: FUNCTIONAL_TEST=TestName make run-specific-functional-test"; \
+		echo "Run 'make list-functional-tests' to see available tests."; \
+		exit 1; \
+	fi
+	@echo "Loading asdf tools..."
+	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
+	@echo "Running functional test: $(FUNCTIONAL_TEST)"
 	@$(MAKE) build-cli
-	@go test -v ./tests/functional/... ; \
-	echo "\nSummarizing functional test results..." ; \
-	go test -json ./tests/functional/... | go run scripts/test-summary.go "Functional Test Summary" || true
+	@cd tests/functional && go test -v -run "^$(FUNCTIONAL_TEST)$$"
 
 test: unit-test functional-test
 	@echo "All tests passed! 🎉"
@@ -121,76 +163,33 @@ test-coverage-json:
 	@go test -coverprofile=$(COVERAGE_DIR)/coverage-cli.out ./tftest-cli/...
 	@echo "{\"framework\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-framework.out | grep total | awk '{print $$3}')\", \"cli\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out | grep total | awk '{print $$3}')\"}"
 
-test-html-coverage:
+test-coverage-html:
 	@mkdir -p $(COVERAGE_DIR)
 	@echo "🔍 Generating HTML coverage report..."
 	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage.out ./internal/... ./tftest-cli/... || true
 	@go tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	@echo "🌐 HTML coverage report generated at $(COVERAGE_DIR)/coverage.html"
 
-lint:
-	@echo "Checking code for linting issues..."
-	./scripts/lint-all.sh || echo "Lint check failed ❌"
-	@echo "Lint check complete"
-
-format:
-	@echo "Fixing code formatting and lint issues..."
-	./scripts/format-safely.sh
-	@echo "Format complete ✨"
-
-clean:
-	rm -rf .terraform terraform.tfstate* *.txt *.json bin/ *.out
-
-clean-coverage:
-	@echo "🧹 Cleaning coverage artifacts..."
-	@rm -rf $(COVERAGE_DIR)
-	@echo "✅ Coverage files removed."
-
-configure:
-	$(MAKE) install-tools
-	$(MAKE) install
-	$(MAKE) pre-commit-install
-	$(MAKE) pre-commit
-
-build-cli:
-	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/tftest-cli.Version=v0.1.0'" ./tftest-cli
-	@echo "🎉 TFTest CLI built at bin/tftest"
-
-release:
-	@echo "Creating a new release..."
-	@if [ -z "$(TYPE)" ]; then \
-		./scripts/bump-version.sh; \
-	else \
-		./scripts/bump-version.sh $(TYPE); \
-	fi
-	@echo "Release created! 🚀"
-	@echo "Run 'git push && git push --tags' to publish the release"
-
-# List all functional tests with descriptions
-list-functional-tests:
-	@echo "Loading asdf tools..."
+unit-test:
+	@echo "Cleaning Go test cache..."
+	@go clean -testcache
+	@echo "Running unit tests (verbose output)..."
 	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
-	@echo "Listing functional tests:"
-	@echo "------------------------"
-	@echo "Top-level tests (use these with FUNCTIONAL_TEST=TestName):"
-	@cd tests/functional && go test -list "^Test" ./... | grep -v "^ok" | sort | while read -r test_name; do \
-		if [ ! -z "$$test_name" ]; then \
-			echo "  - $$test_name"; \
-		fi; \
-	done
-	@echo ""
-	@echo "Note: Some tests contain subtests that run multiple examples that are not shown here."
+	@go test -v ./internal/... ./tftest-cli/... ; \
+	echo "\nSummarizing unit test results..." ; \
+	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
 
-# Run a specific functional test
-run-specific-functional-test:
-	@if [ -z "$(FUNCTIONAL_TEST)" ]; then \
-		echo "Error: FUNCTIONAL_TEST environment variable must be set."; \
-		echo "Usage: FUNCTIONAL_TEST=TestName make run-specific-functional-test"; \
-		echo "Run 'make list-functional-tests' to see available tests."; \
+update-tools:
+	@echo "Checking and updating asdf tools..."
+	@if ! command -v asdf >/dev/null 2>&1; then \
+		echo "asdf not found. Please run 'make install-tools' first."; \
 		exit 1; \
 	fi
-	@echo "Loading asdf tools..."
-	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
-	@echo "Running functional test: $(FUNCTIONAL_TEST)"
-	@$(MAKE) build-cli
-	@cd tests/functional && go test -v -run "^$(FUNCTIONAL_TEST)$$"
+	@for plugin in $$(cut -d' ' -f1 .tool-versions); do \
+		echo "Ensuring plugin $$plugin is installed..."; \
+		asdf plugin add $$plugin 2>/dev/null || true; \
+	done
+	@echo "Installing/updating tools from .tool-versions..."
+	@asdf install
+	@asdf reshim
+	@echo "All tools are up to date."

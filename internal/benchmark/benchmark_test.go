@@ -8,7 +8,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBenchmark(t *testing.T) {
+func TestBenchmarkResultString(t *testing.T) {
+	// Test successful benchmark
+	result := &BenchmarkResult{
+		Name:     "test-benchmark",
+		Duration: 123 * time.Millisecond,
+		Success:  true,
+	}
+
+	expected := "test-benchmark: ✅ Success (123ms)"
+	assert.Equal(t, expected, result.String())
+
+	// Test failed benchmark
+	result = &BenchmarkResult{
+		Name:     "failed-benchmark",
+		Duration: 456 * time.Millisecond,
+		Success:  false,
+		Error:    errors.New("test error"),
+	}
+
+	expected = "failed-benchmark: ❌ Failed: test error (456ms)"
+	assert.Equal(t, expected, result.String())
+}
+
+func TestBenchmarkFunction(t *testing.T) {
 	// Test successful benchmark
 	result := Benchmark("test-success", func() error {
 		time.Sleep(10 * time.Millisecond)
@@ -16,53 +39,82 @@ func TestBenchmark(t *testing.T) {
 	})
 
 	assert.Equal(t, "test-success", result.Name)
+	assert.True(t, result.Duration >= 10*time.Millisecond)
 	assert.True(t, result.Success)
 	assert.Nil(t, result.Error)
-	assert.True(t, result.Duration >= 10*time.Millisecond)
 
 	// Test failed benchmark
-	expectedErr := errors.New("test error")
+	testErr := errors.New("test error")
 	result = Benchmark("test-failure", func() error {
 		time.Sleep(10 * time.Millisecond)
-		return expectedErr
+		return testErr
 	})
 
 	assert.Equal(t, "test-failure", result.Name)
-	assert.False(t, result.Success)
-	assert.Equal(t, expectedErr, result.Error)
 	assert.True(t, result.Duration >= 10*time.Millisecond)
+	assert.False(t, result.Success)
+	assert.Equal(t, testErr, result.Error)
 }
 
-func TestBenchmarkSuite(t *testing.T) {
+func TestNewBenchmarkSuite(t *testing.T) {
+	suite := NewBenchmarkSuite("test-suite")
+	assert.NotNil(t, suite)
+	assert.Equal(t, "test-suite", suite.Name)
+	assert.Empty(t, suite.Results)
+	assert.NotNil(t, suite.logger)
+}
+
+func TestBenchmarkSuiteRun(t *testing.T) {
 	suite := NewBenchmarkSuite("test-suite")
 
-	// Run successful benchmark
-	result1 := suite.Run("test-success", func() error {
+	// Add a successful benchmark
+	result := suite.Run("test-benchmark", func() error {
 		time.Sleep(10 * time.Millisecond)
 		return nil
 	})
 
-	// Run failed benchmark
-	expectedErr := errors.New("test error")
-	result2 := suite.Run("test-failure", func() error {
-		time.Sleep(10 * time.Millisecond)
-		return expectedErr
+	assert.Equal(t, 1, len(suite.Results))
+	assert.Equal(t, result, suite.Results[0])
+	assert.Equal(t, "test-benchmark", result.Name)
+	assert.True(t, result.Duration >= 10*time.Millisecond)
+	assert.True(t, result.Success)
+
+	// Add a failed benchmark
+	testErr := errors.New("test error")
+	result = suite.Run("failed-benchmark", func() error {
+		return testErr
 	})
 
-	// Check results
 	assert.Equal(t, 2, len(suite.Results))
-	assert.Equal(t, result1, suite.Results[0])
-	assert.Equal(t, result2, suite.Results[1])
+	assert.Equal(t, result, suite.Results[1])
+	assert.Equal(t, "failed-benchmark", result.Name)
+	assert.False(t, result.Success)
+	assert.Equal(t, testErr, result.Error)
+}
 
-	// Check summary
+func TestBenchmarkSuiteSummary(t *testing.T) {
+	suite := NewBenchmarkSuite("test-suite")
+
+	// Add benchmarks
+	suite.Run("test1", func() error { return nil })
+	suite.Run("test2", func() error { return errors.New("error") })
+	suite.Run("test3", func() error { return nil })
+
 	summary := suite.Summary()
 	assert.Contains(t, summary, "Benchmark Suite: test-suite")
-	assert.Contains(t, summary, "Total Benchmarks: 2")
-	assert.Contains(t, summary, "Successful: 1")
+	assert.Contains(t, summary, "Total Benchmarks: 3")
+	assert.Contains(t, summary, "Successful: 2")
 	assert.Contains(t, summary, "Failed: 1")
+}
 
-	// Test PrintSummary (just make sure it doesn't panic)
-	assert.NotPanics(t, func() {
-		suite.PrintSummary()
-	})
+func TestBenchmarkSuitePrintSummary(t *testing.T) {
+	// This test is mostly to ensure the function doesn't panic
+	suite := NewBenchmarkSuite("test-suite")
+
+	// Add benchmarks
+	suite.Run("test1", func() error { return nil })
+	suite.Run("test2", func() error { return errors.New("error") })
+
+	// Should not panic
+	suite.PrintSummary()
 }

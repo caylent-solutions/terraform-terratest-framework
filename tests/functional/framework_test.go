@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/tests/unit"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -33,7 +33,7 @@ func TestRunSingleExample(t *testing.T) {
 	})
 
 	// Verify outputs
-	assertions.AssertOutputEquals(t, ctx, "output_content", "Test Content")
+	unit.AssertOutputEquals(t, ctx, "output_content", "Test Content")
 
 	// Get the output path from terraform
 	outputPath := ctx.GetOutput(t, "output_file_path")
@@ -136,10 +136,10 @@ func TestRunMultipleExamples(t *testing.T) {
 	})
 
 	// Verify basic example outputs
-	assertions.AssertOutputEquals(t, basicCtx, "output_content", "Basic Content")
+	unit.AssertOutputEquals(t, basicCtx, "output_content", "Basic Content")
 
 	// Verify advanced example outputs
-	assertions.AssertOutputEquals(t, advancedCtx, "output_content", "Advanced Content")
+	unit.AssertOutputEquals(t, advancedCtx, "output_content", "Advanced Content")
 
 	// Get output paths
 	basicFilePath := basicCtx.GetOutput(t, "output_file_path")

@@ -1,55 +1,83 @@
 package testctx
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIdempotencyEnabled(t *testing.T) {
-	// Test default behavior (should be enabled)
-	os.Unsetenv("TERRATEST_IDEMPOTENCY")
-	assert.True(t, IdempotencyEnabled(), "Idempotency should be enabled by default")
-
-	// Test with environment variable set to "false"
-	os.Setenv("TERRATEST_IDEMPOTENCY", "false")
-	assert.False(t, IdempotencyEnabled(), "Idempotency should be disabled when TERRATEST_IDEMPOTENCY=false")
-
-	// Test with environment variable set to something else
-	os.Setenv("TERRATEST_IDEMPOTENCY", "anything")
-	assert.True(t, IdempotencyEnabled(), "Idempotency should be enabled when TERRATEST_IDEMPOTENCY is not 'false'")
-
-	// Cleanup
-	os.Unsetenv("TERRATEST_IDEMPOTENCY")
-}
-
-func TestNewTestContext(t *testing.T) {
-	// Create a test context
-	ctx := NewTestContext("test-example", nil)
-
-	// Verify the context
-	assert.Equal(t, "test-example", ctx.Name, "Context name should match")
-	assert.NotNil(t, ctx.Terraform, "Terraform options should not be nil")
-	assert.NotNil(t, ctx.TerraformVars, "Terraform variables should not be nil")
-}
-
-func TestTestConfig(t *testing.T) {
-	// Create a test config
+func TestInitTerraform(t *testing.T) {
 	config := TestConfig{
 		Name: "test-config",
 		ExtraVars: map[string]interface{}{
-			"key1": "value1",
-			"key2": 42,
+			"var1": "value1",
+			"var2": 42,
 		},
 	}
 
-	// Verify the config
-	assert.Equal(t, "test-config", config.Name, "Config name should match")
-	assert.Equal(t, "value1", config.ExtraVars["key1"], "ExtraVars key1 should match")
-	assert.Equal(t, 42, config.ExtraVars["key2"], "ExtraVars key2 should match")
+	options := InitTerraform("/path/to/example", config)
+	assert.Equal(t, "/path/to/example", options.TerraformDir)
+	assert.Equal(t, config.ExtraVars, options.Vars)
 }
 
-// Mock functions for testing RunExample and RunAllExamples would be more complex
-// and would require mocking the filesystem and terraform execution
-// These would be added in a more comprehensive test suite
+func TestRun(t *testing.T) {
+	config := TestConfig{
+		Name: "test-config",
+		ExtraVars: map[string]interface{}{
+			"var1": "value1",
+		},
+	}
+
+	ctx := Run("/path/to/example", config)
+	assert.Equal(t, config, ctx.Config)
+	assert.Equal(t, "/path/to/example", ctx.ExamplePath)
+	assert.Equal(t, "test-config", ctx.Name)
+	assert.NotNil(t, ctx.Terraform)
+	assert.Equal(t, "/path/to/example", ctx.Terraform.TerraformDir)
+	assert.Equal(t, config.ExtraVars, ctx.Terraform.Vars)
+}
+
+// TestRunCustomTestsImplementation tests the RunCustomTests function
+// Renamed to avoid conflict with the function in custom_test.go
+func TestRunCustomTestsImplementation(t *testing.T) {
+	// Create test contexts
+	results := map[string]TestContext{
+		"example1": {
+			Name: "example1",
+			Config: TestConfig{
+				Name: "example1",
+			},
+		},
+		"example2": {
+			Name: "example2",
+			Config: TestConfig{
+				Name: "example2",
+			},
+		},
+	}
+
+	// Track which examples were tested
+	tested := make(map[string]bool)
+
+	// Create test function
+	testFunc := func(t *testing.T, ctx TestContext) {
+		tested[ctx.Name] = true
+	}
+
+	// Run custom tests
+	RunCustomTests(t, results, testFunc)
+
+	// Verify all examples were tested
+	assert.True(t, tested["example1"])
+	assert.True(t, tested["example2"])
+	assert.Equal(t, 2, len(tested))
+}
+
+// Note: The following functions are difficult to unit test without mocking:
+// - RunExample (requires terraform.InitAndApply)
+// - RunAllExamplesWithTests (depends on RunAllExamples)
+// - DiscoverAndRunAllTests (depends on os.ReadDir and RunAllExamples)
+// - RunAllExamples (depends on os.ReadDir and RunExample)
+// - RunSingleExample (depends on os.Stat and RunExample)
+//
+// These would typically be tested with integration tests or with mocking.

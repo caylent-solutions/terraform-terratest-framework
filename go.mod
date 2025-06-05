@@ -6,7 +6,6 @@ require (
 	github.com/gruntwork-io/terratest v0.49.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.10.0
-	github.com/undefinedlabs/go-mpatch v1.0.7
 )
 
 require (

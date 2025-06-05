@@ -3,8 +3,8 @@ package ecs_private
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/tests/unit"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
@@ -25,8 +25,8 @@ func TestEcsPrivate(t *testing.T) {
 	t.Logf("ECS Cluster Name: %s", clusterName)
 
 	// Verify outputs
-	assertions.AssertOutputEquals(t, ctx, "cluster_name", "private-cluster")
-	assertions.AssertOutputEquals(t, ctx, "is_private", "true")
+	unit.AssertOutputEquals(t, ctx, "cluster_name", "private-cluster")
+	unit.AssertOutputEquals(t, ctx, "is_private", "true")
 
 	// Additional example-specific tests would go here
 	// verifyPrivateEcsCluster(t, ctx)

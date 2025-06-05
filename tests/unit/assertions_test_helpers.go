@@ -1,4 +1,4 @@
-package assertions
+package unit
 
 import (
 	"testing"
@@ -33,6 +33,11 @@ func (m *MockTestContextSimple) GetOutput(t testing.TB, key string) string {
 
 func (m *MockTestContextSimple) GetTerraform() *terraform.Options {
 	return m.terraform
+}
+
+// SetOutput sets an output value for testing
+func (m *MockTestContextSimple) SetOutput(key, value string) {
+	m.outputs[key] = value
 }
 
 // Mock for terraform.OutputMap
