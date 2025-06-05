@@ -1,7 +1,8 @@
 .PHONY: install install-tools update-tools configure \
         unit-test functional-test test test-coverage test-coverage-json test-html-coverage \
         clean clean-coverage \
-        lint format build-cli release
+        lint format build-cli release \
+        list-functional-tests run-specific-functional-test
 
 COVERAGE_DIR := tmp/coverage
 
@@ -73,11 +74,15 @@ pre-commit:
 unit-test:
 	@echo "Running unit tests (verbose output)..."
 	@go test -v ./internal/... ./tftest-cli/... ; \
-	echo "\nSummarizing test results..." ; \
-	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go || true
+	echo "\nSummarizing unit test results..." ; \
+	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
 
 functional-test:
-	go test -v ./tests/functional/...
+	@echo "Running functional tests (verbose output)..."
+	@$(MAKE) build-cli
+	@go test -v ./tests/functional/... ; \
+	echo "\nSummarizing functional test results..." ; \
+	go test -json ./tests/functional/... | go run scripts/test-summary.go "Functional Test Summary" || true
 
 test: unit-test functional-test
 	@echo "All tests passed! 🎉"
@@ -122,6 +127,16 @@ test-html-coverage:
 	@go tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	@echo "🌐 HTML coverage report generated at $(COVERAGE_DIR)/coverage.html"
 
+lint:
+	@echo "Checking code for linting issues..."
+	./scripts/lint-all.sh || echo "Lint check failed ❌"
+	@echo "Lint check complete"
+
+format:
+	@echo "Fixing code formatting and lint issues..."
+	./scripts/format-safely.sh
+	@echo "Format complete ✨"
+
 clean:
 	rm -rf .terraform terraform.tfstate* *.txt *.json bin/ *.out
 
@@ -149,3 +164,32 @@ release:
 	fi
 	@echo "Release created! 🚀"
 	@echo "Run 'git push && git push --tags' to publish the release"
+
+# List all functional tests with descriptions
+list-functional-tests:
+	@echo "Loading asdf tools..."
+	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
+	@echo "Listing functional tests:"
+	@echo "------------------------"
+	@echo "Top-level tests (use these with FUNCTIONAL_TEST=TestName):"
+	@cd tests/functional && go test -list "^Test" ./... | grep -v "^ok" | sort | while read -r test_name; do \
+		if [ ! -z "$$test_name" ]; then \
+			echo "  - $$test_name"; \
+		fi; \
+	done
+	@echo ""
+	@echo "Note: Some tests contain subtests that run multiple examples that are not shown here."
+
+# Run a specific functional test
+run-specific-functional-test:
+	@if [ -z "$(FUNCTIONAL_TEST)" ]; then \
+		echo "Error: FUNCTIONAL_TEST environment variable must be set."; \
+		echo "Usage: FUNCTIONAL_TEST=TestName make run-specific-functional-test"; \
+		echo "Run 'make list-functional-tests' to see available tests."; \
+		exit 1; \
+	fi
+	@echo "Loading asdf tools..."
+	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
+	@echo "Running functional test: $(FUNCTIONAL_TEST)"
+	@$(MAKE) build-cli
+	@cd tests/functional && go test -v -run "^$(FUNCTIONAL_TEST)$$"

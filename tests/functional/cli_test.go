@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// Tests the CLI version command output
 func TestCliVersion(t *testing.T) {
 	// Skip if CLI is not built
 	cliPath := filepath.Join("..", "..", "bin", "tftest")
@@ -19,7 +20,7 @@ func TestCliVersion(t *testing.T) {
 	// Run the CLI with version flag
 	cmd := exec.Command(cliPath, "--version")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Check results
 	assert.NoError(t, err, "CLI should execute without error")
 	assert.Contains(t, string(output), "TFTest CLI", "Version output should contain CLI name")
@@ -35,7 +36,7 @@ func TestCliHelp(t *testing.T) {
 	// Run the CLI with help flag
 	cmd := exec.Command(cliPath, "--help")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Check results
 	assert.NoError(t, err, "CLI should execute without error")
 	assert.Contains(t, string(output), "Usage:", "Help output should contain usage information")
@@ -54,7 +55,7 @@ func TestCliRunHelp(t *testing.T) {
 	// Run the CLI with run help
 	cmd := exec.Command(cliPath, "run", "--help")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Check results
 	assert.NoError(t, err, "CLI should execute without error")
 	assert.Contains(t, string(output), "Usage:", "Help output should contain usage information")
@@ -73,7 +74,7 @@ func TestCliFormatHelp(t *testing.T) {
 	// Run the CLI with format help
 	cmd := exec.Command(cliPath, "format", "--help")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Check results
 	assert.NoError(t, err, "CLI should execute without error")
 	assert.Contains(t, string(output), "Usage:", "Help output should contain usage information")
@@ -92,7 +93,7 @@ func TestCliVerboseFlag(t *testing.T) {
 	// Run the CLI with verbose flag
 	cmd := exec.Command(cliPath, "--verbose", "DEBUG", "version")
 	output, err := cmd.CombinedOutput()
-	
+
 	// Check results
 	assert.NoError(t, err, "CLI should execute without error")
 	assert.Contains(t, string(output), "TFTest CLI", "Output should contain CLI name")

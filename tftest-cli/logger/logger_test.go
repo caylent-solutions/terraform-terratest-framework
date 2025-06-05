@@ -35,9 +35,9 @@ func TestParseLogLevel(t *testing.T) {
 		{"WARN", WARN, false},
 		{"ERROR", ERROR, false},
 		{"FATAL", FATAL, false},
-		{"debug", DEBUG, false},  // Test case insensitivity
-		{"info", INFO, false},    // Test case insensitivity
-		{"invalid", INFO, true},  // Test invalid input
+		{"debug", DEBUG, false}, // Test case insensitivity
+		{"info", INFO, false},   // Test case insensitivity
+		{"invalid", INFO, true}, // Test invalid input
 	}
 
 	for _, test := range tests {
@@ -93,10 +93,10 @@ func TestDefaultLogger(t *testing.T) {
 	Info("Info message")
 	Warn("Warn message")
 	Error("Error message")
-	
+
 	// Test setting the default log level
 	SetDefaultLogLevel(ERROR)
-	
+
 	// This is just to ensure the function exists and can be called
 	assert.NotPanics(t, func() {
 		SetDefaultLogLevel(INFO)
@@ -114,7 +114,7 @@ func TestLoggerFormat(t *testing.T) {
 	// Test formatting
 	logger.Info("Count: %d, String: %s", 42, "test")
 	logOutput := buf.String()
-	
+
 	assert.Contains(t, logOutput, "Count: 42", "Log should contain formatted count")
 	assert.Contains(t, logOutput, "String: test", "Log should contain formatted string")
 }
@@ -130,7 +130,7 @@ func TestLoggerTimestamp(t *testing.T) {
 	// Test timestamp format
 	logger.Info("Test message")
 	logOutput := buf.String()
-	
+
 	// Check for timestamp format YYYY-MM-DD HH:MM:SS
 	assert.Regexp(t, `\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]`, logOutput, "Log should contain timestamp in correct format")
 }

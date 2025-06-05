@@ -28,24 +28,24 @@ func (r *BenchmarkResult) String() string {
 func Benchmark(name string, fn func() error) *BenchmarkResult {
 	logger := logging.NewWithPrefix(logging.INFO, "Benchmark")
 	logger.Info("Starting benchmark: %s", name)
-	
+
 	start := time.Now()
 	err := fn()
 	duration := time.Since(start)
-	
+
 	result := &BenchmarkResult{
 		Name:     name,
 		Duration: duration,
 		Success:  err == nil,
 		Error:    err,
 	}
-	
+
 	if err != nil {
 		logger.Error("Benchmark failed: %s (%s): %v", name, duration, err)
 	} else {
 		logger.Info("Benchmark completed: %s (%s)", name, duration)
 	}
-	
+
 	return result
 }
 
@@ -78,7 +78,7 @@ func (s *BenchmarkSuite) Summary() string {
 	var totalDuration time.Duration
 	successCount := 0
 	failureCount := 0
-	
+
 	for _, result := range s.Results {
 		totalDuration += result.Duration
 		if result.Success {
@@ -87,13 +87,13 @@ func (s *BenchmarkSuite) Summary() string {
 			failureCount++
 		}
 	}
-	
+
 	return fmt.Sprintf(
 		"Benchmark Suite: %s\n"+
-		"Total Duration: %s\n"+
-		"Total Benchmarks: %d\n"+
-		"Successful: %d\n"+
-		"Failed: %d",
+			"Total Duration: %s\n"+
+			"Total Benchmarks: %d\n"+
+			"Successful: %d\n"+
+			"Failed: %d",
 		s.Name,
 		totalDuration,
 		len(s.Results),
@@ -108,11 +108,11 @@ func (s *BenchmarkSuite) PrintSummary() {
 	s.logger.Info("------------------------")
 	s.logger.Info("Suite: %s", s.Name)
 	s.logger.Info("Total Benchmarks: %d", len(s.Results))
-	
+
 	var totalDuration time.Duration
 	successCount := 0
 	failureCount := 0
-	
+
 	for _, result := range s.Results {
 		totalDuration += result.Duration
 		if result.Success {
@@ -121,12 +121,12 @@ func (s *BenchmarkSuite) PrintSummary() {
 			failureCount++
 		}
 	}
-	
+
 	s.logger.Info("Total Duration: %s", totalDuration)
 	s.logger.Info("Successful: %d", successCount)
 	s.logger.Info("Failed: %d", failureCount)
 	s.logger.Info("------------------------")
-	
+
 	s.logger.Info("Individual Results:")
 	for _, result := range s.Results {
 		if result.Success {

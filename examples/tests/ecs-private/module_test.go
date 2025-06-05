@@ -19,15 +19,15 @@ func TestEcsPrivate(t *testing.T) {
 			"is_private":   true,
 		},
 	})
-	
+
 	// Example-specific assertions
 	clusterName := terraform.Output(t, ctx.Terraform, "cluster_name")
 	t.Logf("ECS Cluster Name: %s", clusterName)
-	
+
 	// Verify outputs
 	assertions.AssertOutputEquals(t, ctx, "cluster_name", "private-cluster")
 	assertions.AssertOutputEquals(t, ctx, "is_private", "true")
-	
+
 	// Additional example-specific tests would go here
 	// verifyPrivateEcsCluster(t, ctx)
 }
@@ -38,7 +38,7 @@ func verifyPrivateEcsCluster(t *testing.T, ctx testctx.TestContext) {
 	// For example:
 	//
 	// clusterName := terraform.Output(t, ctx.Terraform, "cluster_name")
-	// ecsClient := ecs.NewFromConfig(...) 
+	// ecsClient := ecs.NewFromConfig(...)
 	// result, err := ecsClient.DescribeClusters(...)
 	// assert.NoError(t, err)
 	// assert.Equal(t, "ACTIVE", *result.Clusters[0].Status)

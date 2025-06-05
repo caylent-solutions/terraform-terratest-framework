@@ -1,0 +1,23 @@
+run:
+  concurrency: 1
+  timeout: 5m
+  skip-dirs:
+    - tests
+    - vendor
+    - .terraform
+  skip-files:
+    - "_test.go$"
+  go: "1.23"
+  memory: 2048MB
+
+linters:
+  # Run only one linter at a time to identify which one is causing issues
+  enable:
+    - govet
+  disable-all: true
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck

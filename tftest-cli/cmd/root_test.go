@@ -21,16 +21,16 @@ func TestVersionFlag(t *testing.T) {
 	cmd := &cobra.Command{}
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
-	
+
 	// Add version flag
 	cmd.Flags().BoolP("version", "V", false, "Print version information")
 	cmd.SetVersionTemplate("TFTest CLI {{.Version}}\n")
 	cmd.Version = "test-version"
-	
+
 	// Execute with version flag
 	cmd.SetArgs([]string{"--version"})
 	err := cmd.Execute()
-	
+
 	// Check results
 	assert.NoError(t, err, "Command execution should not error")
 	assert.Contains(t, buf.String(), "TFTest CLI test-version", "Version output should contain version information")
@@ -40,15 +40,15 @@ func TestVerboseFlag(t *testing.T) {
 	// Save original value to restore later
 	originalVerboseLevel := verboseLevel
 	defer func() { verboseLevel = originalVerboseLevel }()
-	
+
 	// Create a command to test the verbose flag
 	cmd := &cobra.Command{}
 	cmd.PersistentFlags().StringVarP(&verboseLevel, "verbose", "v", "", "Set verbosity level")
-	
+
 	// Execute with verbose flag
 	cmd.SetArgs([]string{"--verbose", "DEBUG"})
 	err := cmd.ParseFlags([]string{"--verbose", "DEBUG"})
-	
+
 	// Check results
 	assert.NoError(t, err, "Command parsing should not error")
 	assert.Equal(t, "DEBUG", verboseLevel, "Verbose level should be set correctly")
@@ -61,11 +61,11 @@ func TestExecute(t *testing.T) {
 		// Create a temporary rootCmd that doesn't actually execute anything
 		origRootCmd := rootCmd
 		rootCmd = &cobra.Command{
-			Use:   "test",
+			Use: "test",
 			Run: func(cmd *cobra.Command, args []string) {},
 		}
 		defer func() { rootCmd = origRootCmd }()
-		
+
 		Execute()
 	}, "Execute should not panic")
 }

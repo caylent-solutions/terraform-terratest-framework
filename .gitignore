@@ -32,6 +32,12 @@ shell.env
 devcontainer-environment-variables.json
 aws-profile-map.json
 
+# Test outputs
+output.txt
+advanced-output.txt
+framework-test.txt
+*.txt
+
 # Misc
 *.log
 *.bak

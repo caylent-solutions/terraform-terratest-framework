@@ -15,10 +15,10 @@ type TestConfig struct {
 
 // TestContext combines test configuration with terraform options
 type TestContext struct {
-	Config      TestConfig
-	Terraform   *terraform.Options
-	ExamplePath string
-	Name        string
+	Config        TestConfig
+	Terraform     *terraform.Options
+	ExamplePath   string
+	Name          string
 	TerraformVars map[string]interface{}
 }
 
@@ -38,10 +38,10 @@ func NewTestContext(examplePath string, vars map[string]interface{}) TestContext
 		vars = make(map[string]interface{})
 	}
 	return TestContext{
-		Name: examplePath,
-		Terraform: &terraform.Options{},
+		Name:          examplePath,
+		Terraform:     &terraform.Options{},
 		TerraformVars: vars,
-		ExamplePath: examplePath,
+		ExamplePath:   examplePath,
 	}
 }
 

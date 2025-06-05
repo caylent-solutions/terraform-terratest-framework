@@ -6,32 +6,23 @@ import (
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-// MockTestContext is a mock implementation of testctx.TestContext
-type MockTestContext struct {
-	mock.Mock
-	testctx.TestContext
-}
-
-// MockTerraformOptions is a mock implementation of terraform.Options
-type MockTerraformOptions struct {
-	mock.Mock
-}
-
 // Setup mocks for testing
-func setupMocks(t *testing.T) (*testing.T, *MockTestContext, *MockTerraformOptions) {
+func setupMocks(t *testing.T) (*testing.T, testctx.TestContext, *terraform.Options) {
 	mockT := new(testing.T)
-	mockCtx := new(MockTestContext)
-	mockTerraformOptions := new(MockTerraformOptions)
-	
-	// Set up the mock context
-	mockCtx.Terraform = &terraform.Options{}
-	mockCtx.TerraformVars = map[string]interface{}{}
-	mockCtx.Name = "test-example"
-	
-	return mockT, mockCtx, mockTerraformOptions
+	mockTerraformOptions := &terraform.Options{}
+
+	// Create a testctx.TestContext directly
+	ctx := testctx.TestContext{
+		Terraform:     mockTerraformOptions,
+		TerraformVars: map[string]interface{}{},
+		Name:          "test-example",
+		ExamplePath:   "test-example",
+		Config:        testctx.TestConfig{Name: "test-example"},
+	}
+
+	return mockT, ctx, mockTerraformOptions
 }
 
 // TestTestTerraformValidate tests the TestTerraformValidate function
@@ -39,7 +30,7 @@ func TestTestTerraformValidate(t *testing.T) {
 	// This test is minimal since terraform.Validate is a Terratest function
 	// that we can't easily mock without more complex test infrastructure
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -52,7 +43,7 @@ func TestTestTerraformFormat(t *testing.T) {
 	// This test is minimal since terraform.RunTerraformCommandE is a Terratest function
 	// that we can't easily mock without more complex test infrastructure
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -65,7 +56,7 @@ func TestTestNoHardcodedCredentials(t *testing.T) {
 	// This test is minimal since terraform.RunTerraformCommandE is a Terratest function
 	// that we can't easily mock without more complex test infrastructure
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -78,7 +69,7 @@ func TestTestRequiredOutputs(t *testing.T) {
 	// This test is minimal since terraform.OutputAll is a Terratest function
 	// that we can't easily mock without more complex test infrastructure
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -91,7 +82,7 @@ func TestTestRequiredTags(t *testing.T) {
 	// This test is minimal since terraform.RunTerraformCommandE is a Terratest function
 	// that we can't easily mock without more complex test infrastructure
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -103,7 +94,7 @@ func TestTestRequiredTags(t *testing.T) {
 func TestTestIdempotency(t *testing.T) {
 	// This test is minimal since assertions.AssertIdempotent is already tested elsewhere
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running
@@ -115,7 +106,7 @@ func TestTestIdempotency(t *testing.T) {
 func TestRunStandardTests(t *testing.T) {
 	// This test is minimal since it just calls other functions that are already tested
 	mockT, mockCtx, _ := setupMocks(t)
-	
+
 	// Just verify it doesn't panic
 	assert.NotPanics(t, func() {
 		// Use a mock testing.T to prevent actual terraform commands from running

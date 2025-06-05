@@ -10,8 +10,8 @@ import (
 
 // Example represents a single terraform example
 type Example struct {
-	Name string
-	Path string
+	Name   string
+	Path   string
 	Config testctx.TestConfig
 }
 
@@ -22,33 +22,33 @@ func FindAllExamples(t *testing.T, moduleRootPath string) []Example {
 	if err != nil {
 		t.Fatalf("Failed to read examples directory: %v", err)
 	}
-	
+
 	var examples []Example
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
 		}
-		
+
 		examples = append(examples, Example{
 			Name: entry.Name(),
 			Path: filepath.Join(examplesPath, entry.Name()),
 			Config: testctx.TestConfig{
-				Name: entry.Name(),
+				Name:      entry.Name(),
 				ExtraVars: map[string]interface{}{},
 			},
 		})
 	}
-	
+
 	return examples
 }
 
 // ConfigureExamples allows customizing the configuration for each example
 func ConfigureExamples(examples []Example, configurator func(Example) testctx.TestConfig) map[string]testctx.TestConfig {
 	configs := make(map[string]testctx.TestConfig)
-	
+
 	for _, example := range examples {
 		configs[example.Name] = configurator(example)
 	}
-	
+
 	return configs
 }

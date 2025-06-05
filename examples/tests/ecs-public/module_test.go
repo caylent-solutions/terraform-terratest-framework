@@ -18,14 +18,14 @@ func TestEcsPublic(t *testing.T) {
 			"region":       "us-west-2",
 		},
 	})
-	
+
 	// Example-specific assertions
 	clusterName := terraform.Output(t, ctx.Terraform, "cluster_name")
 	t.Logf("ECS Cluster Name: %s", clusterName)
-	
+
 	// Verify outputs
 	assertions.AssertOutputEquals(t, ctx, "cluster_name", "test-cluster")
-	
+
 	// Additional example-specific tests would go here
 	// verifyEcsCluster(t, ctx)
 }

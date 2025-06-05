@@ -3,8 +3,8 @@ package idempotency
 import (
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
 // Test runs an idempotency test on the given context
@@ -14,15 +14,15 @@ func Test(t *testing.T, ctx testctx.TestContext) bool {
 		t.Logf("Idempotency testing disabled for %s via TERRATEST_IDEMPOTENCY=false", ctx.Config.Name)
 		return true
 	}
-	
+
 	t.Logf("Running idempotency test for %s", ctx.Config.Name)
 	planResult := terraform.Plan(t, ctx.Terraform)
-	
+
 	if planResult != "" {
 		t.Errorf("Idempotency test failed for %s: Terraform plan would make changes: %s", ctx.Config.Name, planResult)
 		return false
 	}
-	
+
 	t.Logf("Idempotency test passed for %s", ctx.Config.Name)
 	return true
 }

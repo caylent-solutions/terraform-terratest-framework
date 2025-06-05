@@ -12,7 +12,7 @@ variable "output_filename" {
 
 resource "local_file" "example" {
   content  = var.output_content
-  filename = "${path.module}/${var.output_filename}"
+  filename = var.output_filename
 }
 
 output "output_file_path" {

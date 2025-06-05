@@ -10,16 +10,16 @@ type ErrorType string
 const (
 	// ConfigError represents configuration errors
 	ConfigError ErrorType = "ConfigError"
-	
+
 	// ValidationError represents validation errors
 	ValidationError ErrorType = "ValidationError"
-	
+
 	// TerraformError represents errors from Terraform operations
 	TerraformError ErrorType = "TerraformError"
-	
+
 	// AssertionError represents errors from test assertions
 	AssertionError ErrorType = "AssertionError"
-	
+
 	// InternalError represents internal framework errors
 	InternalError ErrorType = "InternalError"
 )

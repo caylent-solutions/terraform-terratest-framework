@@ -17,7 +17,6 @@ package unit
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"github.com/stretchr/testify/assert"
 )
@@ -36,13 +35,13 @@ func TestTestConfig(t *testing.T) {
 			"key": "value",
 		},
 	}
-	
+
 	assert.Equal(t, "test", config.Name)
 	assert.Equal(t, "value", config.ExtraVars["key"])
 }
 
 // Test the assertions package
-func TestAssertions(t *testing.T) {
+func TestAssertionsPackage(t *testing.T) {
 	// This is just a placeholder for actual unit tests
 	// Real tests would mock the terraform.Output function and test each assertion
 	t.Log("Assertions package unit tests would go here")

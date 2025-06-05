@@ -12,9 +12,9 @@ import (
 
 var (
 	// Run command flags
-	moduleRoot string
+	moduleRoot  string
 	examplePath string
-	commonOnly bool
+	commonOnly  bool
 )
 
 // runCmd represents the run command
@@ -41,7 +41,7 @@ This command expects a specific directory structure:
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	
+
 	// Add flags to run command
 	runCmd.Flags().StringVar(&moduleRoot, "module-root", ".", "Path to the root of the Terraform module (runs all tests)")
 	runCmd.Flags().StringVar(&examplePath, "example-path", "", "Specific example to test (leave empty to test all)")
@@ -71,16 +71,16 @@ func runTests() {
 	if examplePath != "" {
 		exampleDir := filepath.Join(absPath, "examples", examplePath)
 		testDir := filepath.Join(absPath, "tests", examplePath)
-		
+
 		if _, err := os.Stat(exampleDir); os.IsNotExist(err) {
 			logger.Fatal("Example directory not found: %s", exampleDir)
 		}
-		
+
 		if _, err := os.Stat(testDir); os.IsNotExist(err) {
 			logger.Fatal("Test directory for example not found: %s", testDir)
 		}
 	}
-	
+
 	// If common only, verify common directory exists
 	if commonOnly {
 		commonDir := filepath.Join(absPath, "tests", "common")
@@ -109,7 +109,7 @@ func runTests() {
 	cmd.Dir = absPath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	err = cmd.Run()
 	if err != nil {
 		logger.Error("Tests failed: %v", err)

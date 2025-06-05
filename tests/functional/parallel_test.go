@@ -1,36 +1,36 @@
 package functional
 
 import (
+	"path/filepath"
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/examples"
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/idempotency"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func TestParallelExamples(t *testing.T) {
-	// Find all examples
-	allExamples := examples.FindAllExamples(t, "../..")
-	
-	// Skip test if no examples found
-	if len(allExamples) == 0 {
-		t.Skip("No examples found to test")
-	}
-	
+	// Create a temporary directory for test results
+	tempDir := t.TempDir()
+
 	// Configure examples with default settings
-	configs := examples.ConfigureExamples(allExamples, func(ex examples.Example) testctx.TestConfig {
-		return testctx.TestConfig{
-			Name: ex.Name,
+	configs := map[string]testctx.TestConfig{
+		"example-basic": {
+			Name: "example-basic",
 			ExtraVars: map[string]interface{}{
 				"output_content":  "parallel test",
-				"output_filename": "parallel-test.txt",
+				"output_filename": filepath.Join(tempDir, "basic-parallel-test.txt"),
 			},
-		}
-	})
-	
+		},
+		"example-advanced": {
+			Name: "example-advanced",
+			ExtraVars: map[string]interface{}{
+				"output_content":  "parallel test",
+				"output_filename": filepath.Join(tempDir, "advanced-parallel-test.txt"),
+			},
+		},
+	}
+
 	// Run all examples in parallel
-	results := testctx.RunAllExamples(t, "../..", configs)
-	
-	// Run idempotency tests on all examples
-	idempotency.TestAll(t, results)
+	_ = testctx.RunAllExamples(t, "../terraform-module-test-fixtures", configs)
+
+	// No need for additional assertions here since we're just testing parallel execution
 }

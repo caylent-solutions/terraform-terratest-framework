@@ -182,7 +182,22 @@ make install
 ### Running Tests
 
 ```bash
+# Run all tests
 make test
+
+# List all functional tests with descriptions
+make list-functional-tests
+
+# Run a specific functional test
+FUNCTIONAL_TEST=TestName make run-specific-functional-test
+```
+
+The `list-functional-tests` command will show all available functional tests in the project. This is useful when you need to run a specific test or understand what tests are available.
+
+The `run-specific-functional-test` command allows you to run a single functional test by name. You must set the `FUNCTIONAL_TEST` environment variable to the name of the test you want to run. For example:
+
+```bash
+FUNCTIONAL_TEST=TestCliVersion make run-specific-functional-test
 ```
 
 ### Releasing

@@ -18,9 +18,8 @@ func TestTerraformValidate(t *testing.T, ctx testctx.TestContext) {
 // TestTerraformFormat checks if the Terraform code is properly formatted
 func TestTerraformFormat(t *testing.T, ctx testctx.TestContext) {
 	// Check if terraform code is formatted
-	stdout, stderr, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "fmt", "-check", "-recursive")
-	assert.Empty(t, stdout, "Terraform code should be properly formatted")
-	assert.Empty(t, stderr, "Terraform fmt should not produce errors")
+	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "fmt", "-check", "-recursive")
+	assert.Empty(t, output, "Terraform code should be properly formatted")
 	assert.NoError(t, err, "Terraform fmt should not fail")
 }
 
@@ -28,9 +27,9 @@ func TestTerraformFormat(t *testing.T, ctx testctx.TestContext) {
 func TestNoHardcodedCredentials(t *testing.T, ctx testctx.TestContext) {
 	// This is a simplified check - in a real implementation, you would use a more robust method
 	// like static code analysis or regex patterns to check for common credential patterns
-	stdout, _, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "show", "-json")
+	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "show", "-json")
 	assert.NoError(t, err, "Terraform show should not fail")
-	
+
 	// Check for common credential patterns
 	credentialPatterns := []string{
 		"AKIA", // AWS Access Key ID prefix
@@ -43,16 +42,16 @@ func TestNoHardcodedCredentials(t *testing.T, ctx testctx.TestContext) {
 		"aws_access_key_id",
 		"aws_secret_access_key",
 	}
-	
+
 	for _, pattern := range credentialPatterns {
-		assert.NotContains(t, stdout, pattern, "Terraform code should not contain hardcoded credentials")
+		assert.NotContains(t, output, pattern, "Terraform code should not contain hardcoded credentials")
 	}
 }
 
 // TestRequiredOutputs checks that required outputs are defined
 func TestRequiredOutputs(t *testing.T, ctx testctx.TestContext, requiredOutputs []string) {
 	outputs := terraform.OutputAll(t, ctx.Terraform)
-	
+
 	for _, output := range requiredOutputs {
 		_, exists := outputs[output]
 		assert.True(t, exists, "Required output '%s' should be defined", output)
@@ -63,12 +62,12 @@ func TestRequiredOutputs(t *testing.T, ctx testctx.TestContext, requiredOutputs 
 func TestRequiredTags(t *testing.T, ctx testctx.TestContext, requiredTags []string) {
 	// This is a simplified check - in a real implementation, you would parse the state
 	// and check each resource that supports tags
-	stdout, _, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "show", "-json")
+	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "show", "-json")
 	assert.NoError(t, err, "Terraform show should not fail")
-	
+
 	// Check for required tags
 	for _, tag := range requiredTags {
-		assert.Contains(t, stdout, tag, "Resources should have required tag '%s'", tag)
+		assert.Contains(t, output, tag, "Resources should have required tag '%s'", tag)
 	}
 }
 

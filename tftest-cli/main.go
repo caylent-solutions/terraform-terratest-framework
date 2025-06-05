@@ -10,7 +10,7 @@ var Version = "dev"
 func main() {
 	// Set version
 	cmd.Version = Version
-	
+
 	// Execute the root command
 	cmd.Execute()
 }

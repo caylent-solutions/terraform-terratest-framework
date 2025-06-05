@@ -96,7 +96,7 @@ func (l *Logger) log(level LogLevel, format string, args ...interface{}) {
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	levelStr := level.String()
 	message := fmt.Sprintf(format, args...)
-	
+
 	prefix := ""
 	if l.prefix != "" {
 		prefix = fmt.Sprintf("[%s] ", l.prefix)

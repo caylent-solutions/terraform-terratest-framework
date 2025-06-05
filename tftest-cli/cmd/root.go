@@ -11,10 +11,10 @@ import (
 var (
 	// Version will be set during build
 	Version = "dev"
-	
+
 	// Verbose flag
 	verboseLevel string
-	
+
 	// Root command
 	rootCmd = &cobra.Command{
 		Use:   "tftest",
@@ -55,7 +55,7 @@ func Execute() {
 func init() {
 	// Add persistent flags that work across all subcommands
 	rootCmd.PersistentFlags().StringVarP(&verboseLevel, "verbose", "v", "", "Set verbosity level (DEBUG, INFO, WARN, ERROR, FATAL)")
-	
+
 	// Add version flag
 	rootCmd.Flags().BoolP("version", "V", false, "Print version information")
 	rootCmd.SetVersionTemplate("TFTest CLI {{.Version}}\n")

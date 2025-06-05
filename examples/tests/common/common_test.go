@@ -10,7 +10,10 @@ import (
 // This is the main entry point for running all tests
 func TestAllExamples(t *testing.T) {
 	// This will discover and run all examples and their tests in parallel
-	testctx.DiscoverAndRunAllTests(t, "../..")
+	testctx.DiscoverAndRunAllTests(t, "../..", func(t *testing.T, ctx testctx.TestContext) {
+		// Run standard tests on each example
+		RunStandardTests(t, ctx, []string{}, []string{})
+	})
 }
 
 // Example of a common test that would run on all examples

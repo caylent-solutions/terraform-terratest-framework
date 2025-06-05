@@ -11,10 +11,10 @@ import (
 
 var (
 	// Format command flags
-	formatModuleRoot string
+	formatModuleRoot  string
 	formatExamplePath string
-	formatCommonOnly bool
-	allFlag bool
+	formatCommonOnly  bool
+	allFlag           bool
 )
 
 // formatCmd represents the format command
@@ -43,7 +43,7 @@ The command verifies the directory structure follows the expected pattern:
 
 func init() {
 	rootCmd.AddCommand(formatCmd)
-	
+
 	// Add flags to format command
 	formatCmd.Flags().StringVar(&formatModuleRoot, "module-root", ".", "Path to the root of the Terraform module")
 	formatCmd.Flags().StringVar(&formatExamplePath, "example-path", "", "Specific example test files to format")
@@ -76,42 +76,42 @@ func formatTests() {
 		// Format all test directories
 		examplesPath := filepath.Join(absPath, "examples")
 		testsPath := filepath.Join(absPath, "tests")
-		
+
 		// Get all examples
 		examples, err := os.ReadDir(examplesPath)
 		if err != nil {
 			logger.Fatal("Error reading examples directory: %v", err)
 		}
-		
+
 		// Check that each example has a corresponding test directory
 		for _, example := range examples {
 			if !example.IsDir() {
 				continue
 			}
-			
+
 			exampleName := example.Name()
 			exampleTestPath := filepath.Join(testsPath, exampleName)
-			
+
 			if _, err := os.Stat(exampleTestPath); os.IsNotExist(err) {
 				logger.Error("Missing test directory for example %s: %s", exampleName, exampleTestPath)
 				hasErrors = true
 				continue
 			}
-			
+
 			paths = append(paths, exampleTestPath)
 		}
-		
+
 		// Add optional directories if they exist
 		commonPath := filepath.Join(testsPath, "common")
 		if _, err := os.Stat(commonPath); !os.IsNotExist(err) {
 			paths = append(paths, commonPath)
 		}
-		
+
 		helpersPath := filepath.Join(testsPath, "helpers")
 		if _, err := os.Stat(helpersPath); !os.IsNotExist(err) {
 			paths = append(paths, helpersPath)
 		}
-		
+
 		logger.Info("Formatting all Go test files")
 	} else if formatExamplePath != "" {
 		// Verify both example and test directories exist
@@ -119,24 +119,24 @@ func formatTests() {
 		if _, err := os.Stat(exampleDir); os.IsNotExist(err) {
 			logger.Fatal("Example directory not found: %s", exampleDir)
 		}
-		
+
 		// Format a specific example's test directory
 		exampleTestPath := filepath.Join(absPath, "tests", formatExamplePath)
-		
+
 		if _, err := os.Stat(exampleTestPath); os.IsNotExist(err) {
 			logger.Fatal("Test directory for example %s not found: %s", formatExamplePath, exampleTestPath)
 		}
-		
+
 		paths = append(paths, exampleTestPath)
 		logger.Info("Formatting example test files: %s", formatExamplePath)
 	} else if formatCommonOnly {
 		// Format common test directory
 		commonPath := filepath.Join(absPath, "tests", "common")
-		
+
 		if _, err := os.Stat(commonPath); os.IsNotExist(err) {
 			logger.Fatal("Common test directory not found: %s", commonPath)
 		}
-		
+
 		paths = append(paths, commonPath)
 		logger.Info("Formatting common test files")
 	} else {
@@ -155,26 +155,26 @@ func formatTests() {
 	// Run gofmt on each path
 	for _, path := range paths {
 		logger.Info("Formatting Go files in: %s", path)
-		
+
 		// First check if there are any formatting issues
 		checkCmd := exec.Command("gofmt", "-l", ".")
 		checkCmd.Dir = path
 		output, err := checkCmd.Output()
-		
+
 		if err != nil {
 			logger.Error("Error checking format: %v", err)
 			formatErrors = true
 			continue
 		}
-		
+
 		if len(output) > 0 {
 			logger.Warn("Found formatting issues in:\n%s", string(output))
-			
+
 			// Try to fix the formatting issues
 			fixCmd := exec.Command("gofmt", "-w", ".")
 			fixCmd.Dir = path
 			fixErr := fixCmd.Run()
-			
+
 			if fixErr != nil {
 				logger.Error("Failed to fix formatting issues: %v", fixErr)
 				formatErrors = true
@@ -184,12 +184,12 @@ func formatTests() {
 		} else {
 			logger.Info("No formatting issues found")
 		}
-		
+
 		// Run go vet to check for code issues
 		vetCmd := exec.Command("go", "vet", "./...")
 		vetCmd.Dir = path
 		vetOutput, vetErr := vetCmd.CombinedOutput()
-		
+
 		if vetErr != nil {
 			logger.Error("Go vet found issues:\n%s", string(vetOutput))
 			formatErrors = true

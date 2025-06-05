@@ -3,33 +3,30 @@ package functional
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/examples"
 	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func TestIdempotency(t *testing.T) {
-	// Find all examples
-	allExamples := examples.FindAllExamples(t, "../..")
-	
 	// Configure examples with default settings
-	configs := examples.ConfigureExamples(allExamples, func(ex examples.Example) testctx.TestConfig {
-		return testctx.TestConfig{
-			Name: ex.Name,
+	configs := map[string]testctx.TestConfig{
+		"example-basic": {
+			Name: "example-basic",
 			ExtraVars: map[string]interface{}{
 				"output_content":  "framework test",
 				"output_filename": "framework-test.txt",
 			},
-		}
-	})
-	
-	// Run all examples in parallel and test idempotency
-	results := testctx.RunAllExamples(t, "../..", configs)
-	
-	// Additional assertions can be added here for each example
-	for name, ctx := range results {
-		t.Run("Assertions_"+name, func(t *testing.T) {
-			assertions.AssertIdempotent(t, ctx)
-		})
+		},
+		"example-advanced": {
+			Name: "example-advanced",
+			ExtraVars: map[string]interface{}{
+				"output_content":  "framework test",
+				"output_filename": "framework-test.txt",
+			},
+		},
 	}
+
+	// Run all examples in parallel and test idempotency
+	_ = testctx.RunAllExamples(t, "../terraform-module-test-fixtures", configs)
+
+	// No need for additional assertions here since idempotency is already tested in RunExample
 }
