@@ -21,7 +21,7 @@ The framework defines the following error types:
 To create a new error, use the appropriate constructor function:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/errors"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/errors"
 
 // Create a configuration error
 err := errors.NewConfigError("Invalid configuration value", cause)
@@ -44,7 +44,7 @@ err := errors.NewInternalError("Unexpected condition", cause)
 When handling errors, you can check the error type using type assertions:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/errors"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/errors"
 
 if err != nil {
     if configErr, ok := err.(*errors.FrameworkError); ok && configErr.Type == errors.ConfigError {
@@ -63,8 +63,8 @@ When logging errors, include the error message and any relevant context:
 
 ```go
 import (
-    "github.com/caylent-solutions/terraform-test-framework/internal/errors"
-    "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/errors"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 )
 
 if err != nil {
@@ -94,8 +94,8 @@ Here's an example of using the error handling strategy:
 
 ```go
 import (
-    "github.com/caylent-solutions/terraform-test-framework/internal/errors"
-    "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/errors"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 )
 
 func runTerraformCommand(command string) error {

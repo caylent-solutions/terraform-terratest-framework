@@ -13,7 +13,7 @@ The framework includes a benchmarking package that allows you to measure the per
 To benchmark a single function:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/benchmark"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/benchmark"
 
 // Benchmark a function
 result := benchmark.Benchmark("terraform-apply", func() error {
@@ -30,7 +30,7 @@ fmt.Println(result) // Output: terraform-apply: ✅ Success (2.5s)
 To benchmark multiple functions as a suite:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/benchmark"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/benchmark"
 
 // Create a benchmark suite
 suite := benchmark.NewBenchmarkSuite("terraform-operations")
@@ -129,8 +129,8 @@ To measure the performance of your tests:
 
 ```go
 import (
-    "github.com/caylent-solutions/terraform-test-framework/internal/benchmark"
-    "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/benchmark"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 )
 
 func TestPerformance(t *testing.T) {

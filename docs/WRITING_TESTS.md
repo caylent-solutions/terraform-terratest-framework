@@ -21,8 +21,8 @@ package example1
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	
 	"terraform-module/tests/helpers"  // Import custom helpers
@@ -64,7 +64,7 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 // TestAllExamples runs all examples and their tests in parallel
@@ -90,7 +90,7 @@ package helpers
 
 import (
 	"testing"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func VerifyS3Bucket(t *testing.T, ctx testctx.TestContext, expectedEncryption string) {

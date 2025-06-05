@@ -3,7 +3,7 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

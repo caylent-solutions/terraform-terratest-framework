@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/logging"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 )
 
 // BenchmarkResult represents the result of a benchmark

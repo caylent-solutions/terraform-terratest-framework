@@ -3,8 +3,8 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 // Example of using various assertions in a test

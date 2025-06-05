@@ -89,8 +89,8 @@ package common
 import (
     "testing"
 
-    "github.com/caylent-solutions/terraform-test-framework/internal/testctx"
-    "github.com/caylent-solutions/terraform-test-framework/examples/tests/common"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+    "github.com/caylent-solutions/terraform-terratest-framework/examples/tests/common"
 )
 
 func TestStandardTests(t *testing.T) {

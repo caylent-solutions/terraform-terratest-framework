@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

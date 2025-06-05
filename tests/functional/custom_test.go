@@ -3,8 +3,8 @@ package functional
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 // Example of a custom test function that can be run on all examples

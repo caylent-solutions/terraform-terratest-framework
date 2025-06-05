@@ -49,8 +49,8 @@ package example1
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func TestExample(t *testing.T) {
@@ -85,7 +85,7 @@ package common
 
 import (
 	"testing"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func VerifyS3Bucket(t *testing.T, ctx testctx.TestContext) {
@@ -102,7 +102,7 @@ package example1
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"terraform-module/tests/common"
 )
 
@@ -143,8 +143,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	
-	"github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"terraform-module/tests/common"
 )
 

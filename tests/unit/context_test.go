@@ -3,7 +3,7 @@ package unit
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 	"github.com/stretchr/testify/assert"
 )
 

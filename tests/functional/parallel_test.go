@@ -3,9 +3,9 @@ package functional
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/examples"
-	"github.com/caylent-solutions/terraform-test-framework/internal/idempotency"
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/examples"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/idempotency"
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func TestParallelExamples(t *testing.T) {

@@ -2,7 +2,7 @@ package testctx
 
 import (
 	"os"
-	"path/filepath"
+	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
@@ -15,9 +15,34 @@ type TestConfig struct {
 
 // TestContext combines test configuration with terraform options
 type TestContext struct {
-	Config    TestConfig
-	Terraform *terraform.Options
+	Config      TestConfig
+	Terraform   *terraform.Options
 	ExamplePath string
+	Name        string
+	TerraformVars map[string]interface{}
+}
+
+// GetOutput retrieves a terraform output value by key
+func (ctx TestContext) GetOutput(t testing.TB, key string) string {
+	return terraform.Output(t, ctx.Terraform, key)
+}
+
+// GetTerraform returns the terraform options
+func (ctx TestContext) GetTerraform() *terraform.Options {
+	return ctx.Terraform
+}
+
+// NewTestContext creates a new test context
+func NewTestContext(examplePath string, vars map[string]interface{}) TestContext {
+	if vars == nil {
+		vars = make(map[string]interface{})
+	}
+	return TestContext{
+		Name: examplePath,
+		Terraform: &terraform.Options{},
+		TerraformVars: vars,
+		ExamplePath: examplePath,
+	}
 }
 
 // IdempotencyEnabled checks if idempotency testing is enabled

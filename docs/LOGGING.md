@@ -23,7 +23,7 @@ The framework defines the following log levels, in order of increasing severity:
 To create a new logger:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 
 // Create a logger with INFO level
 logger := logging.New(logging.INFO)
@@ -73,7 +73,7 @@ logger.Fatal("Critical error: %v", err)
 The framework provides a default logger that can be used without creating a new logger:
 
 ```go
-import "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+import "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 
 // Set the default log level
 logging.SetDefaultLogLevel(logging.DEBUG)
@@ -111,7 +111,7 @@ Here's an example of using the logging framework:
 
 ```go
 import (
-    "github.com/caylent-solutions/terraform-test-framework/internal/logging"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
 )
 
 func runTest(exampleName string) error {

@@ -145,8 +145,8 @@ import (
     "github.com/stretchr/testify/require"
     "github.com/gruntwork-io/terratest/modules/terraform"
     
-    "github.com/caylent-solutions/terraform-test-framework/internal/assertions"
-    "github.com/caylent-solutions/terraform-test-framework/internal/testctx"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
+    "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
 )
 
 func TestS3Module(t *testing.T) {

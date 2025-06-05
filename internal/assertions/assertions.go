@@ -8,17 +8,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/caylent-solutions/terraform-test-framework/internal/testctx"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 )
 
 // AssertIdempotent verifies that a Terraform plan shows no changes after apply
-func AssertIdempotent(t *testing.T, ctx testctx.TestContext) {
+func AssertIdempotent(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }) {
 	t.Helper()
 	
 	// Run terraform plan to check for changes
-	planOutput := terraform.Plan(t, ctx.Terraform)
+	planOutput := terraform.Plan(t, ctx.GetTerraform())
 	
 	// Check if the plan output contains "No changes"
 	if !strings.Contains(planOutput, "No changes") && !strings.Contains(planOutput, "no changes") {
@@ -27,7 +26,7 @@ func AssertIdempotent(t *testing.T, ctx testctx.TestContext) {
 }
 
 // AssertFileExists checks if a file exists at the path specified by the output_file_path Terraform output
-func AssertFileExists(t *testing.T, ctx testctx.TestContext) string {
+func AssertFileExists(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }) string {
 	t.Helper()
 	
 	// Get the file path from the output
@@ -43,7 +42,7 @@ func AssertFileExists(t *testing.T, ctx testctx.TestContext) string {
 }
 
 // AssertFileContent checks if the output_content Terraform output matches the expected value
-func AssertFileContent(t *testing.T, ctx testctx.TestContext) {
+func AssertFileContent(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }) {
 	t.Helper()
 	
 	// Get the file path from the output
@@ -65,7 +64,7 @@ func AssertFileContent(t *testing.T, ctx testctx.TestContext) {
 }
 
 // AssertOutputEquals checks if a specified Terraform output matches an expected value
-func AssertOutputEquals(t *testing.T, ctx testctx.TestContext, outputName string, expectedValue string) {
+func AssertOutputEquals(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string, expectedValue string) {
 	t.Helper()
 	
 	// Get the output value
@@ -78,7 +77,7 @@ func AssertOutputEquals(t *testing.T, ctx testctx.TestContext, outputName string
 }
 
 // AssertOutputContains checks if a specified Terraform output contains an expected substring
-func AssertOutputContains(t *testing.T, ctx testctx.TestContext, outputName string, expectedSubstring string) {
+func AssertOutputContains(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string, expectedSubstring string) {
 	t.Helper()
 	
 	// Get the output value
@@ -91,7 +90,7 @@ func AssertOutputContains(t *testing.T, ctx testctx.TestContext, outputName stri
 }
 
 // AssertOutputMatches checks if a specified Terraform output matches a regular expression
-func AssertOutputMatches(t *testing.T, ctx testctx.TestContext, outputName string, pattern string) {
+func AssertOutputMatches(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string, pattern string) {
 	t.Helper()
 	
 	// Get the output value
@@ -110,7 +109,7 @@ func AssertOutputMatches(t *testing.T, ctx testctx.TestContext, outputName strin
 }
 
 // AssertOutputNotEmpty checks if a specified Terraform output is not empty
-func AssertOutputNotEmpty(t *testing.T, ctx testctx.TestContext, outputName string) {
+func AssertOutputNotEmpty(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string) {
 	t.Helper()
 	
 	// Get the output value
@@ -123,7 +122,7 @@ func AssertOutputNotEmpty(t *testing.T, ctx testctx.TestContext, outputName stri
 }
 
 // AssertOutputEmpty checks if a specified Terraform output is empty
-func AssertOutputEmpty(t *testing.T, ctx testctx.TestContext, outputName string) {
+func AssertOutputEmpty(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string) {
 	t.Helper()
 	
 	// Get the output value
@@ -136,11 +135,11 @@ func AssertOutputEmpty(t *testing.T, ctx testctx.TestContext, outputName string)
 }
 
 // AssertOutputMapContainsKey checks if a Terraform map output contains a specific key
-func AssertOutputMapContainsKey(t *testing.T, ctx testctx.TestContext, outputName string, key string) {
+func AssertOutputMapContainsKey(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, outputName string, key string) {
 	t.Helper()
 	
 	// Get the output map
-	outputMap := terraform.OutputMap(t, ctx.Terraform, outputName)
+	outputMap := terraform.OutputMap(t, ctx.GetTerraform(), outputName)
 	
 	// Check if the map contains the key
 	if _, ok := outputMap[key]; !ok {
@@ -149,11 +148,11 @@ func AssertOutputMapContainsKey(t *testing.T, ctx testctx.TestContext, outputNam
 }
 
 // AssertOutputMapKeyEquals checks if a key in a Terraform map output equals an expected value
-func AssertOutputMapKeyEquals(t *testing.T, ctx testctx.TestContext, outputName string, key string, expectedValue string) {
+func AssertOutputMapKeyEquals(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, outputName string, key string, expectedValue string) {
 	t.Helper()
 	
 	// Get the output map
-	outputMap := terraform.OutputMap(t, ctx.Terraform, outputName)
+	outputMap := terraform.OutputMap(t, ctx.GetTerraform(), outputName)
 	
 	// Check if the map contains the key
 	value, ok := outputMap[key]
@@ -168,11 +167,11 @@ func AssertOutputMapKeyEquals(t *testing.T, ctx testctx.TestContext, outputName 
 }
 
 // AssertOutputListContains checks if a Terraform list output contains an expected value
-func AssertOutputListContains(t *testing.T, ctx testctx.TestContext, outputName string, expectedValue string) {
+func AssertOutputListContains(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, outputName string, expectedValue string) {
 	t.Helper()
 	
 	// Get the output list
-	outputList := terraform.OutputList(t, ctx.Terraform, outputName)
+	outputList := terraform.OutputList(t, ctx.GetTerraform(), outputName)
 	
 	// Check if the list contains the value
 	found := false
@@ -189,11 +188,11 @@ func AssertOutputListContains(t *testing.T, ctx testctx.TestContext, outputName 
 }
 
 // AssertOutputListLength checks if a Terraform list output has the expected length
-func AssertOutputListLength(t *testing.T, ctx testctx.TestContext, outputName string, expectedLength int) {
+func AssertOutputListLength(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, outputName string, expectedLength int) {
 	t.Helper()
 	
 	// Get the output list
-	outputList := terraform.OutputList(t, ctx.Terraform, outputName)
+	outputList := terraform.OutputList(t, ctx.GetTerraform(), outputName)
 	
 	// Check if the list has the expected length
 	if len(outputList) != expectedLength {
@@ -202,7 +201,7 @@ func AssertOutputListLength(t *testing.T, ctx testctx.TestContext, outputName st
 }
 
 // AssertOutputJSONContains checks if a JSON string output contains an expected key-value pair
-func AssertOutputJSONContains(t *testing.T, ctx testctx.TestContext, outputName string, key string, expectedValue interface{}) {
+func AssertOutputJSONContains(t *testing.T, ctx interface{ GetOutput(t testing.TB, key string) string }, outputName string, key string, expectedValue interface{}) {
 	t.Helper()
 	
 	// Get the output value
@@ -226,11 +225,11 @@ func AssertOutputJSONContains(t *testing.T, ctx testctx.TestContext, outputName 
 }
 
 // AssertResourceExists checks if a specific resource exists in the Terraform state
-func AssertResourceExists(t *testing.T, ctx testctx.TestContext, resourceType string, resourceName string) {
+func AssertResourceExists(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, resourceType string, resourceName string) {
 	t.Helper()
 	
 	// Run terraform state list to get all resources
-	stateOutput := terraform.RunTerraformCommand(t, ctx.Terraform, "state", "list")
+	stateOutput := terraform.RunTerraformCommand(t, ctx.GetTerraform(), "state", "list")
 	
 	// Check if the resource exists
 	resourceAddress := fmt.Sprintf("%s.%s", resourceType, resourceName)
@@ -240,11 +239,11 @@ func AssertResourceExists(t *testing.T, ctx testctx.TestContext, resourceType st
 }
 
 // AssertResourceCount checks if the number of resources of a specific type matches the expected count
-func AssertResourceCount(t *testing.T, ctx testctx.TestContext, resourceType string, expectedCount int) {
+func AssertResourceCount(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, resourceType string, expectedCount int) {
 	t.Helper()
 	
 	// Run terraform state list to get all resources
-	stateOutput := terraform.RunTerraformCommand(t, ctx.Terraform, "state", "list")
+	stateOutput := terraform.RunTerraformCommand(t, ctx.GetTerraform(), "state", "list")
 	
 	// Count the resources of the specified type
 	count := 0
@@ -261,11 +260,11 @@ func AssertResourceCount(t *testing.T, ctx testctx.TestContext, resourceType str
 }
 
 // AssertNoResourcesOfType checks that no resources of a specific type exist in the Terraform state
-func AssertNoResourcesOfType(t *testing.T, ctx testctx.TestContext, resourceType string) {
+func AssertNoResourcesOfType(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, resourceType string) {
 	t.Helper()
 	
 	// Run terraform state list to get all resources
-	stateOutput := terraform.RunTerraformCommand(t, ctx.Terraform, "state", "list")
+	stateOutput := terraform.RunTerraformCommand(t, ctx.GetTerraform(), "state", "list")
 	
 	// Check if any resources of the specified type exist
 	for _, line := range strings.Split(stateOutput, "\n") {
@@ -276,11 +275,11 @@ func AssertNoResourcesOfType(t *testing.T, ctx testctx.TestContext, resourceType
 }
 
 // AssertTerraformVersion checks if the Terraform version meets the minimum required version
-func AssertTerraformVersion(t *testing.T, ctx testctx.TestContext, minVersion string) {
+func AssertTerraformVersion(t *testing.T, ctx interface{ GetTerraform() *terraform.Options }, minVersion string) {
 	t.Helper()
 	
 	// Run terraform version to get the current version
-	versionOutput := terraform.RunTerraformCommand(t, ctx.Terraform, "version")
+	versionOutput := terraform.RunTerraformCommand(t, ctx.GetTerraform(), "version")
 	
 	// Extract the version number
 	versionRegex := regexp.MustCompile(`Terraform v(\d+\.\d+\.\d+)`)

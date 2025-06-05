@@ -1,6 +1,6 @@
 # Terraform Terratest Framework
 
-A framework for testing Terraform modules using Terratest with a focus on idempotency testing and parallel execution of examples.
+A framework for testing Terraform modules using Terratest with a focus on functional testing and parallel execution of examples.
 
 ## Overview
 
@@ -159,7 +159,7 @@ For examples of how to use this framework, see the [Examples Directory](examples
 To install the framework as a dependency in your Terraform module project:
 
 ```bash
-go get github.com/caylent-solutions/terraform-test-framework
+go get github.com/caylent-solutions/terraform-terratest-framework
 ```
 
 This adds the framework to your module's `go.mod` file, allowing you to use its testing capabilities in your Go test files.

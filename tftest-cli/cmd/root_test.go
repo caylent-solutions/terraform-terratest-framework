@@ -47,7 +47,7 @@ func TestVerboseFlag(t *testing.T) {
 	
 	// Execute with verbose flag
 	cmd.SetArgs([]string{"--verbose", "DEBUG"})
-	err := cmd.Parse([]string{"--verbose", "DEBUG"})
+	err := cmd.ParseFlags([]string{"--verbose", "DEBUG"})
 	
 	// Check results
 	assert.NoError(t, err, "Command parsing should not error")
