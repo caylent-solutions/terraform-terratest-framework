@@ -31,7 +31,10 @@ format:
 functional-test:
 	@echo "Running functional tests (verbose output)..."
 	@$(MAKE) build-cli
-	@go test -v ./tests/functional/... ; \
+	@mkdir -p $(COVERAGE_DIR)
+	@go test -v -covermode=atomic -coverprofile=$(COVERAGE_DIR)/functional.out -coverpkg=./internal/... ./tests/functional/... ; \
+	echo "\nFunctional Test Coverage of Internal Packages:" ; \
+	go tool cover -func=$(COVERAGE_DIR)/functional.out | grep total: | awk '{print "  " $1 " " $2 " " $3}' ; \
 	echo "\nSummarizing functional test results..." ; \
 	go test -json ./tests/functional/... | go run scripts/test-summary.go "Functional Test Summary" || true
 
@@ -142,31 +145,47 @@ test-coverage:
 	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage-cli.out ./tftest-cli/... || true
 	@go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out | tee $(COVERAGE_DIR)/coverage-cli-summary.log
 
+	@echo "\n🧪 Functional test coverage:"
+	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage-functional.out -coverpkg=./internal/...,./tests/functional/... ./tests/functional/... || true
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-functional.out | tee $(COVERAGE_DIR)/coverage-functional-summary.log
+
+	@echo "\n🧪 Unit test helpers coverage:"
+	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage-unit-helpers.out ./tests/unit/... || true
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-unit-helpers.out | tee $(COVERAGE_DIR)/coverage-unit-helpers-summary.log
+
 	@echo "\n🔗 Merging coverage profiles..."
 	@echo "mode: atomic" > $(COVERAGE_DIR)/coverage.out
 	@tail -n +2 $(COVERAGE_DIR)/coverage-framework.out >> $(COVERAGE_DIR)/coverage.out
 	@tail -n +2 $(COVERAGE_DIR)/coverage-cli.out >> $(COVERAGE_DIR)/coverage.out
+	@tail -n +2 $(COVERAGE_DIR)/coverage-functional.out >> $(COVERAGE_DIR)/coverage.out
+	@tail -n +2 $(COVERAGE_DIR)/coverage-unit-helpers.out >> $(COVERAGE_DIR)/coverage.out
 	@go tool cover -func=$(COVERAGE_DIR)/coverage.out > $(COVERAGE_DIR)/coverage-summary.log
 
 	@echo "\n📊 Test Coverage Summary:"
 	@echo "🧱 Framework Total Coverage:"
-	@grep total: $(COVERAGE_DIR)/coverage-framework-summary.log | awk '{printf "  %-10s %-15s %s\n", $$1, $$2, $$3}'
+	@grep total: $(COVERAGE_DIR)/coverage-framework-summary.log | awk '{print "  " $$1 " " $$2 " " $$3}'
 	@echo "\n🧪 CLI Total Coverage:"
-	@grep total: $(COVERAGE_DIR)/coverage-cli-summary.log | awk '{printf "  %-10s %-15s %s\n", $$1, $$2, $$3}'
-	@echo "\n🧩 Combined Total Coverage (Framework + CLI):"
-	@grep total: $(COVERAGE_DIR)/coverage-summary.log | awk '{printf "  %-10s %-15s %s\n", $$1, $$2, $$3}'
+	@grep total: $(COVERAGE_DIR)/coverage-cli-summary.log | awk '{print "  " $$1 " " $$2 " " $$3}'
+	@echo "\n🧪 Functional Test Coverage:"
+	@grep total: $(COVERAGE_DIR)/coverage-functional-summary.log | awk '{print "  " $$1 " " $$2 " " $$3}'
+	@echo "\n🧪 Unit Test Helpers Coverage:"
+	@grep total: $(COVERAGE_DIR)/coverage-unit-helpers-summary.log | awk '{print "  " $$1 " " $$2 " " $$3}'
+	@echo "\n🧩 Combined Total Coverage (All Components):"
+	@grep total: $(COVERAGE_DIR)/coverage-summary.log | awk '{print "  " $$1 " " $$2 " " $$3}'
 
 test-coverage-json:
 	@mkdir -p $(COVERAGE_DIR)
 	@echo "Running tests with JSON coverage output..."
 	@go test -coverprofile=$(COVERAGE_DIR)/coverage-framework.out ./internal/...
 	@go test -coverprofile=$(COVERAGE_DIR)/coverage-cli.out ./tftest-cli/...
-	@echo "{\"framework\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-framework.out | grep total | awk '{print $$3}')\", \"cli\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out | grep total | awk '{print $$3}')\"}"
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-functional.out ./tests/functional/...
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-unit-helpers.out ./tests/unit/...
+	@echo "{\"framework\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-framework.out | grep total | awk '{print $$3}')\", \"cli\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out | grep total | awk '{print $$3}')\", \"functional\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-functional.out | grep total | awk '{print $$3}')\", \"unit_helpers\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-unit-helpers.out | grep total | awk '{print $$3}')\"}"
 
 test-coverage-html:
 	@mkdir -p $(COVERAGE_DIR)
 	@echo "🔍 Generating HTML coverage report..."
-	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage.out ./internal/... ./tftest-cli/... || true
+	@go test -covermode=atomic -coverprofile=$(COVERAGE_DIR)/coverage.out ./internal/... ./tftest-cli/... ./tests/functional/... ./tests/unit/... || true
 	@go tool cover -html=$(COVERAGE_DIR)/coverage.out -o $(COVERAGE_DIR)/coverage.html
 	@echo "🌐 HTML coverage report generated at $(COVERAGE_DIR)/coverage.html"
 
