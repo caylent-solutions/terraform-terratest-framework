@@ -8,6 +8,7 @@
 # Go
 /bin/
 /vendor/
+tmp
 *.exe
 *.exe~
 *.dll
