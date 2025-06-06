@@ -175,12 +175,24 @@ test-coverage:
 
 test-coverage-json:
 	@mkdir -p $(COVERAGE_DIR)
-	@echo "Running tests with JSON coverage output..."
-	@go test -coverprofile=$(COVERAGE_DIR)/coverage-framework.out ./internal/...
-	@go test -coverprofile=$(COVERAGE_DIR)/coverage-cli.out ./tftest-cli/...
-	@go test -coverprofile=$(COVERAGE_DIR)/coverage-functional.out ./tests/functional/...
-	@go test -coverprofile=$(COVERAGE_DIR)/coverage-unit-helpers.out ./tests/unit/...
-	@echo "{\"framework\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-framework.out | grep total | awk '{print $$3}')\", \"cli\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out | grep total | awk '{print $$3}')\", \"functional\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-functional.out | grep total | awk '{print $$3}')\", \"unit_helpers\": \"$(shell go tool cover -func=$(COVERAGE_DIR)/coverage-unit-helpers.out | grep total | awk '{print $$3}')\"}"
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-framework.out ./internal/... > /dev/null 2>&1
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-cli.out ./tftest-cli/... > /dev/null 2>&1
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-functional.out -coverpkg=./internal/...,./tests/functional/... ./tests/functional/... > /dev/null 2>&1
+	@go test -coverprofile=$(COVERAGE_DIR)/coverage-unit-helpers.out ./tests/unit/... > /dev/null 2>&1
+	
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-framework.out > $(COVERAGE_DIR)/coverage-framework-summary.log 2>/dev/null
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-cli.out > $(COVERAGE_DIR)/coverage-cli-summary.log 2>/dev/null
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-functional.out > $(COVERAGE_DIR)/coverage-functional-summary.log 2>/dev/null
+	@go tool cover -func=$(COVERAGE_DIR)/coverage-unit-helpers.out > $(COVERAGE_DIR)/coverage-unit-helpers-summary.log 2>/dev/null
+	
+	@echo "mode: set" > $(COVERAGE_DIR)/coverage.out
+	@tail -n +2 $(COVERAGE_DIR)/coverage-framework.out >> $(COVERAGE_DIR)/coverage.out 2>/dev/null || true
+	@tail -n +2 $(COVERAGE_DIR)/coverage-cli.out >> $(COVERAGE_DIR)/coverage.out 2>/dev/null || true
+	@tail -n +2 $(COVERAGE_DIR)/coverage-functional.out >> $(COVERAGE_DIR)/coverage.out 2>/dev/null || true
+	@tail -n +2 $(COVERAGE_DIR)/coverage-unit-helpers.out >> $(COVERAGE_DIR)/coverage.out 2>/dev/null || true
+	@go tool cover -func=$(COVERAGE_DIR)/coverage.out > $(COVERAGE_DIR)/coverage-summary.log 2>/dev/null
+	
+	@go run scripts/coverage-json.go $(COVERAGE_DIR)
 
 test-coverage-html:
 	@mkdir -p $(COVERAGE_DIR)
