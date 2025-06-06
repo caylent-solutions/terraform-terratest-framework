@@ -191,3 +191,4 @@ update-tools:
 		go build -o ./bin/install-tools ./scripts/install-tools.go; \
 	fi
 	@./bin/install-tools --update
+	
