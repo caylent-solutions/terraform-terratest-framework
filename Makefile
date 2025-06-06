@@ -25,8 +25,12 @@ configure:
 
 format:
 	@echo "Fixing code formatting and lint issues..."
-	./scripts/format-safely.sh
-	@echo "Format complete ✨"
+	@if [ ! -f ./bin/format-safely ]; then \
+		echo "Building format tool..."; \
+		go build -o ./bin/format-safely ./scripts/format-safely.go; \
+	fi
+	./bin/format-safely
+	@rm -f ./bin/format-safely
 
 functional-test:
 	@echo "Running functional tests (verbose output)..."
@@ -84,18 +88,21 @@ install-tools:
 
 lint:
 	@echo "Checking code for linting issues..."
-	./scripts/lint-all.sh || echo "Lint check failed ❌"
+	@if [ ! -f ./bin/lint-all ]; then \
+		echo "Building lint tool..."; \
+		go build -o ./bin/lint-all ./scripts/lint-all.go; \
+	fi
+	./bin/lint-all || echo "Lint check failed ❌"
+	@rm -f ./bin/lint-all
 	@echo "Lint check complete"
 
 list-functional-tests:
-	@echo "Loading asdf tools..."
-	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
 	@echo "Listing functional tests:"
 	@echo "------------------------"
 	@echo "Top-level tests (use these with FUNCTIONAL_TEST=TestName):"
 	@cd tests/functional && go test -list "^Test" ./... | grep -v "^ok" | sort | while read -r test_name; do \
-		if [ ! -z "$$test_name" ]; then \
-			echo "  - $$test_name"; \
+		if [ ! -z "$test_name" ]; then \
+			echo "  - $test_name"; \
 		fi; \
 	done
 	@echo ""
@@ -109,10 +116,14 @@ pre-commit-install:
 
 release:
 	@echo "Creating a new release..."
+	@if [ ! -f ./bin/bump-version ]; then \
+		echo "Building bump-version tool..."; \
+		go build -o ./bin/bump-version ./scripts/bump-version.go; \
+	fi
 	@if [ -z "$(TYPE)" ]; then \
-		./scripts/bump-version.sh; \
+		./bin/bump-version; \
 	else \
-		./scripts/bump-version.sh $(TYPE); \
+		./bin/bump-version $(TYPE); \
 	fi
 	@echo "Release created! 🚀"
 	@echo "Run 'git push && git push --tags' to publish the release"
@@ -124,11 +135,9 @@ run-specific-functional-test:
 		echo "Run 'make list-functional-tests' to see available tests."; \
 		exit 1; \
 	fi
-	@echo "Loading asdf tools..."
-	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
 	@echo "Running functional test: $(FUNCTIONAL_TEST)"
 	@$(MAKE) build-cli
-	@cd tests/functional && go test -v -run "^$(FUNCTIONAL_TEST)$$"
+	@cd tests/functional && go test -v -run "^$(FUNCTIONAL_TEST)$"
 
 test: unit-test functional-test
 	@echo "All tests passed! 🎉"
@@ -205,7 +214,6 @@ unit-test:
 	@echo "Cleaning Go test cache..."
 	@go clean -testcache
 	@echo "Running unit tests (verbose output)..."
-	@source ~/.asdf/asdf.sh 2>/dev/null || . ~/.asdf/asdf.sh 2>/dev/null || echo "Warning: Could not load asdf"
 	@go test -v ./internal/... ./tftest-cli/... ; \
 	echo "\nSummarizing unit test results..." ; \
 	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
