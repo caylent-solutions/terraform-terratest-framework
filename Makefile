@@ -6,7 +6,7 @@
 COVERAGE_DIR := tmp/coverage
 
 build-cli:
-	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v0.2.0'" ./cmd/tftest
+	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v0.3.0'" ./cmd/tftest
 	@echo "🎉 TFTest CLI built at bin/tftest"
 
 clean:
@@ -23,14 +23,16 @@ configure:
 	$(MAKE) pre-commit-install
 	$(MAKE) pre-commit
 
+.PHONY: format
+
 format:
 	@echo "Fixing code formatting and lint issues..."
-	@if [ ! -f ./bin/format-safely ]; then \
-		echo "Building format tool..."; \
-		go build -o ./bin/format-safely ./scripts/format-safely.go; \
-	fi
-	@./bin/format-safely --ignore="bin"
-	@rm -f ./bin/format-safely
+	@mkdir -p ./bin
+	@echo "Building format tool..."
+	@go build -o ./bin/format ./scripts/format/main.go
+	@./bin/format --ignore="bin"
+	@rm -f ./bin/format
+
 
 functional-test:
 	@echo "Running functional tests (verbose output)..."
@@ -47,20 +49,19 @@ install:
 
 install-tools:
 	@echo "Installing asdf and required development tools..."
-	@if [ ! -f ./bin/install-tools ]; then \
-		echo "Building install-tools..."; \
-		go build -o ./bin/install-tools ./scripts/install-tools.go; \
-	fi
+	@mkdir -p ./bin
+	@echo "Building install-tools..."
+	@go build -o ./bin/install-tools ./scripts/install-tools/main.go
 	@./bin/install-tools --asdf-version=v0.15.0
+	@rm -f ./bin/install-tools
 
 lint:
 	@echo "Checking code for linting issues..."
-	@if [ ! -f ./bin/lint-all ]; then \
-		echo "Building lint tool..."; \
-		go build -o ./bin/lint-all ./scripts/lint-all.go; \
-	fi
-	@./bin/lint-all --ignore="bin" || echo "Lint check failed ❌"
-	@rm -f ./bin/lint-all
+	@mkdir -p ./bin
+	@echo "Building lint tool..."
+	@go build -o ./bin/lint ./scripts/lint/main.go
+	@./bin/lint --ignore="bin" || echo "Lint check failed ❌"
+	@rm -f ./bin/lint
 	@echo "Lint check complete"
 
 list-functional-tests:
@@ -83,15 +84,10 @@ pre-commit-install:
 
 release:
 	@echo "Creating a new release..."
-	@if [ ! -f ./bin/bump-version ]; then \
-		echo "Building bump-version tool..."; \
-		go build -o ./bin/bump-version ./scripts/bump-version.go; \
-	fi
-	@if [ -z "$(TYPE)" ]; then \
-		./bin/bump-version; \
-	else \
-		./bin/bump-version $(TYPE); \
-	fi
+	@mkdir -p ./bin
+	@go build -o ./bin/release ./scripts/release/main.go
+	@./bin/release $(TYPE)
+	@rm -f ./bin/release
 	@echo "Release created! 🚀"
 	@echo "Run 'git push && git push --tags' to publish the release"
 
@@ -116,7 +112,7 @@ test-coverage-json:
 	@go run scripts/test-coverage-json.go
 
 test-coverage-html:
-	@go run scripts/test-coverage-html.go
+	@go run scripts/test-coverage-html/main.go
 
 unit-test:
 	@echo "Cleaning Go test cache..."
