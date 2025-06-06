@@ -33,30 +33,24 @@ type CoverageSummary struct {
 }
 
 func main() {
-	// Create coverage directory if it doesn't exist
 	if err := os.MkdirAll(coverageDir, 0755); err != nil {
 		fmt.Printf("Error creating coverage directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Run tests with coverage
 	runTestWithCoverage("coverage-framework.out", "./internal/...", "")
 	runTestWithCoverage("coverage-pkg.out", "./pkg/...", "")
 	runTestWithCoverage("coverage-cli.out", "./cmd/tftest/...", "")
 	runTestWithCoverage("coverage-functional.out", "./tests/functional/...", "./pkg/...")
 	runTestWithCoverage("coverage-unit-helpers.out", "./tests/unit/...", "")
 
-	// Generate coverage summaries
 	generateCoverageSummary("coverage-framework.out")
 	generateCoverageSummary("coverage-pkg.out")
 	generateCoverageSummary("coverage-cli.out")
 	generateCoverageSummary("coverage-functional.out")
 	generateCoverageSummary("coverage-unit-helpers.out")
 
-	// Merge coverage profiles
 	mergeCoverageProfiles()
-
-	// Generate JSON coverage report
 	generateJSONCoverage()
 }
 
@@ -75,13 +69,10 @@ func runTestWithCoverage(outputFile, testPackages, coverpkg string) {
 			testPackages)
 	}
 
-	// Redirect output to /dev/null
 	cmd.Stdout = nil
 	cmd.Stderr = nil
 
-	if err := cmd.Run(); err != nil {
-		// Silently continue on errors
-	}
+	_ = cmd.Run() // intentionally ignore errors
 }
 
 func generateCoverageSummary(coverageFile string) {
@@ -91,16 +82,13 @@ func generateCoverageSummary(coverageFile string) {
 	cmd := exec.Command("go", "tool", "cover", "-func", coveragePath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Silently continue on errors
 		return
 	}
 
-	// Write to the summary file
-	os.WriteFile(summaryPath, output, 0644)
+	_ = os.WriteFile(summaryPath, output, 0644)
 }
 
 func mergeCoverageProfiles() {
-	// Create the merged coverage file with mode header
 	mergedPath := filepath.Join(coverageDir, "coverage.out")
 	mergedFile, err := os.Create(mergedPath)
 	if err != nil {
@@ -109,10 +97,8 @@ func mergeCoverageProfiles() {
 	}
 	defer mergedFile.Close()
 
-	// Write the mode line
 	mergedFile.WriteString("mode: set\n")
 
-	// List of coverage files to merge
 	coverageFiles := []string{
 		"coverage-framework.out",
 		"coverage-pkg.out",
@@ -121,34 +107,29 @@ func mergeCoverageProfiles() {
 		"coverage-unit-helpers.out",
 	}
 
-	// Append all coverage data (skipping the mode line)
 	for _, file := range coverageFiles {
 		filePath := filepath.Join(coverageDir, file)
 		data, err := os.ReadFile(filePath)
 		if err != nil {
-			// Skip files that don't exist
 			continue
 		}
 
 		lines := strings.Split(string(data), "\n")
 		for i, line := range lines {
-			// Skip the mode line (first line) and empty lines
 			if i > 0 && line != "" {
-				mergedFile.WriteString(line + "\n")
+				_, _ = mergedFile.WriteString(line + "\n")
 			}
 		}
 	}
 
-	// Generate the summary
 	summaryPath := filepath.Join(coverageDir, "coverage-summary.log")
 	cmd := exec.Command("go", "tool", "cover", "-func", mergedPath)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Silently continue on errors
 		return
 	}
 
-	os.WriteFile(summaryPath, output, 0644)
+	_ = os.WriteFile(summaryPath, output, 0644)
 }
 
 func generateJSONCoverage() {
@@ -223,7 +204,6 @@ func parseCoverageOutput(filePath string) ([]FileCoverage, string) {
 			file := parts[0]
 			coverageStr := parts[len(parts)-1]
 
-			// Skip mode line and non-coverage lines
 			if file == "mode:" || !strings.HasSuffix(coverageStr, "%") {
 				continue
 			}
@@ -235,7 +215,6 @@ func parseCoverageOutput(filePath string) ([]FileCoverage, string) {
 		}
 	}
 
-	// Extract total coverage
 	totalCoverage := "0.0%"
 	if totalLine != "" {
 		re := regexp.MustCompile(`(\d+\.\d+%)`)

@@ -36,7 +36,6 @@ func main() {
 
 	// Run functional test coverage
 	fmt.Println("\n🧪 Functional test coverage:")
-	// Use both internal and pkg for coverage
 	runTestWithCoverage("coverage-functional.out", "./tests/functional/...", "./pkg/...")
 	printCoverageDetails("coverage-functional.out")
 
@@ -81,7 +80,6 @@ func printCoverageDetails(coverageFile string) {
 	coveragePath := filepath.Join(coverageDir, coverageFile)
 	summaryPath := filepath.Join(coverageDir, strings.Replace(coverageFile, ".out", "-summary.log", 1))
 
-	// Create the summary file
 	summaryFile, err := os.Create(summaryPath)
 	if err != nil {
 		fmt.Printf("Error creating summary file: %v\n", err)
@@ -90,23 +88,17 @@ func printCoverageDetails(coverageFile string) {
 	defer summaryFile.Close()
 
 	cmd := exec.Command("go", "tool", "cover", "-func", coveragePath)
-
-	// Capture output for both stdout and the file
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf("Warning: Error getting coverage details: %v\n", err)
 		return
 	}
 
-	// Write to stdout
 	fmt.Print(string(output))
-
-	// Write to the summary file
 	summaryFile.Write(output)
 }
 
 func mergeCoverageProfiles() {
-	// Create the merged coverage file with mode header
 	mergedPath := filepath.Join(coverageDir, "coverage.out")
 	mergedFile, err := os.Create(mergedPath)
 	if err != nil {
@@ -115,10 +107,8 @@ func mergeCoverageProfiles() {
 	}
 	defer mergedFile.Close()
 
-	// Write the mode line
 	mergedFile.WriteString("mode: atomic\n")
 
-	// List of coverage files to merge
 	coverageFiles := []string{
 		"coverage-framework.out",
 		"coverage-pkg.out",
@@ -127,7 +117,6 @@ func mergeCoverageProfiles() {
 		"coverage-unit-helpers.out",
 	}
 
-	// Append all coverage data (skipping the mode line)
 	for _, file := range coverageFiles {
 		filePath := filepath.Join(coverageDir, file)
 		data, err := os.ReadFile(filePath)
@@ -138,14 +127,12 @@ func mergeCoverageProfiles() {
 
 		lines := strings.Split(string(data), "\n")
 		for i, line := range lines {
-			// Skip the mode line (first line) and empty lines
 			if i > 0 && line != "" {
 				mergedFile.WriteString(line + "\n")
 			}
 		}
 	}
 
-	// Generate the summary
 	summaryPath := filepath.Join(coverageDir, "coverage-summary.log")
 	summaryFile, err := os.Create(summaryPath)
 	if err != nil {
@@ -194,7 +181,7 @@ func printCoverageSummary() {
 				parts := strings.Fields(line)
 				if len(parts) >= 3 {
 					fmt.Printf("  %s %s %s\n", parts[0], parts[1], parts[2])
-					break // Only print the total line
+					break
 				}
 			}
 		}

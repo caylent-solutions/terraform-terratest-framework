@@ -10,20 +10,17 @@ import (
 )
 
 func main() {
-	// Load asdf if available
 	loadAsdf()
 
-	// Get the current version from VERSION file
+	// Get current version
 	currentVersion, err := os.ReadFile("VERSION")
 	if err != nil {
 		fmt.Println("Error reading VERSION file:", err)
 		os.Exit(1)
 	}
-
 	versionStr := strings.TrimSpace(string(currentVersion))
 	fmt.Println("Current version:", versionStr)
 
-	// Parse the version
 	parts := strings.Split(versionStr, ".")
 	if len(parts) != 3 {
 		fmt.Println("Invalid version format in VERSION file. Expected format: X.Y.Z")
@@ -34,17 +31,16 @@ func main() {
 	minor, _ := strconv.Atoi(parts[1])
 	patch, _ := strconv.Atoi(parts[2])
 
-	// Determine version bump type
+	// Determine bump type
 	bumpType := ""
 	if len(os.Args) > 1 {
 		bumpType = os.Args[1]
 	} else {
 		bumpType = determineBumpType()
 	}
-
 	fmt.Println("Bump type:", bumpType)
 
-	// Bump version
+	// Apply bump
 	switch bumpType {
 	case "major":
 		major++
@@ -61,73 +57,48 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create new version
 	newVersion := fmt.Sprintf("%d.%d.%d", major, minor, patch)
-	fmt.Println("New version:", newVersion)
-
-	// Check if tag already exists (with v prefix)
 	tagVersion := fmt.Sprintf("v%s", newVersion)
-	tagExists := checkTagExists(tagVersion)
-	if tagExists {
+	fmt.Println("Version bumped to", tagVersion)
+
+	if checkTagExists(tagVersion) {
 		fmt.Printf("Tag %s already exists. Please use a different version.\n", tagVersion)
 		os.Exit(1)
 	}
 
-	// Update VERSION file
+	// Write VERSION file
 	err = os.WriteFile("VERSION", []byte(newVersion+"\n"), 0644)
 	if err != nil {
 		fmt.Println("Error writing VERSION file:", err)
 		os.Exit(1)
 	}
 
-	// Update version in Makefile
 	updateMakefile(newVersion)
 
-	fmt.Println("Version bumped to", newVersion)
-
-	// Stage the changes
 	runCommand("git", "add", "VERSION", "Makefile")
-
-	// Commit the changes
-	runCommand("git", "commit", "-m", fmt.Sprintf("chore: bump version to %s", newVersion))
-
-	// Create a tag with v prefix
-	tagVersion := fmt.Sprintf("v%s", newVersion)
-	runCommand("git", "tag", "-a", tagVersion, "-m", fmt.Sprintf("Version %s", newVersion))
+	runCommand("git", "commit", "-m", fmt.Sprintf("release: cut %s [skip ci]", tagVersion))
+	runCommand("git", "tag", "-a", tagVersion, "-m", fmt.Sprintf("release: %s", tagVersion))
 
 	fmt.Println("Changes committed and tagged as", tagVersion)
 	fmt.Println("Run 'git push && git push --tags' to push changes to remote")
 }
 
 func loadAsdf() {
-	// Check if asdf is available in the path
 	_, err := exec.LookPath("asdf")
 	if err == nil {
-		return // asdf is already in PATH
-	}
-
-	// Try to load asdf from common locations
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Println("Warning: Could not determine home directory, asdf might not be loaded")
 		return
 	}
-
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println("Warning: Could not determine home directory")
+		return
+	}
 	asdfPath := fmt.Sprintf("%s/.asdf/asdf.sh", homeDir)
-	_, err = os.Stat(asdfPath)
-	if err == nil {
-		fmt.Println("Loading asdf from", asdfPath)
-		// We can't directly source the shell script in Go, but we can set the PATH
-		// to include the asdf bin directory
-		asdfBinPath := fmt.Sprintf("%s/.asdf/bin", homeDir)
-		asdfShimsPath := fmt.Sprintf("%s/.asdf/shims", homeDir)
-
+	if _, err := os.Stat(asdfPath); err == nil {
+		asdfBin := fmt.Sprintf("%s/.asdf/bin", homeDir)
+		asdfShims := fmt.Sprintf("%s/.asdf/shims", homeDir)
 		path := os.Getenv("PATH")
-		if !strings.Contains(path, asdfBinPath) {
-			os.Setenv("PATH", fmt.Sprintf("%s:%s:%s", asdfBinPath, asdfShimsPath, path))
-		}
-	} else {
-		fmt.Println("Warning: asdf not found at", asdfPath)
+		os.Setenv("PATH", fmt.Sprintf("%s:%s:%s", asdfBin, asdfShims, path))
 	}
 }
 
@@ -137,7 +108,7 @@ func runCommand(name string, args ...string) {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("Error running command '%s %s': %v\n", name, strings.Join(args, " "), err)
+		fmt.Printf("Error running command: %s %v\n", name, args)
 		os.Exit(1)
 	}
 }
@@ -152,22 +123,16 @@ func checkTagExists(version string) bool {
 }
 
 func determineBumpType() string {
-	// Get the last tag
 	lastTag, err := exec.Command("git", "describe", "--tags", "--abbrev=0").Output()
 	if err != nil {
-		// If no tags exist, get all commits
 		return determineFromCommits(getAllCommits())
 	}
-
-	// Get commits since last tag
-	commits := getCommitsSinceTag(strings.TrimSpace(string(lastTag)))
-	return determineFromCommits(commits)
+	return determineFromCommits(getCommitsSinceTag(strings.TrimSpace(string(lastTag))))
 }
 
 func getAllCommits() []string {
 	output, err := exec.Command("git", "log", "--pretty=format:%s").Output()
 	if err != nil {
-		fmt.Println("Error getting commit messages:", err)
 		return []string{}
 	}
 	return strings.Split(strings.TrimSpace(string(output)), "\n")
@@ -176,59 +141,46 @@ func getAllCommits() []string {
 func getCommitsSinceTag(tag string) []string {
 	output, err := exec.Command("git", "log", fmt.Sprintf("%s..HEAD", tag), "--pretty=format:%s").Output()
 	if err != nil {
-		fmt.Println("Error getting commit messages since tag:", err)
 		return []string{}
 	}
 	return strings.Split(strings.TrimSpace(string(output)), "\n")
 }
 
 func determineFromCommits(commits []string) string {
-	// Check for breaking changes
-	breakingChangePatterns := []string{
+	breakingPatterns := []string{
 		"^BREAKING CHANGE:", "^breaking!:", "!:", "feat!:", "fix!:",
 		"refactor!:", "docs!:", "style!:", "test!:", "chore!:",
 		"ci!:", "build!:", "perf!:",
 	}
-
 	for _, commit := range commits {
-		for _, pattern := range breakingChangePatterns {
-			matched, _ := regexp.MatchString(pattern, commit)
-			if matched {
+		for _, pattern := range breakingPatterns {
+			if matched, _ := regexp.MatchString(pattern, commit); matched {
 				return "major"
 			}
 		}
 	}
 
-	// Check for feature commits
 	featurePatterns := []string{"^feat:", "^feature:"}
 	for _, commit := range commits {
 		for _, pattern := range featurePatterns {
-			matched, _ := regexp.MatchString(pattern, commit)
-			if matched {
+			if matched, _ := regexp.MatchString(pattern, commit); matched {
 				return "minor"
 			}
 		}
 	}
 
-	// All other commit types result in a patch bump
 	return "patch"
 }
 
 func updateMakefile(newVersion string) {
-	// Read Makefile
 	content, err := os.ReadFile("Makefile")
 	if err != nil {
 		fmt.Println("Error reading Makefile:", err)
 		os.Exit(1)
 	}
-
-	// Update version in Makefile - add the 'v' prefix
-	re := regexp.MustCompile(`Version=[0-9]*\.[0-9]*\.[0-9]*`)
-	updatedContent := re.ReplaceAllString(string(content), fmt.Sprintf("Version=v%s", newVersion))
-
-	// Write updated content back to Makefile
-	err = os.WriteFile("Makefile", []byte(updatedContent), 0644)
-	if err != nil {
+	re := regexp.MustCompile(`Version=v?[0-9]+\.[0-9]+\.[0-9]+`)
+	updated := re.ReplaceAllString(string(content), fmt.Sprintf("Version=v%s", newVersion))
+	if err := os.WriteFile("Makefile", []byte(updated), 0644); err != nil {
 		fmt.Println("Error writing Makefile:", err)
 		os.Exit(1)
 	}

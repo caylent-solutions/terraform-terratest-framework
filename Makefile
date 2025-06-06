@@ -106,10 +106,10 @@ test: unit-test functional-test
 	@echo "All tests passed! 🎉"
 
 test-coverage:
-	@go run scripts/test-coverage.go
+	@go run scripts/test-coverage/main.go
 
 test-coverage-json:
-	@go run scripts/test-coverage-json.go
+	@go run scripts/test-coverage-json/main.go
 
 test-coverage-html:
 	@go run scripts/test-coverage-html/main.go

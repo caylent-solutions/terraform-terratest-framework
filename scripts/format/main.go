@@ -15,8 +15,6 @@ func shouldIgnoreFile(filePath string, ignoredDirs []string) bool {
 		if dir == "" {
 			continue
 		}
-
-		// Check if the file path starts with the ignored directory
 		if strings.HasPrefix(filePath, dir+"/") || filePath == dir {
 			return true
 		}
@@ -25,23 +23,19 @@ func shouldIgnoreFile(filePath string, ignoredDirs []string) bool {
 }
 
 func main() {
-	// Parse command line arguments
 	ignoreDirs := flag.String("ignore", "", "Comma-separated list of directories to ignore")
 	flag.Parse()
 
-	// Load asdf
 	loadAsdf()
 
 	fmt.Println("Formatting Go code...")
 
-	// Parse ignored directories
 	var ignoredDirList []string
 	if *ignoreDirs != "" {
 		for _, dir := range strings.Split(*ignoreDirs, ",") {
 			ignoredDirList = append(ignoredDirList, strings.TrimSpace(dir))
 		}
 
-		// Display which directories are being ignored
 		if len(ignoredDirList) == 1 {
 			fmt.Printf("⚠️  Ignoring directory during formatting: %s\n", ignoredDirList[0])
 		} else if len(ignoredDirList) > 1 {
@@ -49,7 +43,6 @@ func main() {
 		}
 	}
 
-	// First check which files need formatting
 	fmt.Println("Checking which files need formatting...")
 	checkCmd := exec.Command("gofmt", "-l", ".")
 	output, err := checkCmd.Output()
@@ -64,11 +57,9 @@ func main() {
 		return
 	}
 
-	// Show which files will be formatted
 	fmt.Println("Formatting the following files:")
 	fileCount := 0
 	for _, file := range strings.Split(files, "\n") {
-		// Skip files in ignored directories
 		if shouldIgnoreFile(file, ignoredDirList) {
 			continue
 		}
@@ -81,7 +72,6 @@ func main() {
 		return
 	}
 
-	// Run gofmt to fix the files
 	fmt.Println("Running gofmt to fix formatting...")
 	cmd := exec.Command("gofmt", "-w", ".")
 	if err := cmd.Run(); err != nil {
@@ -108,7 +98,6 @@ func loadAsdf() {
 		return
 	}
 
-	// Parse environment variables from the output and set them
 	lines := strings.Split(string(output), "\n")
 	for _, line := range lines {
 		parts := strings.SplitN(line, "=", 2)

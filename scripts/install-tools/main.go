@@ -11,16 +11,14 @@ import (
 const maxAsdfVersion = "v0.15.0"
 
 func main() {
-	// Parse command line arguments
 	updateOnly := false
-	asdfVersion := maxAsdfVersion // Default version
+	asdfVersion := maxAsdfVersion
 
 	for _, arg := range os.Args[1:] {
 		if arg == "--update" {
 			updateOnly = true
 		} else if strings.HasPrefix(arg, "--asdf-version=") {
 			requestedVersion := strings.TrimPrefix(arg, "--asdf-version=")
-			// Ensure the requested version is not higher than the max allowed
 			if compareVersions(requestedVersion, maxAsdfVersion) <= 0 {
 				asdfVersion = requestedVersion
 			} else {
@@ -35,7 +33,6 @@ func main() {
 		return
 	}
 
-	// Check if running in devcontainer
 	if os.Getenv("DEVCONTAINER") == "true" {
 		fmt.Println("Caylent Devcontainer detected. Tools already installed.")
 		fmt.Println("Running update-tools to ensure everything is up to date...")
@@ -43,30 +40,23 @@ func main() {
 		return
 	}
 
-	// Check if asdf is installed
-	_, err := exec.LookPath("asdf")
-	if err != nil {
-		// asdf not installed
+	if _, err := exec.LookPath("asdf"); err != nil {
 		fmt.Printf("Installing asdf version %s...\n", asdfVersion)
 		installAsdf(asdfVersion)
 	} else {
 		fmt.Println("asdf already installed.")
 	}
 
-	// Install plugins and tools
 	installPlugins()
 }
 
 func compareVersions(v1, v2 string) int {
-	// Remove 'v' prefix if present
 	v1 = strings.TrimPrefix(v1, "v")
 	v2 = strings.TrimPrefix(v2, "v")
 
-	// Split versions by dots
 	parts1 := strings.Split(v1, ".")
 	parts2 := strings.Split(v2, ".")
 
-	// Compare each part
 	for i := 0; i < len(parts1) && i < len(parts2); i++ {
 		if parts1[i] < parts2[i] {
 			return -1
@@ -76,15 +66,13 @@ func compareVersions(v1, v2 string) int {
 		}
 	}
 
-	// If all parts are equal up to the length of the shorter version
 	if len(parts1) < len(parts2) {
 		return -1
 	}
 	if len(parts1) > len(parts2) {
 		return 1
 	}
-
-	return 0 // Versions are equal
+	return 0
 }
 
 func installAsdf(version string) {
@@ -95,8 +83,6 @@ func installAsdf(version string) {
 	}
 
 	asdfDir := filepath.Join(homeDir, ".asdf")
-
-	// Clone asdf repository with specified version
 	cmd := exec.Command("git", "clone", "https://github.com/asdf-vm/asdf.git", asdfDir, "--branch", version)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -105,7 +91,6 @@ func installAsdf(version string) {
 		os.Exit(1)
 	}
 
-	// Add asdf to PATH
 	asdfBin := filepath.Join(asdfDir, "bin")
 	asdfShims := filepath.Join(asdfDir, "shims")
 	path := os.Getenv("PATH")
@@ -113,7 +98,6 @@ func installAsdf(version string) {
 }
 
 func installPlugins() {
-	// Read plugins from .tool-versions file
 	content, err := os.ReadFile(".tool-versions")
 	if err != nil {
 		fmt.Println("Error reading .tool-versions file:", err)
@@ -131,15 +115,13 @@ func installPlugins() {
 		if len(parts) > 0 {
 			plugin := parts[0]
 			fmt.Printf("Adding plugin: %s\n", plugin)
-
 			cmd := exec.Command("asdf", "plugin", "add", plugin)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			cmd.Run() // Ignore errors as plugin might already be installed
+			cmd.Run()
 		}
 	}
 
-	// Install tools
 	fmt.Println("Installing tools from .tool-versions...")
 	cmd := exec.Command("asdf", "install")
 	cmd.Stdout = os.Stdout
@@ -149,7 +131,6 @@ func installPlugins() {
 		os.Exit(1)
 	}
 
-	// Reshim
 	cmd = exec.Command("asdf", "reshim")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -160,16 +141,13 @@ func installPlugins() {
 }
 
 func updateTools() {
-	// Check if asdf is installed
-	_, err := exec.LookPath("asdf")
-	if err != nil {
+	if _, err := exec.LookPath("asdf"); err != nil {
 		fmt.Println("asdf not found. Please run 'make install-tools' first.")
 		os.Exit(1)
 	}
 
 	fmt.Println("Checking and updating asdf tools...")
 
-	// Read plugins from .tool-versions file
 	content, err := os.ReadFile(".tool-versions")
 	if err != nil {
 		fmt.Println("Error reading .tool-versions file:", err)
@@ -187,13 +165,11 @@ func updateTools() {
 		if len(parts) > 0 {
 			plugin := parts[0]
 			fmt.Printf("Ensuring plugin %s is installed...\n", plugin)
-
 			cmd := exec.Command("asdf", "plugin", "add", plugin)
-			cmd.Run() // Ignore errors as plugin might already be installed
+			cmd.Run()
 		}
 	}
 
-	// Install tools
 	fmt.Println("Installing/updating tools from .tool-versions...")
 	cmd := exec.Command("asdf", "install")
 	cmd.Stdout = os.Stdout
@@ -203,7 +179,6 @@ func updateTools() {
 		os.Exit(1)
 	}
 
-	// Reshim
 	cmd = exec.Command("asdf", "reshim")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
