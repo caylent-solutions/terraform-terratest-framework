@@ -2,6 +2,7 @@ package unit
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -26,6 +27,13 @@ func AssertIdempotent(t *testing.T, ctx TestContext) {
 func AssertFileExists(t *testing.T, ctx TestContext) string {
 	filePath := ctx.GetOutput(t, "output_file_path")
 	assert.NotEmpty(t, filePath, "output_file_path should not be empty")
+
+	// Convert relative path to absolute path if needed
+	if !filepath.IsAbs(filePath) {
+		// Get the working directory from the terraform options
+		workingDir := ctx.GetTerraform().TerraformDir
+		filePath = filepath.Join(workingDir, filePath)
+	}
 
 	_, err := os.Stat(filePath)
 	assert.NoError(t, err, "File should exist at %s", filePath)
