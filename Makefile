@@ -46,45 +46,12 @@ install:
 	go mod tidy
 
 install-tools:
-	@if [ "$$DEVCONTAINER" = "true" ]; then \
-		echo "Caylent Devcontainer detected. Tools already installed."; \
-		echo "Running update-tools to ensure everything is up to date..."; \
-		$(MAKE) update-tools; \
-	else \
-		HEADLESS_FLAG=""; \
-		for arg in $(MAKECMDGOALS); do \
-			if [ "$$arg" = "--headless" ]; then \
-				HEADLESS_FLAG="true"; \
-			fi; \
-		done; \
-		if ! command -v asdf >/dev/null 2>&1; then \
-			if [ "$$HEADLESS_FLAG" = "true" ]; then \
-				echo "Installing asdf headlessly..."; \
-				git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.15.0; \
-				. ~/.asdf/asdf.sh; \
-			else \
-				read -p "asdf is not installed. Install asdf now? [y/N]: " yn; \
-				case $$yn in \
-					[Yy]*) \
-						echo "Installing asdf..."; \
-						git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.15.0; \
-						. ~/.asdf/asdf.sh; \
-						;; \
-					*) \
-						echo "asdf install aborted."; \
-						exit 1; \
-						;; \
-				esac; \
-			fi; \
-		else \
-			echo "asdf already installed."; \
-		fi && \
-		for plugin in $$(cut -d' ' -f1 .tool-versions); do \
-			asdf plugin add $$plugin || true; \
-		done && \
-		asdf install && \
-		asdf reshim; \
+	@echo "Installing asdf and required development tools..."
+	@if [ ! -f ./bin/install-tools ]; then \
+		echo "Building install-tools..."; \
+		go build -o ./bin/install-tools ./scripts/install-tools.go; \
 	fi
+	@./bin/install-tools --asdf-version=v0.15.0
 
 lint:
 	@echo "Checking code for linting issues..."
@@ -219,16 +186,8 @@ unit-test:
 	go test -json ./internal/... ./tftest-cli/... | go run scripts/test-summary.go "Unit Test Summary" || true
 
 update-tools:
-	@echo "Checking and updating asdf tools..."
-	@if ! command -v asdf >/dev/null 2>&1; then \
-		echo "asdf not found. Please run 'make install-tools' first."; \
-		exit 1; \
+	@if [ ! -f ./bin/install-tools ]; then \
+		echo "Building install-tools..."; \
+		go build -o ./bin/install-tools ./scripts/install-tools.go; \
 	fi
-	@for plugin in $$(cut -d' ' -f1 .tool-versions); do \
-		echo "Ensuring plugin $$plugin is installed..."; \
-		asdf plugin add $$plugin 2>/dev/null || true; \
-	done
-	@echo "Installing/updating tools from .tool-versions..."
-	@asdf install
-	@asdf reshim
-	@echo "All tools are up to date."
+	@./bin/install-tools --update
