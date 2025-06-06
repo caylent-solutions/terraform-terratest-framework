@@ -1,0 +1,5 @@
+awscli 2.15.0
+golang 1.24.4
+golangci-lint 1.56.2
+pre-commit 3.6.0
+terraform 1.8.0

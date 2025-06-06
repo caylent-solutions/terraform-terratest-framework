@@ -1,0 +1,19 @@
+run:
+  concurrency: 1
+  timeout: 30s
+  skip-dirs:
+    - vendor
+    - .terraform
+  memory: 512MB
+  go: "1.23"
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck

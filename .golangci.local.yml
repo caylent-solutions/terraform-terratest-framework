@@ -1,0 +1,35 @@
+run:
+  concurrency: 1
+  timeout: 5m
+  skip-dirs:
+    - tests
+    - vendor
+    - .terraform
+  skip-files:
+    - "_test.go$"
+  go: "1.23"
+  memory: 2048MB
+
+linters:
+  enable:
+    - gofmt
+    - govet
+    - errcheck
+  disable:
+    - unused
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - gocritic
+    - revive
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+    - path: internal/
+      text: "exported: type name will be used as .* by other packages"
+      linters:
+        - govet
+        

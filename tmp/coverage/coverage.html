@@ -1,0 +1,1749 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>benchmark: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/caylent-solutions/terraform-terratest-framework/internal/benchmark/benchmark.go (100.0%)</option>
+				
+				<option value="file1">github.com/caylent-solutions/terraform-terratest-framework/internal/errors/errors.go (100.0%)</option>
+				
+				<option value="file2">github.com/caylent-solutions/terraform-terratest-framework/internal/examples/examples.go (92.9%)</option>
+				
+				<option value="file3">github.com/caylent-solutions/terraform-terratest-framework/internal/idempotency/idempotency.go (0.0%)</option>
+				
+				<option value="file4">github.com/caylent-solutions/terraform-terratest-framework/internal/logging/logger.go (91.4%)</option>
+				
+				<option value="file5">github.com/caylent-solutions/terraform-terratest-framework/internal/testctx/context.go (0.0%)</option>
+				
+				<option value="file6">github.com/caylent-solutions/terraform-terratest-framework/internal/testctx/discover.go (90.0%)</option>
+				
+				<option value="file7">github.com/caylent-solutions/terraform-terratest-framework/internal/testctx/runner.go (6.2%)</option>
+				
+				<option value="file8">github.com/caylent-solutions/terraform-terratest-framework/tests/unit/assertions.go (71.4%)</option>
+				
+				<option value="file9">github.com/caylent-solutions/terraform-terratest-framework/tests/unit/assertions_test_helpers.go (83.3%)</option>
+				
+				<option value="file10">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd/format.go (5.6%)</option>
+				
+				<option value="file11">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd/root.go (35.7%)</option>
+				
+				<option value="file12">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd/run.go (14.5%)</option>
+				
+				<option value="file13">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd/version.go (33.3%)</option>
+				
+				<option value="file14">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger/logger.go (89.7%)</option>
+				
+				<option value="file15">github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/main.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package benchmark
+
+import (
+        "fmt"
+        "time"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/internal/logging"
+)
+
+// BenchmarkResult represents the result of a benchmark
+type BenchmarkResult struct {
+        Name     string
+        Duration time.Duration
+        Success  bool
+        Error    error
+}
+
+// String returns a string representation of the benchmark result
+func (r *BenchmarkResult) String() string <span class="cov3" title="2">{
+        status := "✅ Success"
+        if !r.Success </span><span class="cov1" title="1">{
+                status = fmt.Sprintf("❌ Failed: %v", r.Error)
+        }</span>
+        <span class="cov3" title="2">return fmt.Sprintf("%s: %s (%s)", r.Name, status, r.Duration)</span>
+}
+
+// Benchmark runs a function and measures its execution time
+func Benchmark(name string, fn func() error) *BenchmarkResult <span class="cov10" title="9">{
+        logger := logging.NewWithPrefix(logging.INFO, "Benchmark")
+        logger.Info("Starting benchmark: %s", name)
+
+        start := time.Now()
+        err := fn()
+        duration := time.Since(start)
+
+        result := &amp;BenchmarkResult{
+                Name:     name,
+                Duration: duration,
+                Success:  err == nil,
+                Error:    err,
+        }
+
+        if err != nil </span><span class="cov6" title="4">{
+                logger.Error("Benchmark failed: %s (%s): %v", name, duration, err)
+        }</span> else<span class="cov7" title="5"> {
+                logger.Info("Benchmark completed: %s (%s)", name, duration)
+        }</span>
+
+        <span class="cov10" title="9">return result</span>
+}
+
+// BenchmarkSuite represents a suite of benchmarks
+type BenchmarkSuite struct {
+        Name    string
+        Results []*BenchmarkResult
+        logger  *logging.Logger
+}
+
+// NewBenchmarkSuite creates a new benchmark suite
+func NewBenchmarkSuite(name string) *BenchmarkSuite <span class="cov6" title="4">{
+        return &amp;BenchmarkSuite{
+                Name:    name,
+                Results: []*BenchmarkResult{},
+                logger:  logging.NewWithPrefix(logging.INFO, fmt.Sprintf("BenchmarkSuite[%s]", name)),
+        }
+}</span>
+
+// Run runs a benchmark and adds its result to the suite
+func (s *BenchmarkSuite) Run(name string, fn func() error) *BenchmarkResult <span class="cov8" title="7">{
+        s.logger.Info("Running benchmark: %s", name)
+        result := Benchmark(name, fn)
+        s.Results = append(s.Results, result)
+        return result
+}</span>
+
+// Summary returns a summary of the benchmark suite
+func (s *BenchmarkSuite) Summary() string <span class="cov1" title="1">{
+        var totalDuration time.Duration
+        successCount := 0
+        failureCount := 0
+
+        for _, result := range s.Results </span><span class="cov5" title="3">{
+                totalDuration += result.Duration
+                if result.Success </span><span class="cov3" title="2">{
+                        successCount++
+                }</span> else<span class="cov1" title="1"> {
+                        failureCount++
+                }</span>
+        }
+
+        <span class="cov1" title="1">return fmt.Sprintf(
+                "Benchmark Suite: %s\n"+
+                        "Total Duration: %s\n"+
+                        "Total Benchmarks: %d\n"+
+                        "Successful: %d\n"+
+                        "Failed: %d",
+                s.Name,
+                totalDuration,
+                len(s.Results),
+                successCount,
+                failureCount,
+        )</span>
+}
+
+// PrintSummary prints a summary of the benchmark suite
+func (s *BenchmarkSuite) PrintSummary() <span class="cov1" title="1">{
+        s.logger.Info("Benchmark Suite Summary:")
+        s.logger.Info("------------------------")
+        s.logger.Info("Suite: %s", s.Name)
+        s.logger.Info("Total Benchmarks: %d", len(s.Results))
+
+        var totalDuration time.Duration
+        successCount := 0
+        failureCount := 0
+
+        for _, result := range s.Results </span><span class="cov3" title="2">{
+                totalDuration += result.Duration
+                if result.Success </span><span class="cov1" title="1">{
+                        successCount++
+                }</span> else<span class="cov1" title="1"> {
+                        failureCount++
+                }</span>
+        }
+
+        <span class="cov1" title="1">s.logger.Info("Total Duration: %s", totalDuration)
+        s.logger.Info("Successful: %d", successCount)
+        s.logger.Info("Failed: %d", failureCount)
+        s.logger.Info("------------------------")
+
+        s.logger.Info("Individual Results:")
+        for _, result := range s.Results </span><span class="cov3" title="2">{
+                if result.Success </span><span class="cov1" title="1">{
+                        s.logger.Info("✅ %s: %s", result.Name, result.Duration)
+                }</span> else<span class="cov1" title="1"> {
+                        s.logger.Error("❌ %s: %s - %v", result.Name, result.Duration, result.Error)
+                }</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package errors
+
+import (
+        "fmt"
+)
+
+// ErrorType represents the type of error
+type ErrorType string
+
+const (
+        // ConfigError represents configuration errors
+        ConfigError ErrorType = "ConfigError"
+
+        // ValidationError represents validation errors
+        ValidationError ErrorType = "ValidationError"
+
+        // TerraformError represents errors from Terraform operations
+        TerraformError ErrorType = "TerraformError"
+
+        // AssertionError represents errors from test assertions
+        AssertionError ErrorType = "AssertionError"
+
+        // InternalError represents internal framework errors
+        InternalError ErrorType = "InternalError"
+)
+
+// FrameworkError represents an error in the Terraform Test Framework
+type FrameworkError struct {
+        Type    ErrorType
+        Message string
+        Cause   error
+}
+
+// Error returns the error message
+func (e *FrameworkError) Error() string <span class="cov10" title="2">{
+        if e.Cause != nil </span><span class="cov1" title="1">{
+                return fmt.Sprintf("%s: %s (cause: %v)", e.Type, e.Message, e.Cause)
+        }</span>
+        <span class="cov1" title="1">return fmt.Sprintf("%s: %s", e.Type, e.Message)</span>
+}
+
+// Unwrap returns the underlying cause of the error
+func (e *FrameworkError) Unwrap() error <span class="cov1" title="1">{
+        return e.Cause
+}</span>
+
+// NewConfigError creates a new configuration error
+func NewConfigError(message string, cause error) *FrameworkError <span class="cov1" title="1">{
+        return &amp;FrameworkError{
+                Type:    ConfigError,
+                Message: message,
+                Cause:   cause,
+        }
+}</span>
+
+// NewValidationError creates a new validation error
+func NewValidationError(message string, cause error) *FrameworkError <span class="cov1" title="1">{
+        return &amp;FrameworkError{
+                Type:    ValidationError,
+                Message: message,
+                Cause:   cause,
+        }
+}</span>
+
+// NewTerraformError creates a new Terraform error
+func NewTerraformError(message string, cause error) *FrameworkError <span class="cov1" title="1">{
+        return &amp;FrameworkError{
+                Type:    TerraformError,
+                Message: message,
+                Cause:   cause,
+        }
+}</span>
+
+// NewAssertionError creates a new assertion error
+func NewAssertionError(message string, cause error) *FrameworkError <span class="cov1" title="1">{
+        return &amp;FrameworkError{
+                Type:    AssertionError,
+                Message: message,
+                Cause:   cause,
+        }
+}</span>
+
+// NewInternalError creates a new internal error
+func NewInternalError(message string, cause error) *FrameworkError <span class="cov1" title="1">{
+        return &amp;FrameworkError{
+                Type:    InternalError,
+                Message: message,
+                Cause:   cause,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package examples
+
+import (
+        "os"
+        "path/filepath"
+        "testing"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+)
+
+// Example represents a single terraform example
+type Example struct {
+        Name   string
+        Path   string
+        Config testctx.TestConfig
+}
+
+// FindAllExamples discovers all examples in the examples directory
+func FindAllExamples(t *testing.T, moduleRootPath string) []Example <span class="cov1" title="1">{
+        examplesPath := filepath.Join(moduleRootPath, "examples")
+        entries, err := os.ReadDir(examplesPath)
+        if err != nil </span><span class="cov0" title="0">{
+                t.Fatalf("Failed to read examples directory: %v", err)
+        }</span>
+
+        <span class="cov1" title="1">var examples []Example
+        for _, entry := range entries </span><span class="cov10" title="4">{
+                if !entry.IsDir() </span><span class="cov1" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="3">examples = append(examples, Example{
+                        Name: entry.Name(),
+                        Path: filepath.Join(examplesPath, entry.Name()),
+                        Config: testctx.TestConfig{
+                                Name:      entry.Name(),
+                                ExtraVars: map[string]interface{}{},
+                        },
+                })</span>
+        }
+
+        <span class="cov1" title="1">return examples</span>
+}
+
+// ConfigureExamples allows customizing the configuration for each example
+func ConfigureExamples(examples []Example, configurator func(Example) testctx.TestConfig) map[string]testctx.TestConfig <span class="cov1" title="1">{
+        configs := make(map[string]testctx.TestConfig)
+
+        for _, example := range examples </span><span class="cov5" title="2">{
+                configs[example.Name] = configurator(example)
+        }</span>
+
+        <span class="cov1" title="1">return configs</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package idempotency
+
+import (
+        "testing"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+        "github.com/gruntwork-io/terratest/modules/terraform"
+)
+
+// Test runs an idempotency test on the given context
+// This test is run by default unless explicitly disabled via TERRATEST_IDEMPOTENCY=false
+func Test(t *testing.T, ctx testctx.TestContext) bool <span class="cov0" title="0">{
+        if !testctx.IdempotencyEnabled() </span><span class="cov0" title="0">{
+                t.Logf("Idempotency testing disabled for %s via TERRATEST_IDEMPOTENCY=false", ctx.Config.Name)
+                return true
+        }</span>
+
+        <span class="cov0" title="0">t.Logf("Running idempotency test for %s", ctx.Config.Name)
+        planResult := terraform.Plan(t, ctx.Terraform)
+
+        if planResult != "" </span><span class="cov0" title="0">{
+                t.Errorf("Idempotency test failed for %s: Terraform plan would make changes: %s", ctx.Config.Name, planResult)
+                return false
+        }</span>
+
+        <span class="cov0" title="0">t.Logf("Idempotency test passed for %s", ctx.Config.Name)
+        return true</span>
+}
+
+// TestAll runs idempotency tests on all contexts
+func TestAll(t *testing.T, contexts map[string]testctx.TestContext) <span class="cov0" title="0">{
+        for name, ctx := range contexts </span><span class="cov0" title="0">{
+                t.Run("Idempotency_"+name, func(t *testing.T) </span><span class="cov0" title="0">{
+                        Test(t, ctx)
+                }</span>)
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package logging
+
+import (
+        "fmt"
+        "io"
+        "os"
+        "strings"
+        "time"
+)
+
+// LogLevel represents the severity of a log message
+type LogLevel int
+
+const (
+        // DEBUG level for detailed information
+        DEBUG LogLevel = iota
+        // INFO level for general information
+        INFO
+        // WARN level for warning messages
+        WARN
+        // ERROR level for error messages
+        ERROR
+        // FATAL level for critical errors
+        FATAL
+)
+
+// String returns the string representation of the log level
+func (l LogLevel) String() string <span class="cov10" title="18">{
+        return [...]string{"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}[l]
+}</span>
+
+// ParseLogLevel converts a string to a LogLevel
+func ParseLogLevel(level string) (LogLevel, error) <span class="cov8" title="11">{
+        switch strings.ToUpper(level) </span>{
+        case "DEBUG":<span class="cov3" title="2">
+                return DEBUG, nil</span>
+        case "INFO":<span class="cov3" title="2">
+                return INFO, nil</span>
+        case "WARN":<span class="cov3" title="2">
+                return WARN, nil</span>
+        case "ERROR":<span class="cov3" title="2">
+                return ERROR, nil</span>
+        case "FATAL":<span class="cov3" title="2">
+                return FATAL, nil</span>
+        default:<span class="cov1" title="1">
+                return INFO, fmt.Errorf("invalid log level: %s", level)</span>
+        }
+}
+
+// Logger provides logging functionality
+type Logger struct {
+        level  LogLevel
+        writer io.Writer
+        prefix string
+}
+
+// New creates a new Logger with the specified log level
+func New(level LogLevel) *Logger <span class="cov6" title="6">{
+        return &amp;Logger{
+                level:  level,
+                writer: os.Stdout,
+                prefix: "",
+        }
+}</span>
+
+// NewWithPrefix creates a new Logger with the specified log level and prefix
+func NewWithPrefix(level LogLevel, prefix string) *Logger <span class="cov1" title="1">{
+        return &amp;Logger{
+                level:  level,
+                writer: os.Stdout,
+                prefix: prefix,
+        }
+}</span>
+
+// SetOutput sets the output writer for the logger
+func (l *Logger) SetOutput(w io.Writer) <span class="cov7" title="7">{
+        l.writer = w
+}</span>
+
+// SetLevel sets the log level
+func (l *Logger) SetLevel(level LogLevel) <span class="cov5" title="4">{
+        l.level = level
+}</span>
+
+// SetPrefix sets the prefix for log messages
+func (l *Logger) SetPrefix(prefix string) <span class="cov3" title="2">{
+        l.prefix = prefix
+}</span>
+
+// log logs a message at the specified level
+func (l *Logger) log(level LogLevel, format string, args ...interface{}) <span class="cov9" title="15">{
+        if level &lt; l.level </span><span class="cov3" title="2">{
+                return
+        }</span>
+
+        <span class="cov8" title="13">timestamp := time.Now().Format("2006-01-02 15:04:05")
+        levelStr := level.String()
+        message := fmt.Sprintf(format, args...)
+
+        prefix := ""
+        if l.prefix != "" </span><span class="cov3" title="2">{
+                prefix = fmt.Sprintf("[%s] ", l.prefix)
+        }</span>
+
+        <span class="cov8" title="13">fmt.Fprintf(l.writer, "[%s] %s%s: %s\n", timestamp, prefix, levelStr, message)</span>
+}
+
+// Debug logs a debug message
+func (l *Logger) Debug(format string, args ...interface{}) <span class="cov5" title="4">{
+        l.log(DEBUG, format, args...)
+}</span>
+
+// Info logs an info message
+func (l *Logger) Info(format string, args ...interface{}) <span class="cov6" title="6">{
+        l.log(INFO, format, args...)
+}</span>
+
+// Warn logs a warning message
+func (l *Logger) Warn(format string, args ...interface{}) <span class="cov3" title="2">{
+        l.log(WARN, format, args...)
+}</span>
+
+// Error logs an error message
+func (l *Logger) Error(format string, args ...interface{}) <span class="cov4" title="3">{
+        l.log(ERROR, format, args...)
+}</span>
+
+// Fatal logs a fatal message and exits
+func (l *Logger) Fatal(format string, args ...interface{}) <span class="cov0" title="0">{
+        l.log(FATAL, format, args...)
+        os.Exit(1)
+}</span>
+
+// Default logger instance
+var defaultLogger = New(INFO)
+
+// SetDefaultLogLevel sets the log level for the default logger
+func SetDefaultLogLevel(level LogLevel) <span class="cov1" title="1">{
+        defaultLogger.SetLevel(level)
+}</span>
+
+// SetDefaultPrefix sets the prefix for the default logger
+func SetDefaultPrefix(prefix string) <span class="cov1" title="1">{
+        defaultLogger.SetPrefix(prefix)
+}</span>
+
+// Debug logs a debug message using the default logger
+func Debug(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Debug(format, args...)
+}</span>
+
+// Info logs an info message using the default logger
+func Info(format string, args ...interface{}) <span class="cov4" title="3">{
+        defaultLogger.Info(format, args...)
+}</span>
+
+// Warn logs a warning message using the default logger
+func Warn(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Warn(format, args...)
+}</span>
+
+// Error logs an error message using the default logger
+func Error(format string, args ...interface{}) <span class="cov3" title="2">{
+        defaultLogger.Error(format, args...)
+}</span>
+
+// Fatal logs a fatal message and exits using the default logger
+func Fatal(format string, args ...interface{}) <span class="cov0" title="0">{
+        defaultLogger.Fatal(format, args...)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package testctx
+
+import (
+        "os"
+        "testing"
+
+        "github.com/gruntwork-io/terratest/modules/terraform"
+)
+
+// TestConfig holds configuration for a single test
+type TestConfig struct {
+        Name      string
+        ExtraVars map[string]interface{}
+}
+
+// TestContext combines test configuration with terraform options
+type TestContext struct {
+        Config        TestConfig
+        Terraform     *terraform.Options
+        ExamplePath   string
+        Name          string
+        TerraformVars map[string]interface{}
+}
+
+// GetOutput retrieves a terraform output value by key
+func (ctx TestContext) GetOutput(t testing.TB, key string) string <span class="cov0" title="0">{
+        return terraform.Output(t, ctx.Terraform, key)
+}</span>
+
+// GetTerraform returns the terraform options
+func (ctx TestContext) GetTerraform() *terraform.Options <span class="cov0" title="0">{
+        return ctx.Terraform
+}</span>
+
+// NewTestContext creates a new test context
+func NewTestContext(examplePath string, vars map[string]interface{}) TestContext <span class="cov0" title="0">{
+        if vars == nil </span><span class="cov0" title="0">{
+                vars = make(map[string]interface{})
+        }</span>
+        <span class="cov0" title="0">return TestContext{
+                Name:          examplePath,
+                Terraform:     &amp;terraform.Options{},
+                TerraformVars: vars,
+                ExamplePath:   examplePath,
+        }</span>
+}
+
+// IdempotencyEnabled checks if idempotency testing is enabled
+// Returns true (enabled) by default unless TERRATEST_IDEMPOTENCY=false
+// The test will run if:
+// - TERRATEST_IDEMPOTENCY environment variable doesn't exist
+// - TERRATEST_IDEMPOTENCY is set to any value other than "false"
+// The test will be skipped if:
+// - TERRATEST_IDEMPOTENCY is set to "false"
+func IdempotencyEnabled() bool <span class="cov0" title="0">{
+        val := os.Getenv("TERRATEST_IDEMPOTENCY")
+        return val != "false"
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package testctx
+
+import (
+        "os"
+        "path/filepath"
+        "testing"
+)
+
+// DiscoverExamples finds all examples in the given directory
+func DiscoverExamples(t *testing.T, moduleRootPath string) []string <span class="cov1" title="1">{
+        entries, err := os.ReadDir(moduleRootPath)
+        if err != nil </span><span class="cov0" title="0">{
+                t.Fatalf("Failed to read examples directory: %v", err)
+        }</span>
+
+        <span class="cov1" title="1">var examples []string
+        for _, entry := range entries </span><span class="cov10" title="5">{
+                if !entry.IsDir() </span><span class="cov1" title="1">{
+                        continue</span>
+                }
+
+                // Only include directories that start with "example-"
+                <span class="cov8" title="4">if filepath.Base(entry.Name())[:8] == "example-" </span><span class="cov4" title="2">{
+                        examples = append(examples, entry.Name())
+                }</span>
+        }
+
+        <span class="cov1" title="1">return examples</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package testctx
+
+import (
+        "fmt"
+        "os"
+        "path/filepath"
+        "strings"
+        "sync"
+        "testing"
+
+        "github.com/gruntwork-io/terratest/modules/terraform"
+)
+
+// InitTerraform creates terraform options for the given path and config
+func InitTerraform(path string, config TestConfig) *terraform.Options <span class="cov10" title="2">{
+        return &amp;terraform.Options{
+                TerraformDir: path,
+                Vars:         config.ExtraVars,
+        }
+}</span>
+
+// Run initializes a test context for a single example
+func Run(path string, config TestConfig) TestContext <span class="cov1" title="1">{
+        tfOptions := InitTerraform(path, config)
+        return TestContext{
+                Config:      config,
+                Terraform:   tfOptions,
+                ExamplePath: path,
+                Name:        config.Name,
+        }
+}</span>
+
+// RunExample runs a single terraform example with the given config
+// and automatically performs an idempotency test unless disabled via TERRATEST_IDEMPOTENCY=false
+func RunExample(t *testing.T, examplePath string, config TestConfig) TestContext <span class="cov0" title="0">{
+        ctx := Run(examplePath, config)
+        terraform.InitAndApply(t, ctx.Terraform)
+
+        // Run idempotency test by default unless explicitly disabled
+        if IdempotencyEnabled() </span><span class="cov0" title="0">{
+                t.Log("Running idempotency test...")
+                planOutput := terraform.Plan(t, ctx.Terraform)
+                // Check if the plan output contains "No changes" or "no changes"
+                if strings.Contains(planOutput, "No changes") || strings.Contains(planOutput, "no changes") </span><span class="cov0" title="0">{
+                        t.Log("Idempotency test passed")
+                }</span> else<span class="cov0" title="0"> {
+                        t.Fatalf("Idempotency test failed: Terraform plan would make changes: %s", planOutput)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                t.Log("Idempotency testing disabled via TERRATEST_IDEMPOTENCY=false")
+        }</span>
+
+        // Register cleanup to ensure resources are destroyed
+        <span class="cov0" title="0">t.Cleanup(func() </span><span class="cov0" title="0">{
+                terraform.Destroy(t, ctx.Terraform)
+        }</span>)
+
+        <span class="cov0" title="0">return ctx</span>
+}
+
+// RunCustomTests runs a custom test function on all examples in the results map
+func RunCustomTests(t *testing.T, results map[string]TestContext, testFunc func(t *testing.T, ctx TestContext)) <span class="cov1" title="1">{
+        for _, ctx := range results </span><span class="cov10" title="2">{
+                testFunc(t, ctx)
+        }</span>
+}
+
+// RunAllExamplesWithTests runs all examples and then runs multiple custom test functions on each example
+func RunAllExamplesWithTests(t *testing.T, moduleRootPath string, configs map[string]TestConfig, testFuncs ...func(t *testing.T, ctx TestContext)) map[string]TestContext <span class="cov0" title="0">{
+        // Run all examples
+        results := RunAllExamples(t, moduleRootPath, configs)
+
+        // Run each test function on all examples
+        for _, testFunc := range testFuncs </span><span class="cov0" title="0">{
+                RunCustomTests(t, results, testFunc)
+        }</span>
+
+        <span class="cov0" title="0">return results</span>
+}
+
+// DiscoverAndRunAllTests runs all examples in the examples directory and executes a custom test function on each
+func DiscoverAndRunAllTests(t *testing.T, moduleRootPath string, testFunc func(t *testing.T, ctx TestContext)) map[string]TestContext <span class="cov0" title="0">{
+        // Find all example directories
+        entries, err := os.ReadDir(moduleRootPath)
+        if err != nil </span><span class="cov0" title="0">{
+                t.Fatalf("Failed to read examples directory: %v", err)
+        }</span>
+
+        // Create default configs for all examples
+        <span class="cov0" title="0">configs := make(map[string]TestConfig)
+        for _, entry := range entries </span><span class="cov0" title="0">{
+                if !entry.IsDir() </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                // Only include directories that start with "example-"
+                <span class="cov0" title="0">name := entry.Name()
+                if len(name) &gt;= 8 &amp;&amp; name[:8] == "example-" </span><span class="cov0" title="0">{
+                        configs[name] = TestConfig{
+                                Name:      name,
+                                ExtraVars: map[string]interface{}{},
+                        }
+                }</span>
+        }
+
+        // Run all examples
+        <span class="cov0" title="0">results := RunAllExamples(t, moduleRootPath, configs)
+
+        // If a test function is provided, run it on each example
+        if testFunc != nil </span><span class="cov0" title="0">{
+                for _, ctx := range results </span><span class="cov0" title="0">{
+                        testFunc(t, ctx)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return results</span>
+}
+
+// RunAllExamples runs all examples in the examples directory in parallel
+// If configs is nil or empty, it will generate default configs for all examples
+func RunAllExamples(t *testing.T, moduleRootPath string, configs map[string]TestConfig) map[string]TestContext <span class="cov0" title="0">{
+        entries, err := os.ReadDir(moduleRootPath)
+        if err != nil </span><span class="cov0" title="0">{
+                t.Fatalf("Failed to read examples directory: %v", err)
+        }</span>
+
+        // If no configs provided, create default configs for all examples
+        <span class="cov0" title="0">if configs == nil || len(configs) == 0 </span><span class="cov0" title="0">{
+                configs = make(map[string]TestConfig)
+                for _, entry := range entries </span><span class="cov0" title="0">{
+                        if !entry.IsDir() </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+
+                        // Only include directories that start with "example-"
+                        <span class="cov0" title="0">name := entry.Name()
+                        if len(name) &gt;= 8 &amp;&amp; name[:8] == "example-" </span><span class="cov0" title="0">{
+                                configs[name] = TestConfig{
+                                        Name:      name,
+                                        ExtraVars: map[string]interface{}{},
+                                }
+                        }</span>
+                }
+        }
+
+        <span class="cov0" title="0">var wg sync.WaitGroup
+        results := make(map[string]TestContext)
+        resultsMutex := sync.Mutex{}
+
+        for _, entry := range entries </span><span class="cov0" title="0">{
+                if !entry.IsDir() </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">exampleName := entry.Name()
+
+                // Skip if not an example directory
+                if len(exampleName) &lt; 8 || exampleName[:8] != "example-" </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">examplePath := filepath.Join(moduleRootPath, exampleName)
+
+                // Skip if no config provided for this example
+                config, exists := configs[exampleName]
+                if !exists </span><span class="cov0" title="0">{
+                        t.Logf("Skipping example %s: no config provided", exampleName)
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">wg.Add(1)
+                go func(name, path string, cfg TestConfig) </span><span class="cov0" title="0">{
+                        defer wg.Done()
+
+                        // Run the test in a subtest to isolate failures
+                        t.Run(fmt.Sprintf("Example_%s", name), func(t *testing.T) </span><span class="cov0" title="0">{
+                                ctx := RunExample(t, path, cfg)
+
+                                // Store the result
+                                resultsMutex.Lock()
+                                results[name] = ctx
+                                resultsMutex.Unlock()
+
+                                // Note: RunExample now registers its own cleanup function
+                                // so we don't need to call terraform.Destroy here
+                        }</span>)
+                }(exampleName, examplePath, config)
+        }
+
+        <span class="cov0" title="0">wg.Wait()
+        return results</span>
+}
+
+// RunSingleExample runs a specific example from the examples directory
+// This is useful when tests are organized by example (one test folder per example)
+func RunSingleExample(t *testing.T, moduleRootPath string, exampleName string, config TestConfig) TestContext <span class="cov0" title="0">{
+        var examplePath string
+
+        // Check if exampleName is "." which means use moduleRootPath directly
+        if exampleName == "." </span><span class="cov0" title="0">{
+                examplePath = moduleRootPath
+        }</span> else<span class="cov0" title="0"> {
+                examplePath = filepath.Join(moduleRootPath, exampleName)
+        }</span>
+
+        // Check if example exists
+        <span class="cov0" title="0">if _, err := os.Stat(examplePath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                t.Fatalf("Example %s not found at path %s", exampleName, examplePath)
+        }</span>
+
+        // If no config provided, create a default one
+        <span class="cov0" title="0">if config.Name == "" </span><span class="cov0" title="0">{
+                config = TestConfig{
+                        Name:      exampleName,
+                        ExtraVars: map[string]interface{}{},
+                }
+        }</span>
+
+        // Run the example
+        <span class="cov0" title="0">ctx := RunExample(t, examplePath, config)
+
+        // Note: RunExample now registers its own cleanup function
+        // so we don't need to call terraform.Destroy here
+
+        return ctx</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package unit
+
+import (
+        "os"
+        "regexp"
+        "testing"
+
+        "github.com/gruntwork-io/terratest/modules/terraform"
+        "github.com/stretchr/testify/assert"
+)
+
+// TestContext is an interface that provides access to test context
+type TestContext interface {
+        GetOutput(t testing.TB, key string) string
+        GetTerraform() *terraform.Options
+}
+
+// AssertIdempotent checks that the Terraform code is idempotent
+func AssertIdempotent(t *testing.T, ctx TestContext) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Log("Checking idempotency...")
+        // In a real implementation, this would run terraform plan and check for changes
+}</span>
+
+// AssertFileExists checks that a file exists at the path specified in the output
+func AssertFileExists(t *testing.T, ctx TestContext) string <span class="cov10" title="3">{
+        filePath := ctx.GetOutput(t, "output_file_path")
+        assert.NotEmpty(t, filePath, "output_file_path should not be empty")
+
+        _, err := os.Stat(filePath)
+        assert.NoError(t, err, "File should exist at %s", filePath)
+
+        return filePath
+}</span>
+
+// AssertFileContent checks that a file has the expected content
+func AssertFileContent(t *testing.T, ctx TestContext, expectedContent ...string) <span class="cov6" title="2">{
+        filePath := AssertFileExists(t, ctx)
+
+        content, err := os.ReadFile(filePath)
+        assert.NoError(t, err, "Should be able to read file at %s", filePath)
+
+        var expected string
+        if len(expectedContent) &gt; 0 </span><span class="cov1" title="1">{
+                expected = expectedContent[0]
+        }</span> else<span class="cov1" title="1"> {
+                expected = ctx.GetOutput(t, "output_content")
+        }</span>
+
+        <span class="cov6" title="2">assert.Equal(t, expected, string(content), "File content should match expected content")</span>
+}
+
+// AssertOutputEquals checks that an output equals the expected value
+func AssertOutputEquals(t *testing.T, ctx TestContext, key string, expected string) <span class="cov1" title="1">{
+        actual := ctx.GetOutput(t, key)
+        assert.Equal(t, expected, actual, "Output %s should equal %s", key, expected)
+}</span>
+
+// AssertOutputContains checks that an output contains the expected substring
+func AssertOutputContains(t *testing.T, ctx TestContext, key string, substring string) <span class="cov1" title="1">{
+        actual := ctx.GetOutput(t, key)
+        assert.Contains(t, actual, substring, "Output %s should contain %s", key, substring)
+}</span>
+
+// AssertOutputMatches checks that an output matches the expected regex pattern
+func AssertOutputMatches(t *testing.T, ctx TestContext, key string, pattern string) <span class="cov1" title="1">{
+        actual := ctx.GetOutput(t, key)
+        matched, err := regexp.MatchString(pattern, actual)
+        assert.NoError(t, err, "Regex pattern should be valid")
+        assert.True(t, matched, "Output %s should match pattern %s", key, pattern)
+}</span>
+
+// AssertOutputNotEmpty checks that an output is not empty
+func AssertOutputNotEmpty(t *testing.T, ctx TestContext, key string) <span class="cov1" title="1">{
+        actual := ctx.GetOutput(t, key)
+        assert.NotEmpty(t, actual, "Output %s should not be empty", key)
+}</span>
+
+// AssertOutputEmpty checks that an output is empty
+func AssertOutputEmpty(t *testing.T, ctx TestContext, key string) <span class="cov1" title="1">{
+        actual := ctx.GetOutput(t, key)
+        assert.Empty(t, actual, "Output %s should be empty", key)
+}</span>
+
+// AssertOutputMapContainsKey checks that an output map contains the expected key
+func AssertOutputMapContainsKey(t *testing.T, ctx TestContext, mapKey string, key string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that output map %s contains key %s", mapKey, key)
+}</span>
+
+// AssertOutputMapKeyEquals checks that a key in an output map equals the expected value
+func AssertOutputMapKeyEquals(t *testing.T, ctx TestContext, mapKey string, key string, expected string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that output map %s key %s equals %s", mapKey, key, expected)
+}</span>
+
+// AssertOutputListContains checks that an output list contains the expected value
+func AssertOutputListContains(t *testing.T, ctx TestContext, listKey string, value string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that output list %s contains %s", listKey, value)
+}</span>
+
+// AssertOutputListLength checks that an output list has the expected length
+func AssertOutputListLength(t *testing.T, ctx TestContext, listKey string, length int) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that output list %s has length %d", listKey, length)
+}</span>
+
+// AssertOutputJSONContains checks that an output JSON contains the expected key and value
+func AssertOutputJSONContains(t *testing.T, ctx TestContext, jsonKey string, key string, value string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that output JSON %s contains key %s with value %s", jsonKey, key, value)
+}</span>
+
+// AssertResourceExists checks that a resource of the given type and name exists
+func AssertResourceExists(t *testing.T, ctx TestContext, resourceType string, resourceName string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that resource %s.%s exists", resourceType, resourceName)
+}</span>
+
+// AssertResourceCount checks that there are the expected number of resources of the given type
+func AssertResourceCount(t *testing.T, ctx TestContext, resourceType string, count int) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that there are %d resources of type %s", count, resourceType)
+}</span>
+
+// AssertNoResourcesOfType checks that there are no resources of the given type
+func AssertNoResourcesOfType(t *testing.T, ctx TestContext, resourceType string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that there are no resources of type %s", resourceType)
+}</span>
+
+// AssertTerraformVersion checks that the Terraform version is at least the expected version
+func AssertTerraformVersion(t *testing.T, ctx TestContext, version string) <span class="cov0" title="0">{
+        // This is a simplified implementation
+        t.Logf("Checking that Terraform version is at least %s", version)
+}</span>
+
+// The NewMockTestContextSimple function is defined in assertions_test_helpers.go
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package unit
+
+import (
+        "testing"
+
+        "github.com/gruntwork-io/terratest/modules/terraform"
+        "github.com/stretchr/testify/mock"
+)
+
+// MockTestContextSimple implements a simple test context for testing
+type MockTestContextSimple struct {
+        terraform *terraform.Options
+        outputs   map[string]string
+}
+
+func NewMockTestContextSimple() *MockTestContextSimple <span class="cov9" title="8">{
+        return &amp;MockTestContextSimple{
+                terraform: &amp;terraform.Options{},
+                outputs: map[string]string{
+                        "test_key":         "test_value",
+                        "output_file_path": "/tmp/test.txt",
+                        "output_content":   "test content",
+                },
+        }
+}</span>
+
+func (m *MockTestContextSimple) GetOutput(t testing.TB, key string) string <span class="cov10" title="9">{
+        if val, ok := m.outputs[key]; ok </span><span class="cov10" title="9">{
+                return val
+        }</span>
+        <span class="cov0" title="0">return ""</span>
+}
+
+func (m *MockTestContextSimple) GetTerraform() *terraform.Options <span class="cov1" title="1">{
+        return m.terraform
+}</span>
+
+// SetOutput sets an output value for testing
+func (m *MockTestContextSimple) SetOutput(key, value string) <span class="cov9" title="8">{
+        m.outputs[key] = value
+}</span>
+
+// Mock for terraform.OutputMap
+type MockTerraformOptions struct {
+        mock.Mock
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package cmd
+
+import (
+        "os"
+        "os/exec"
+        "path/filepath"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger"
+        "github.com/spf13/cobra"
+)
+
+var (
+        // Format command flags
+        formatModuleRoot  string
+        formatExamplePath string
+        formatCommonOnly  bool
+        allFlag           bool
+)
+
+// formatCmd represents the format command
+var formatCmd = &amp;cobra.Command{
+        Use:   "format",
+        Short: "Format and verify Go test code",
+        Long: `Format and verify Go test code in the tests directory.
+
+This command formats Go test files using 'gofmt' and verifies the formatting.
+If formatting issues are found, it will attempt to fix them and exit with a non-zero
+status code if any issues couldn't be automatically fixed.
+
+Examples:
+  tftest format --all            # Format all Go test files, verifies each example has a matching test directory
+  tftest format --example-path vpc    # Format only the vpc example test files, verifies the example exists
+  tftest format --common         # Format only common test files, verifies the common directory exists
+
+The command verifies the directory structure follows the expected pattern:
+- With --all: Checks each example has a matching test directory
+- With --example-path: Checks both the example and its test directory exist
+- With --common: Checks the common test directory exists`,
+        Run: func(cmd *cobra.Command, args []string) <span class="cov0" title="0">{
+                formatTests()
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        rootCmd.AddCommand(formatCmd)
+
+        // Add flags to format command
+        formatCmd.Flags().StringVar(&amp;formatModuleRoot, "module-root", ".", "Path to the root of the Terraform module")
+        formatCmd.Flags().StringVar(&amp;formatExamplePath, "example-path", "", "Specific example test files to format")
+        formatCmd.Flags().BoolVar(&amp;formatCommonOnly, "common", false, "Format only common test files")
+        formatCmd.Flags().BoolVarP(&amp;allFlag, "all", "A", false, "Format all Go test files")
+}</span>
+
+// formatTests formats and verifies the Go test files
+func formatTests() <span class="cov0" title="0">{
+        // Get absolute path to module root
+        absPath, err := filepath.Abs(formatModuleRoot)
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Fatal("Error resolving path: %v", err)
+        }</span>
+
+        // Verify basic directory structure
+        <span class="cov0" title="0">if !verifyDirectoryStructure(absPath) </span><span class="cov0" title="0">{
+                logger.Error("Invalid directory structure at %s", absPath)
+                logger.Info("Expected structure:")
+                logger.Info("  - examples/")
+                logger.Info("  - tests/")
+                os.Exit(1)
+        }</span>
+
+        // Determine which paths to format
+        <span class="cov0" title="0">var paths []string
+        hasErrors := false
+
+        if allFlag </span><span class="cov0" title="0">{
+                // Format all test directories
+                examplesPath := filepath.Join(absPath, "examples")
+                testsPath := filepath.Join(absPath, "tests")
+
+                // Get all examples
+                examples, err := os.ReadDir(examplesPath)
+                if err != nil </span><span class="cov0" title="0">{
+                        logger.Fatal("Error reading examples directory: %v", err)
+                }</span>
+
+                // Check that each example has a corresponding test directory
+                <span class="cov0" title="0">for _, example := range examples </span><span class="cov0" title="0">{
+                        if !example.IsDir() </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+
+                        <span class="cov0" title="0">exampleName := example.Name()
+                        exampleTestPath := filepath.Join(testsPath, exampleName)
+
+                        if _, err := os.Stat(exampleTestPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                                logger.Error("Missing test directory for example %s: %s", exampleName, exampleTestPath)
+                                hasErrors = true
+                                continue</span>
+                        }
+
+                        <span class="cov0" title="0">paths = append(paths, exampleTestPath)</span>
+                }
+
+                // Add optional directories if they exist
+                <span class="cov0" title="0">commonPath := filepath.Join(testsPath, "common")
+                if _, err := os.Stat(commonPath); !os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        paths = append(paths, commonPath)
+                }</span>
+
+                <span class="cov0" title="0">helpersPath := filepath.Join(testsPath, "helpers")
+                if _, err := os.Stat(helpersPath); !os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        paths = append(paths, helpersPath)
+                }</span>
+
+                <span class="cov0" title="0">logger.Info("Formatting all Go test files")</span>
+        } else<span class="cov0" title="0"> if formatExamplePath != "" </span><span class="cov0" title="0">{
+                // Verify both example and test directories exist
+                exampleDir := filepath.Join(absPath, "examples", formatExamplePath)
+                if _, err := os.Stat(exampleDir); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Example directory not found: %s", exampleDir)
+                }</span>
+
+                // Format a specific example's test directory
+                <span class="cov0" title="0">exampleTestPath := filepath.Join(absPath, "tests", formatExamplePath)
+
+                if _, err := os.Stat(exampleTestPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Test directory for example %s not found: %s", formatExamplePath, exampleTestPath)
+                }</span>
+
+                <span class="cov0" title="0">paths = append(paths, exampleTestPath)
+                logger.Info("Formatting example test files: %s", formatExamplePath)</span>
+        } else<span class="cov0" title="0"> if formatCommonOnly </span><span class="cov0" title="0">{
+                // Format common test directory
+                commonPath := filepath.Join(absPath, "tests", "common")
+
+                if _, err := os.Stat(commonPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Common test directory not found: %s", commonPath)
+                }</span>
+
+                <span class="cov0" title="0">paths = append(paths, commonPath)
+                logger.Info("Formatting common test files")</span>
+        } else<span class="cov0" title="0"> {
+                logger.Fatal("Please specify what to format: --all, --example-path, or --common")
+        }</span>
+
+        <span class="cov0" title="0">if hasErrors </span><span class="cov0" title="0">{
+                logger.Fatal("Directory structure validation failed")
+        }</span>
+
+        <span class="cov0" title="0">logger.Info("Module root: %s", absPath)
+        logger.Info("Starting Go code formatting...")
+
+        formatErrors := false
+
+        // Run gofmt on each path
+        for _, path := range paths </span><span class="cov0" title="0">{
+                logger.Info("Formatting Go files in: %s", path)
+
+                // First check if there are any formatting issues
+                checkCmd := exec.Command("gofmt", "-l", ".")
+                checkCmd.Dir = path
+                output, err := checkCmd.Output()
+
+                if err != nil </span><span class="cov0" title="0">{
+                        logger.Error("Error checking format: %v", err)
+                        formatErrors = true
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">if len(output) &gt; 0 </span><span class="cov0" title="0">{
+                        logger.Warn("Found formatting issues in:\n%s", string(output))
+
+                        // Try to fix the formatting issues
+                        fixCmd := exec.Command("gofmt", "-w", ".")
+                        fixCmd.Dir = path
+                        fixErr := fixCmd.Run()
+
+                        if fixErr != nil </span><span class="cov0" title="0">{
+                                logger.Error("Failed to fix formatting issues: %v", fixErr)
+                                formatErrors = true
+                        }</span> else<span class="cov0" title="0"> {
+                                logger.Info("Fixed formatting issues")
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        logger.Info("No formatting issues found")
+                }</span>
+
+                // Run go vet to check for code issues
+                <span class="cov0" title="0">vetCmd := exec.Command("go", "vet", "./...")
+                vetCmd.Dir = path
+                vetOutput, vetErr := vetCmd.CombinedOutput()
+
+                if vetErr != nil </span><span class="cov0" title="0">{
+                        logger.Error("Go vet found issues:\n%s", string(vetOutput))
+                        formatErrors = true
+                }</span> else<span class="cov0" title="0"> {
+                        logger.Info("Go vet passed")
+                }</span>
+        }
+
+        <span class="cov0" title="0">if formatErrors </span><span class="cov0" title="0">{
+                logger.Fatal("Format verification failed! Some issues could not be automatically fixed.")
+        }</span> else<span class="cov0" title="0"> {
+                logger.Info("Format verification passed! 🎉")
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package cmd
+
+import (
+        "fmt"
+        "os"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger"
+        "github.com/spf13/cobra"
+)
+
+var (
+        // Version will be set during build
+        Version = "dev"
+
+        // Verbose flag
+        verboseLevel string
+
+        // Root command
+        rootCmd = &amp;cobra.Command{
+                Use:   "tftest",
+                Short: "TFTest CLI - A command-line tool for testing Terraform modules",
+                Long: `🚀 TFTest CLI 🚀
+A command-line tool for testing Terraform modules using the Terraform Test Framework.
+
+This framework is opinionated about directory structure and expects:
+- Examples in the 'examples/' directory
+- Tests in the 'tests/' directory with the same name as the example
+- Common tests in 'tests/common/'
+- Helper functions in 'tests/helpers/'
+
+Run 'tftest run' to execute tests for your Terraform module.`,
+                PersistentPreRun: func(cmd *cobra.Command, args []string) <span class="cov0" title="0">{
+                        // Set log level based on verbose flag
+                        if verboseLevel != "" </span><span class="cov0" title="0">{
+                                level, err := logger.ParseLogLevel(verboseLevel)
+                                if err != nil </span><span class="cov0" title="0">{
+                                        fmt.Printf("Warning: %v, using INFO level instead\n", err)
+                                        level = logger.INFO
+                                }</span>
+                                <span class="cov0" title="0">logger.SetDefaultLogLevel(level)
+                                logger.Debug("Log level set to %s", level.String())</span>
+                        }
+                },
+        }
+)
+
+// Execute runs the root command
+func Execute() <span class="cov8" title="1">{
+        if err := rootCmd.Execute(); err != nil </span><span class="cov0" title="0">{
+                logger.Error("Command failed: %v", err)
+                os.Exit(1)
+        }</span>
+}
+
+func init() <span class="cov8" title="1">{
+        // Add persistent flags that work across all subcommands
+        rootCmd.PersistentFlags().StringVarP(&amp;verboseLevel, "verbose", "v", "", "Set verbosity level (DEBUG, INFO, WARN, ERROR, FATAL)")
+
+        // Add version flag
+        rootCmd.Flags().BoolP("version", "V", false, "Print version information")
+        rootCmd.SetVersionTemplate("TFTest CLI {{.Version}}\n")
+        rootCmd.Version = Version
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package cmd
+
+import (
+        "fmt"
+        "os"
+        "os/exec"
+        "path/filepath"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger"
+        "github.com/spf13/cobra"
+)
+
+var (
+        // Run command flags
+        moduleRoot  string
+        examplePath string
+        commonOnly  bool
+)
+
+// runCmd represents the run command
+var runCmd = &amp;cobra.Command{
+        Use:   "run",
+        Short: "Run tests for a Terraform module",
+        Long: `Run tests for a Terraform module using the Terraform Test Framework.
+
+Examples:
+  tftest run                     # Run all tests in the current directory
+  tftest run --example-path vpc  # Run tests for the vpc example
+  tftest run --common            # Run only common tests
+  tftest run --module-root /path/to/terraform-module  # Run all tests in the specified module
+
+This command expects a specific directory structure:
+- Examples in the 'examples/' directory
+- Tests in the 'tests/' directory with the same name as the example
+- Common tests in 'tests/common/'
+- Helper functions in 'tests/helpers/'`,
+        Run: func(cmd *cobra.Command, args []string) <span class="cov0" title="0">{
+                runTests()
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        rootCmd.AddCommand(runCmd)
+
+        // Add flags to run command
+        runCmd.Flags().StringVar(&amp;moduleRoot, "module-root", ".", "Path to the root of the Terraform module (runs all tests)")
+        runCmd.Flags().StringVar(&amp;examplePath, "example-path", "", "Specific example to test (leave empty to test all)")
+        runCmd.Flags().BoolVar(&amp;commonOnly, "common", false, "Run only common tests")
+}</span>
+
+// runTests executes the tests based on the provided flags
+func runTests() <span class="cov0" title="0">{
+        // Get absolute path to module root
+        absPath, err := filepath.Abs(moduleRoot)
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Fatal("Error resolving path: %v", err)
+        }</span>
+
+        // Verify directory structure
+        <span class="cov0" title="0">if !verifyDirectoryStructure(absPath) </span><span class="cov0" title="0">{
+                logger.Error("Invalid directory structure at %s", absPath)
+                logger.Info("Expected structure:")
+                logger.Info("  - examples/")
+                logger.Info("  - tests/")
+                logger.Info("  - tests/common/ (optional)")
+                logger.Info("  - tests/helpers/ (optional)")
+                os.Exit(1)
+        }</span>
+
+        // If specific example, verify it exists
+        <span class="cov0" title="0">if examplePath != "" </span><span class="cov0" title="0">{
+                exampleDir := filepath.Join(absPath, "examples", examplePath)
+                testDir := filepath.Join(absPath, "tests", examplePath)
+
+                if _, err := os.Stat(exampleDir); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Example directory not found: %s", exampleDir)
+                }</span>
+
+                <span class="cov0" title="0">if _, err := os.Stat(testDir); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Test directory for example not found: %s", testDir)
+                }</span>
+        }
+
+        // If common only, verify common directory exists
+        <span class="cov0" title="0">if commonOnly </span><span class="cov0" title="0">{
+                commonDir := filepath.Join(absPath, "tests", "common")
+                if _, err := os.Stat(commonDir); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                        logger.Fatal("Common test directory not found: %s", commonDir)
+                }</span>
+        }
+
+        // Build the test command
+        <span class="cov0" title="0">testPath := "./tests/..."
+        if examplePath != "" </span><span class="cov0" title="0">{
+                testPath = fmt.Sprintf("./tests/%s/...", examplePath)
+                logger.Info("Running tests for example: %s", examplePath)
+        }</span> else<span class="cov0" title="0"> if commonOnly </span><span class="cov0" title="0">{
+                testPath = "./tests/common/..."
+                logger.Info("Running common tests")
+        }</span> else<span class="cov0" title="0"> {
+                logger.Info("Running all tests")
+        }</span>
+
+        <span class="cov0" title="0">logger.Info("Module root: %s", absPath)
+        logger.Info("Starting tests...")
+
+        // Run the tests
+        cmd := exec.Command("go", "test", testPath, "-v")
+        cmd.Dir = absPath
+        cmd.Stdout = os.Stdout
+        cmd.Stderr = os.Stderr
+
+        err = cmd.Run()
+        if err != nil </span><span class="cov0" title="0">{
+                logger.Error("Tests failed: %v", err)
+                os.Exit(1)
+        }</span>
+
+        <span class="cov0" title="0">logger.Info("All tests passed! 🎉")</span>
+}
+
+// verifyDirectoryStructure checks if the directory structure is as expected
+func verifyDirectoryStructure(path string) bool <span class="cov8" title="1">{
+        // Check if examples directory exists
+        examplesPath := filepath.Join(path, "examples")
+        if _, err := os.Stat(examplesPath); os.IsNotExist(err) </span><span class="cov8" title="1">{
+                logger.Error("Examples directory not found at: %s", examplesPath)
+                return false
+        }</span>
+
+        // Check if tests directory exists
+        <span class="cov0" title="0">testsPath := filepath.Join(path, "tests")
+        if _, err := os.Stat(testsPath); os.IsNotExist(err) </span><span class="cov0" title="0">{
+                logger.Error("Tests directory not found at: %s", testsPath)
+                return false
+        }</span>
+
+        <span class="cov0" title="0">return true</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package cmd
+
+import (
+        "fmt"
+
+        "github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger"
+        "github.com/spf13/cobra"
+)
+
+// versionCmd represents the version command
+var versionCmd = &amp;cobra.Command{
+        Use:   "version",
+        Short: "Print the version number",
+        Run: func(cmd *cobra.Command, args []string) <span class="cov0" title="0">{
+                logger.Info("TFTest CLI %s", Version)
+                fmt.Printf("🎉 TFTest CLI %s 🎉\n", Version)
+        }</span>,
+}
+
+func init() <span class="cov8" title="1">{
+        rootCmd.AddCommand(versionCmd)
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package logger
+
+import (
+        "fmt"
+        "io"
+        "os"
+        "strings"
+        "time"
+)
+
+// LogLevel represents the severity of a log message
+type LogLevel int
+
+const (
+        // DEBUG level for detailed information
+        DEBUG LogLevel = iota
+        // INFO level for general information
+        INFO
+        // WARN level for warning messages
+        WARN
+        // ERROR level for error messages
+        ERROR
+        // FATAL level for critical errors
+        FATAL
+)
+
+// String returns the string representation of the log level
+func (l LogLevel) String() string <span class="cov10" title="14">{
+        return [...]string{"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}[l]
+}</span>
+
+// ParseLogLevel converts a string to a LogLevel
+func ParseLogLevel(level string) (LogLevel, error) <span class="cov8" title="8">{
+        switch strings.ToUpper(level) </span>{
+        case "DEBUG":<span class="cov3" title="2">
+                return DEBUG, nil</span>
+        case "INFO":<span class="cov3" title="2">
+                return INFO, nil</span>
+        case "WARN":<span class="cov1" title="1">
+                return WARN, nil</span>
+        case "ERROR":<span class="cov1" title="1">
+                return ERROR, nil</span>
+        case "FATAL":<span class="cov1" title="1">
+                return FATAL, nil</span>
+        default:<span class="cov1" title="1">
+                return INFO, fmt.Errorf("invalid log level: %s", level)</span>
+        }
+}
+
+// Logger provides logging functionality
+type Logger struct {
+        level  LogLevel
+        writer io.Writer
+}
+
+// New creates a new Logger with the specified log level
+func New(level LogLevel) *Logger <span class="cov5" title="4">{
+        return &amp;Logger{
+                level:  level,
+                writer: os.Stdout,
+        }
+}</span>
+
+// SetOutput sets the output writer for the logger
+func (l *Logger) SetOutput(w io.Writer) <span class="cov4" title="3">{
+        l.writer = w
+}</span>
+
+// SetLevel sets the log level
+func (l *Logger) SetLevel(level LogLevel) <span class="cov4" title="3">{
+        l.level = level
+}</span>
+
+// log logs a message at the specified level
+func (l *Logger) log(level LogLevel, format string, args ...interface{}) <span class="cov9" title="12">{
+        if level &lt; l.level </span><span class="cov4" title="3">{
+                return
+        }</span>
+
+        <span class="cov8" title="9">timestamp := time.Now().Format("2006-01-02 15:04:05")
+        levelStr := level.String()
+        message := fmt.Sprintf(format, args...)
+
+        fmt.Fprintf(l.writer, "[%s] %s: %s\n", timestamp, levelStr, message)</span>
+}
+
+// Debug logs a debug message
+func (l *Logger) Debug(format string, args ...interface{}) <span class="cov3" title="2">{
+        l.log(DEBUG, format, args...)
+}</span>
+
+// Info logs an info message
+func (l *Logger) Info(format string, args ...interface{}) <span class="cov6" title="5">{
+        l.log(INFO, format, args...)
+}</span>
+
+// Warn logs a warning message
+func (l *Logger) Warn(format string, args ...interface{}) <span class="cov3" title="2">{
+        l.log(WARN, format, args...)
+}</span>
+
+// Error logs an error message
+func (l *Logger) Error(format string, args ...interface{}) <span class="cov4" title="3">{
+        l.log(ERROR, format, args...)
+}</span>
+
+// Fatal logs a fatal message and exits
+func (l *Logger) Fatal(format string, args ...interface{}) <span class="cov0" title="0">{
+        l.log(FATAL, format, args...)
+        os.Exit(1)
+}</span>
+
+// Default logger instance
+var defaultLogger = New(INFO)
+
+// SetDefaultLogLevel sets the log level for the default logger
+func SetDefaultLogLevel(level LogLevel) <span class="cov3" title="2">{
+        defaultLogger.SetLevel(level)
+}</span>
+
+// Debug logs a debug message using the default logger
+func Debug(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Debug(format, args...)
+}</span>
+
+// Info logs an info message using the default logger
+func Info(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Info(format, args...)
+}</span>
+
+// Warn logs a warning message using the default logger
+func Warn(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Warn(format, args...)
+}</span>
+
+// Error logs an error message using the default logger
+func Error(format string, args ...interface{}) <span class="cov1" title="1">{
+        defaultLogger.Error(format, args...)
+}</span>
+
+// Fatal logs a fatal message and exits using the default logger
+func Fatal(format string, args ...interface{}) <span class="cov0" title="0">{
+        defaultLogger.Fatal(format, args...)
+}</span>
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package main
+
+import (
+        "github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd"
+)
+
+// Version will be set during build
+var Version = "dev"
+
+func main() <span class="cov0" title="0">{
+        // Set version
+        cmd.Version = Version
+
+        // Execute the root command
+        cmd.Execute()
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

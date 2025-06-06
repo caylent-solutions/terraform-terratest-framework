@@ -1,0 +1,62 @@
+{
+  "name": "caylent-devcontainer",
+  "remoteUser": "vscode",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": { "version": "latest" },
+    "ghcr.io/devcontainers/features/python:1": { "version": "latest" },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": { "version": "latest" },
+    "ghcr.io/devcontainers/features/common-utils:2": { "version": "latest" },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": { "version": "latest" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "amazonwebservices.amazon-q-vscode",
+        "aws-scripting-guy.cform",
+        "amazonwebservices.aws-toolkit-vscode",
+        "cschlosser.doxdocgen",
+        "eamodio.gitlens",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "GitHub.vscode-github-actions",
+        "ms-azuretools.vscode-docker",
+        "ms-python.debugpy",
+        "ms-python.isort",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.makefile-tools",
+        "redhat.vscode-yaml",
+        "streetsidesoftware.code-spell-checker",
+        "wayou.vscode-todo-highlight",
+        "wholroyd.jinja"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "gitlens.currentLine.enabled": false,
+        "gitlens.codeLens.enabled": false,
+        "gitlens.hovers.enabled": false,
+        "gitlens.statusBar.enabled": false,
+        "gitlens.blame.line.enabled": false,
+        "gitlens.blame.file.enabled": false
+      }
+    }
+  },
+  "forwardPorts": [5678, 9229, 5005, 8080, 5050],
+  "userEnvProbe": "loginInteractiveShell",
+  "containerEnv": {
+    "AWS_CONFIG_ENABLED":     "${localEnv:AWS_CONFIG_ENABLED}",
+    "DEFAULT_GIT_BRANCH":     "${localEnv:DEFAULT_GIT_BRANCH}",
+    "DEFAULT_PYTHON_VERSION": "${localEnv:DEFAULT_PYTHON_VERSION}",
+    "DEVELOPER_NAME":         "${localEnv:DEVELOPER_NAME}",
+    "DEVCONTAINER":           "true",
+    "EXTRA_APT_PACKAGES":     "${localEnv:EXTRA_APT_PACKAGES}",
+    "GIT_PROVIDER_URL":       "${localEnv:GIT_PROVIDER_URL}",
+    "GIT_TOKEN":              "${localEnv:GIT_TOKEN}",
+    "GIT_USER":               "${localEnv:GIT_USER}",
+    "GIT_USER_EMAIL":         "${localEnv:GIT_USER_EMAIL}"
+  },
+  "postCreateCommand": "sudo apt-get update; sudo apt-get install -y gettext-base jq; sudo bash .devcontainer/.devcontainer.postcreate.sh vscode"
+}
