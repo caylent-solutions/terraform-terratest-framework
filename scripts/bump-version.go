@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
@@ -15,7 +14,7 @@ func main() {
 	loadAsdf()
 
 	// Get the current version from VERSION file
-	currentVersion, err := ioutil.ReadFile("VERSION")
+	currentVersion, err := os.ReadFile("VERSION")
 	if err != nil {
 		fmt.Println("Error reading VERSION file:", err)
 		os.Exit(1)
@@ -66,8 +65,15 @@ func main() {
 	newVersion := fmt.Sprintf("%d.%d.%d", major, minor, patch)
 	fmt.Println("New version:", newVersion)
 
+	// Check if tag already exists
+	tagExists := checkTagExists(newVersion)
+	if tagExists {
+		fmt.Printf("Tag %s already exists. Please use a different version.\n", newVersion)
+		os.Exit(1)
+	}
+
 	// Update VERSION file
-	err = ioutil.WriteFile("VERSION", []byte(newVersion+"\n"), 0644)
+	err = os.WriteFile("VERSION", []byte(newVersion+"\n"), 0644)
 	if err != nil {
 		fmt.Println("Error writing VERSION file:", err)
 		os.Exit(1)
@@ -85,9 +91,9 @@ func main() {
 	runCommand("git", "commit", "-m", fmt.Sprintf("chore: bump version to %s", newVersion))
 
 	// Create a tag
-	runCommand("git", "tag", "-a", fmt.Sprintf("v%s", newVersion), "-m", fmt.Sprintf("Version %s", newVersion))
+	runCommand("git", "tag", "-a", newVersion, "-m", fmt.Sprintf("Version %s", newVersion))
 
-	fmt.Println("Changes committed and tagged as v" + newVersion)
+	fmt.Println("Changes committed and tagged as", newVersion)
 	fmt.Println("Run 'git push && git push --tags' to push changes to remote")
 }
 
@@ -121,6 +127,26 @@ func loadAsdf() {
 	} else {
 		fmt.Println("Warning: asdf not found at", asdfPath)
 	}
+}
+
+func runCommand(name string, args ...string) {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("Error running command '%s %s': %v\n", name, strings.Join(args, " "), err)
+		os.Exit(1)
+	}
+}
+
+func checkTagExists(version string) bool {
+	cmd := exec.Command("git", "tag", "-l", version)
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	return strings.TrimSpace(string(output)) != ""
 }
 
 func determineBumpType() string {
@@ -188,31 +214,20 @@ func determineFromCommits(commits []string) string {
 
 func updateMakefile(newVersion string) {
 	// Read Makefile
-	content, err := ioutil.ReadFile("Makefile")
+	content, err := os.ReadFile("Makefile")
 	if err != nil {
 		fmt.Println("Error reading Makefile:", err)
 		os.Exit(1)
 	}
 
-	// Update version in Makefile
+	// Update version in Makefile - remove the 'v' prefix
 	re := regexp.MustCompile(`Version=v[0-9]*\.[0-9]*\.[0-9]*`)
-	updatedContent := re.ReplaceAllString(string(content), fmt.Sprintf("Version=v%s", newVersion))
+	updatedContent := re.ReplaceAllString(string(content), fmt.Sprintf("Version=%s", newVersion))
 
 	// Write updated content back to Makefile
-	err = ioutil.WriteFile("Makefile", []byte(updatedContent), 0644)
+	err = os.WriteFile("Makefile", []byte(updatedContent), 0644)
 	if err != nil {
 		fmt.Println("Error writing Makefile:", err)
-		os.Exit(1)
-	}
-}
-
-func runCommand(name string, args ...string) {
-	cmd := exec.Command(name, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Printf("Error running command '%s %s': %v\n", name, strings.Join(args, " "), err)
 		os.Exit(1)
 	}
 }
