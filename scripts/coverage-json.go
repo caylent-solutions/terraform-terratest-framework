@@ -15,9 +15,9 @@ type FileCoverage struct {
 }
 
 type GroupCoverage struct {
-	Name      string         `json:"name"`
-	Total     string         `json:"total"`
-	Files     []FileCoverage `json:"files"`
+	Name  string         `json:"name"`
+	Total string         `json:"total"`
+	Files []FileCoverage `json:"files"`
 }
 
 type CoverageSummary struct {
@@ -53,7 +53,7 @@ func parseCoverageOutput(filePath string) ([]FileCoverage, string) {
 		if len(parts) >= 3 {
 			file := parts[0]
 			coverageStr := parts[len(parts)-1]
-			
+
 			// Skip mode line and non-coverage lines
 			if file == "mode:" || !strings.HasSuffix(coverageStr, "%") {
 				continue

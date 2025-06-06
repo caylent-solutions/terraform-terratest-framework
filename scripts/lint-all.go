@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -27,7 +28,29 @@ var packages = []string{
 	"./tests/unit",
 }
 
+// Define ignored directories
+var ignoredDirs []string
+
 func main() {
+	// Parse command line flags
+	ignoreFlag := flag.String("ignore", "bin", "Comma-separated list of directories to ignore during linting")
+	flag.Parse()
+
+	// Process ignored directories
+	if *ignoreFlag != "" {
+		ignoredDirs = strings.Split(*ignoreFlag, ",")
+		for i, dir := range ignoredDirs {
+			ignoredDirs[i] = strings.TrimSpace(dir)
+		}
+
+		// Display which directories are being ignored
+		if len(ignoredDirs) == 1 {
+			fmt.Printf("⚠️  Ignoring directory during linting: %s\n", ignoredDirs[0])
+		} else if len(ignoredDirs) > 1 {
+			fmt.Printf("⚠️  Ignoring directories during linting: %s\n", strings.Join(ignoredDirs, ", "))
+		}
+	}
+
 	// Load asdf
 	loadAsdf()
 
@@ -101,14 +124,40 @@ func runGofmtChecks() int {
 	files := strings.TrimSpace(string(output))
 	if files != "" {
 		fmt.Println("Files needing formatting (violates gofmt policy):")
+
+		failedFiles := 0
 		for _, file := range strings.Split(files, "\n") {
+			// Skip files in ignored directories
+			if shouldIgnoreFile(file) {
+				continue
+			}
+
 			fmt.Printf("❌ %s\n", file)
+			failedFiles++
 		}
-		return 1
+
+		if failedFiles > 0 {
+			return 1
+		}
 	}
 
 	fmt.Println("✅ All files properly formatted")
 	return 0
+}
+
+// shouldIgnoreFile checks if a file should be ignored based on ignoredDirs
+func shouldIgnoreFile(filePath string) bool {
+	for _, dir := range ignoredDirs {
+		if dir == "" {
+			continue
+		}
+
+		// Check if the file path starts with the ignored directory
+		if strings.HasPrefix(filePath, dir+"/") || filePath == dir {
+			return true
+		}
+	}
+	return false
 }
 
 // runGoVetChecks runs go vet on all packages and returns exit code (0 = success)

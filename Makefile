@@ -29,7 +29,7 @@ format:
 		echo "Building format tool..."; \
 		go build -o ./bin/format-safely ./scripts/format-safely.go; \
 	fi
-	./bin/format-safely
+	@./bin/format-safely --ignore="bin"
 	@rm -f ./bin/format-safely
 
 functional-test:
@@ -59,7 +59,7 @@ lint:
 		echo "Building lint tool..."; \
 		go build -o ./bin/lint-all ./scripts/lint-all.go; \
 	fi
-	./bin/lint-all || echo "Lint check failed ❌"
+	@./bin/lint-all --ignore="bin" || echo "Lint check failed ❌"
 	@rm -f ./bin/lint-all
 	@echo "Lint check complete"
 

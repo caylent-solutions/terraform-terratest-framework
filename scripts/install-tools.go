@@ -14,7 +14,7 @@ func main() {
 	// Parse command line arguments
 	updateOnly := false
 	asdfVersion := maxAsdfVersion // Default version
-	
+
 	for _, arg := range os.Args[1:] {
 		if arg == "--update" {
 			updateOnly = true
@@ -24,7 +24,7 @@ func main() {
 			if compareVersions(requestedVersion, maxAsdfVersion) <= 0 {
 				asdfVersion = requestedVersion
 			} else {
-				fmt.Printf("Warning: Requested asdf version %s is higher than maximum allowed %s. Using %s instead.\n", 
+				fmt.Printf("Warning: Requested asdf version %s is higher than maximum allowed %s. Using %s instead.\n",
 					requestedVersion, maxAsdfVersion, maxAsdfVersion)
 			}
 		}
@@ -61,11 +61,11 @@ func compareVersions(v1, v2 string) int {
 	// Remove 'v' prefix if present
 	v1 = strings.TrimPrefix(v1, "v")
 	v2 = strings.TrimPrefix(v2, "v")
-	
+
 	// Split versions by dots
 	parts1 := strings.Split(v1, ".")
 	parts2 := strings.Split(v2, ".")
-	
+
 	// Compare each part
 	for i := 0; i < len(parts1) && i < len(parts2); i++ {
 		if parts1[i] < parts2[i] {
@@ -75,7 +75,7 @@ func compareVersions(v1, v2 string) int {
 			return 1
 		}
 	}
-	
+
 	// If all parts are equal up to the length of the shorter version
 	if len(parts1) < len(parts2) {
 		return -1
@@ -83,7 +83,7 @@ func compareVersions(v1, v2 string) int {
 	if len(parts1) > len(parts2) {
 		return 1
 	}
-	
+
 	return 0 // Versions are equal
 }
 
@@ -95,7 +95,7 @@ func installAsdf(version string) {
 	}
 
 	asdfDir := filepath.Join(homeDir, ".asdf")
-	
+
 	// Clone asdf repository with specified version
 	cmd := exec.Command("git", "clone", "https://github.com/asdf-vm/asdf.git", asdfDir, "--branch", version)
 	cmd.Stdout = os.Stdout
@@ -126,12 +126,12 @@ func installPlugins() {
 		if line == "" {
 			continue
 		}
-		
+
 		parts := strings.Fields(line)
 		if len(parts) > 0 {
 			plugin := parts[0]
 			fmt.Printf("Adding plugin: %s\n", plugin)
-			
+
 			cmd := exec.Command("asdf", "plugin", "add", plugin)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
@@ -182,12 +182,12 @@ func updateTools() {
 		if line == "" {
 			continue
 		}
-		
+
 		parts := strings.Fields(line)
 		if len(parts) > 0 {
 			plugin := parts[0]
 			fmt.Printf("Ensuring plugin %s is installed...\n", plugin)
-			
+
 			cmd := exec.Command("asdf", "plugin", "add", plugin)
 			cmd.Run() // Ignore errors as plugin might already be installed
 		}

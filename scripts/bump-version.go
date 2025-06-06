@@ -119,7 +119,7 @@ func loadAsdf() {
 		// to include the asdf bin directory
 		asdfBinPath := fmt.Sprintf("%s/.asdf/bin", homeDir)
 		asdfShimsPath := fmt.Sprintf("%s/.asdf/shims", homeDir)
-		
+
 		path := os.Getenv("PATH")
 		if !strings.Contains(path, asdfBinPath) {
 			os.Setenv("PATH", fmt.Sprintf("%s:%s:%s", asdfBinPath, asdfShimsPath, path))

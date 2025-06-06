@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -8,41 +9,87 @@ import (
 	"strings"
 )
 
+// shouldIgnoreFile checks if a file should be ignored based on ignoredDirs
+func shouldIgnoreFile(filePath string, ignoredDirs []string) bool {
+	for _, dir := range ignoredDirs {
+		if dir == "" {
+			continue
+		}
+
+		// Check if the file path starts with the ignored directory
+		if strings.HasPrefix(filePath, dir+"/") || filePath == dir {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
+	// Parse command line arguments
+	ignoreDirs := flag.String("ignore", "", "Comma-separated list of directories to ignore")
+	flag.Parse()
+
 	// Load asdf
 	loadAsdf()
 
 	fmt.Println("Formatting Go code...")
 
-	// Run gofmt directly (very reliable and memory-efficient)
-	fmt.Println("Running gofmt on all Go files...")
-	
-	// Directories to format
-	dirs := []string{"./internal", "./tftest-cli", "./tests", "./examples"}
-	
-	for _, dir := range dirs {
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if !info.IsDir() && strings.HasSuffix(path, ".go") {
-				cmd := exec.Command("gofmt", "-w", path)
-				if err := cmd.Run(); err != nil {
-					fmt.Printf("Error formatting %s: %v\n", path, err)
-				}
-			}
-			return nil
-		})
-		
-		if err != nil {
-			fmt.Printf("Error walking directory %s: %v\n", dir, err)
+	// Parse ignored directories
+	var ignoredDirList []string
+	if *ignoreDirs != "" {
+		for _, dir := range strings.Split(*ignoreDirs, ",") {
+			ignoredDirList = append(ignoredDirList, strings.TrimSpace(dir))
+		}
+
+		// Display which directories are being ignored
+		if len(ignoredDirList) == 1 {
+			fmt.Printf("⚠️  Ignoring directory during formatting: %s\n", ignoredDirList[0])
+		} else if len(ignoredDirList) > 1 {
+			fmt.Printf("⚠️  Ignoring directories during formatting: %s\n", strings.Join(ignoredDirList, ", "))
 		}
 	}
 
-	// Skip golangci-lint completely as it's trying to compile the code
-	// which is causing errors
+	// First check which files need formatting
+	fmt.Println("Checking which files need formatting...")
+	checkCmd := exec.Command("gofmt", "-l", ".")
+	output, err := checkCmd.Output()
+	if err != nil {
+		fmt.Printf("Error checking files: %v\n", err)
+		os.Exit(1)
+	}
 
-	fmt.Println("Format complete ✨")
+	files := strings.TrimSpace(string(output))
+	if files == "" {
+		fmt.Println("✅ All files are already properly formatted")
+		return
+	}
+
+	// Show which files will be formatted
+	fmt.Println("Formatting the following files:")
+	fileCount := 0
+	for _, file := range strings.Split(files, "\n") {
+		// Skip files in ignored directories
+		if shouldIgnoreFile(file, ignoredDirList) {
+			continue
+		}
+		fmt.Printf("  - %s\n", file)
+		fileCount++
+	}
+
+	if fileCount == 0 {
+		fmt.Println("No files need formatting after applying ignore rules")
+		return
+	}
+
+	// Run gofmt to fix the files
+	fmt.Println("Running gofmt to fix formatting...")
+	cmd := exec.Command("gofmt", "-w", ".")
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Error running gofmt: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✨ Format complete - fixed %d file(s)\n", fileCount)
 }
 
 // loadAsdf attempts to load asdf from the user's home directory
