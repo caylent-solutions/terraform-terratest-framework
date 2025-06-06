@@ -6,7 +6,7 @@
 COVERAGE_DIR := tmp/coverage
 
 build-cli:
-	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v0.3.0'" ./cmd/tftest
+	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v0.3.1'" ./cmd/tftest
 	@echo "🎉 TFTest CLI built at bin/tftest"
 
 clean:
