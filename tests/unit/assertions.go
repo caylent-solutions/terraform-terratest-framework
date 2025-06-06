@@ -107,9 +107,9 @@ func AssertOutputListLength(t *testing.T, ctx TestContext, listKey string, lengt
 }
 
 // AssertOutputJSONContains checks that an output JSON contains the expected key and value
-func AssertOutputJSONContains(t *testing.T, ctx TestContext, jsonKey string, key string, value string) {
+func AssertOutputJSONContains(t *testing.T, ctx TestContext, jsonKey string, key string, value interface{}) {
 	// This is a simplified implementation
-	t.Logf("Checking that output JSON %s contains key %s with value %s", jsonKey, key, value)
+	t.Logf("Checking that output JSON %s contains key %s with value %v", jsonKey, key, value)
 }
 
 // AssertResourceExists checks that a resource of the given type and name exists

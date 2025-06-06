@@ -32,6 +32,15 @@ func (ctx TestContext) GetTerraform() *terraform.Options {
 	return ctx.Terraform
 }
 
+// GetVariableAsMap returns the variables from the terraform options
+// This is a compatibility function to replace the removed terraform.GetVariableAsMap
+func (ctx TestContext) GetVariableAsMap() map[string]interface{} {
+	if ctx.Terraform != nil && ctx.Terraform.Vars != nil {
+		return ctx.Terraform.Vars
+	}
+	return make(map[string]interface{})
+}
+
 // NewTestContext creates a new test context
 func NewTestContext(examplePath string, vars map[string]interface{}) TestContext {
 	if vars == nil {
