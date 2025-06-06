@@ -11,14 +11,14 @@ You have two options for installing the TFTest CLI:
 ```bash
 # This installs the same version specified in your module's go.mod
 cd /path/to/your/terraform-module
-go install github.com/caylent-solutions/terraform-terratest-framework/tftest-cli@$(grep terraform-terratest-framework go.mod | awk '{print $2}')
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@$(grep terraform-terratest-framework go.mod | awk '{print $2}')
 ```
 
 ### Option 2: Install from a specific branch
 
 ```bash
 # This installs from a specific branch (e.g., main, develop)
-go install github.com/caylent-solutions/terraform-terratest-framework/tftest-cli@main
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@main
 ```
 
 ## 🎮 Usage

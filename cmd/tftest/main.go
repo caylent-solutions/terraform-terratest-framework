@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/cmd"
+	"github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest/cmd"
 )
 
 // Version will be set during build

@@ -159,7 +159,10 @@ For examples of how to use this framework, see the [Examples Directory](examples
 To install the framework as a dependency in your Terraform module project:
 
 ```bash
-go get github.com/caylent-solutions/terraform-terratest-framework
+go get github.com/caylent-solutions/terraform-terratest-framework@v0.2.0
+
+# To install the CLI tool
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@v0.2.0
 ```
 
 This adds the framework to your module's `go.mod` file, allowing you to use its testing capabilities in your Go test files.

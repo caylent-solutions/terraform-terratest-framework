@@ -65,10 +65,11 @@ func main() {
 	newVersion := fmt.Sprintf("%d.%d.%d", major, minor, patch)
 	fmt.Println("New version:", newVersion)
 
-	// Check if tag already exists
-	tagExists := checkTagExists(newVersion)
+	// Check if tag already exists (with v prefix)
+	tagVersion := fmt.Sprintf("v%s", newVersion)
+	tagExists := checkTagExists(tagVersion)
 	if tagExists {
-		fmt.Printf("Tag %s already exists. Please use a different version.\n", newVersion)
+		fmt.Printf("Tag %s already exists. Please use a different version.\n", tagVersion)
 		os.Exit(1)
 	}
 
@@ -90,10 +91,11 @@ func main() {
 	// Commit the changes
 	runCommand("git", "commit", "-m", fmt.Sprintf("chore: bump version to %s", newVersion))
 
-	// Create a tag
-	runCommand("git", "tag", "-a", newVersion, "-m", fmt.Sprintf("Version %s", newVersion))
+	// Create a tag with v prefix
+	tagVersion := fmt.Sprintf("v%s", newVersion)
+	runCommand("git", "tag", "-a", tagVersion, "-m", fmt.Sprintf("Version %s", newVersion))
 
-	fmt.Println("Changes committed and tagged as", newVersion)
+	fmt.Println("Changes committed and tagged as", tagVersion)
 	fmt.Println("Run 'git push && git push --tags' to push changes to remote")
 }
 
@@ -220,9 +222,9 @@ func updateMakefile(newVersion string) {
 		os.Exit(1)
 	}
 
-	// Update version in Makefile - remove the 'v' prefix
-	re := regexp.MustCompile(`Version=v[0-9]*\.[0-9]*\.[0-9]*`)
-	updatedContent := re.ReplaceAllString(string(content), fmt.Sprintf("Version=%s", newVersion))
+	// Update version in Makefile - add the 'v' prefix
+	re := regexp.MustCompile(`Version=[0-9]*\.[0-9]*\.[0-9]*`)
+	updatedContent := re.ReplaceAllString(string(content), fmt.Sprintf("Version=v%s", newVersion))
 
 	// Write updated content back to Makefile
 	err = os.WriteFile("Makefile", []byte(updatedContent), 0644)

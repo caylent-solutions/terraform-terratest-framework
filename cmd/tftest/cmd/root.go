@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/tftest-cli/logger"
+	"github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest/logger"
 	"github.com/spf13/cobra"
 )
 

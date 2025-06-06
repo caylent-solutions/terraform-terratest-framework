@@ -3,7 +3,7 @@ package common
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 // TestAllExamples runs all examples and their tests in parallel
