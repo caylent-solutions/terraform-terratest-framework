@@ -44,13 +44,9 @@ func main() {
 		exitCode = 1
 	}
 
-	fmt.Println("Step 3: Skipping error checking (most are false positives in test code)")
-	fmt.Println("✅ Error checking skipped")
-
 	fmt.Println("\n=== Lint Summary ===")
 	fmt.Printf("gofmt checks: %s\n", formatStatus(gofmtResult == 0, "violates code formatting policy"))
 	fmt.Printf("go vet checks: %s\n", formatStatus(goVetResult == 0, "violates code correctness policy"))
-	fmt.Println("error checks: SKIPPED ✅")
 
 	os.Exit(exitCode)
 }
@@ -97,15 +93,13 @@ func runGoVetChecks() int {
 
 	for _, pkg := range packages {
 		if strings.HasPrefix(pkg, "github.com/caylent-solutions/terraform-terratest-framework/scripts") {
-			// Skip scripts package due to main redeclaration
-			continue
+			continue // skip scripts package
 		}
 		if shouldIgnoreFile(pkg) {
 			continue
 		}
 		cmd := exec.Command("go", "vet", pkg)
 		output, err := cmd.CombinedOutput()
-
 		if err != nil {
 			fmt.Printf("❌ %s (violates go vet policy)\n", pkg)
 			printLines(output)
