@@ -81,8 +81,6 @@ release:
 	@go build -o ./bin/release ./scripts/release/main.go
 	@./bin/release $(TYPE)
 	@rm -f ./bin/release
-	@echo "Release created! 🚀"
-	@echo "Run 'git push && git push --tags' to publish the release"
 
 run-specific-functional-test:
 	@if [ -z "$(FUNCTIONAL_TEST)" ]; then \

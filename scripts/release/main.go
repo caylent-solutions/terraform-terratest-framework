@@ -79,8 +79,12 @@ func main() {
 	runCommand("git", "commit", "-m", fmt.Sprintf("release: cut %s [skip ci]", tagVersion))
 	runCommand("git", "tag", "-a", tagVersion, "-m", fmt.Sprintf("release: %s", tagVersion))
 
-	fmt.Println("Changes committed and tagged as", tagVersion)
-	fmt.Println("Run 'git push && git push --tags' to push changes to remote")
+	// Push changes and tags
+	fmt.Println("Pushing changes and tags to remote...")
+	runCommand("git", "push")
+	runCommand("git", "push", "--tags")
+
+	fmt.Println("Release", tagVersion, "created and pushed successfully! 🚀")
 }
 
 func loadAsdf() {
