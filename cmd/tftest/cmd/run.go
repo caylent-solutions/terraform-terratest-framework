@@ -15,6 +15,7 @@ var (
 	moduleRoot  string
 	examplePath string
 	commonOnly  bool
+	parallel    bool
 )
 
 // runCmd represents the run command
@@ -28,6 +29,7 @@ Examples:
   tftest run --example-path vpc  # Run tests for the vpc example
   tftest run --common            # Run only common tests
   tftest run --module-root /path/to/terraform-module  # Run all tests in the specified module
+  tftest run --parallel=false    # Run tests sequentially (disables parallel execution)
 
 This command expects a specific directory structure:
 - Examples in the 'examples/' directory
@@ -46,6 +48,7 @@ func init() {
 	runCmd.Flags().StringVar(&moduleRoot, "module-root", ".", "Path to the root of the Terraform module (runs all tests)")
 	runCmd.Flags().StringVar(&examplePath, "example-path", "", "Specific example to test (leave empty to test all)")
 	runCmd.Flags().BoolVar(&commonOnly, "common", false, "Run only common tests")
+	runCmd.Flags().BoolVar(&parallel, "parallel", true, "Run tests in parallel (set to false to run sequentially)")
 }
 
 // runTests executes the tests based on the provided flags
@@ -102,10 +105,22 @@ func runTests() {
 	}
 
 	logger.Info("Module root: %s", absPath)
+	if !parallel {
+		logger.Info("Running tests sequentially (parallel execution disabled)")
+	} else {
+		logger.Info("Running tests in parallel")
+	}
 	logger.Info("Starting tests...")
 
 	// Run the tests
-	cmd := exec.Command("go", "test", testPath, "-v")
+	args := []string{"test", testPath, "-v"}
+
+	// Add -p 1 flag if parallel is false to disable parallel execution
+	if !parallel {
+		args = append(args, "-p", "1")
+	}
+
+	cmd := exec.Command("go", args...)
 	cmd.Dir = absPath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -44,6 +44,9 @@ tftest run --common
 # Run all tests in a specific module
 tftest run --module-root /path/to/terraform-module
 
+# Run tests sequentially (disable parallel execution)
+tftest run --parallel=false
+
 # Format and verify all Go test files
 tftest format --all
 
@@ -89,6 +92,7 @@ tftest -v FATAL run               # Only fatal errors
 - `--module-root` - Path to the root of the Terraform module (runs all tests)
 - `--example-path` - Specific example to test (verifies both example and test directories exist)
 - `--common` - Run only common tests (verifies common directory exists)
+- `--parallel` - Run tests in parallel (default: true, set to false to run sequentially)
 - `--help, -h` - Show help for the run command
 
 ## Options for 'format' command
@@ -106,8 +110,9 @@ tftest -v FATAL run               # Only fatal errors
 1. Verifies your module follows the expected directory structure
 2. When using `--example-path`, verifies both the example and its test directory exist
 3. When using `--common`, verifies the common test directory exists
-4. Runs the appropriate tests using the Go test command
-5. Displays the test results in real-time with colorful output
+4. When using `--parallel=false`, adds the `-p 1` flag to the Go test command to disable parallel execution
+5. Runs the appropriate tests using the Go test command
+6. Displays the test results in real-time with colorful output
 
 ### Format Command
 

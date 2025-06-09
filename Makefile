@@ -1,13 +1,13 @@
 .PHONY: build-cli clean clean-coverage configure format functional-test \
         install install-tools lint list-functional-tests pre-commit pre-commit-install \
         release run-specific-functional-test test test-coverage test-coverage-json \
-        test-html-coverage unit-test update-tools
+        test-html-coverage unit-test update-tools test-sequential
 
 COVERAGE_DIR := tmp/coverage
 
 build-cli:
-	@VERSION=$(cat VERSION) && \
-	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v$VERSION'" ./cmd/tftest
+	@VERSION=$$(cat VERSION) && \
+	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v$$VERSION'" ./cmd/tftest
 	@echo "🎉 TFTest CLI built at bin/tftest"
 
 clean:
@@ -99,11 +99,20 @@ run-specific-functional-test:
 test: unit-test functional-test
 	@echo "All tests passed! 🎉"
 
+test-sequential:
+	@echo "Running all tests sequentially..."
+	@$(MAKE) build-cli
+	@go test -p 1 -v ./internal/... ./pkg/... ./cmd/tftest/... ./tests/functional/...
+	@echo "All tests passed! 🎉"
+
 test-coverage:
 	@go run scripts/test-coverage/main.go scripts/coverage-groups.json
 
 test-coverage-json:
 	@go run scripts/test-coverage-json/main.go scripts/coverage-groups.json
+
+test-coverage-html:
+	@go run scripts/test-coverage-html/main.go scripts/coverage-groups.json
 
 unit-test:
 	@go run scripts/unit-test/main.go "./internal/... ./pkg/... ./pkg/assertions/... ./cmd/tftest/..."
