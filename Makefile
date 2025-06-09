@@ -6,7 +6,8 @@
 COVERAGE_DIR := tmp/coverage
 
 build-cli:
-	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v0.4.0'" ./cmd/tftest
+	@VERSION=$(cat VERSION) && \
+	go build -o bin/tftest -ldflags="-X 'github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest.Version=v$VERSION'" ./cmd/tftest
 	@echo "🎉 TFTest CLI built at bin/tftest"
 
 clean:
@@ -35,7 +36,7 @@ format:
 
 
 functional-test:
-	@go run scripts/functional-test/main.go "./tests/functional/..." "./pkg/..."
+	@go run scripts/functional-test/main.go "./tests/functional/..."
 
 install:
 	go mod tidy
