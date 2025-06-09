@@ -58,7 +58,7 @@ func AssertFileContent(t testing.TB, ctx testctx.TestContext) {
 	expectedContent := terraform.Output(t, ctx.Terraform, "output_content")
 	filePath := terraform.Output(t, ctx.Terraform, "output_file_path")
 	fullPath := filepath.Join(ctx.Terraform.TerraformDir, filePath)
-	
+
 	content, err := os.ReadFile(fullPath)
 	assert.NoError(t, err, "Should be able to read file: %s", fullPath)
 	assert.Equal(t, expectedContent, string(content), "File content should match expected value")
@@ -97,7 +97,7 @@ func AssertOutputJSONContains(t testing.TB, ctx testctx.TestContext, outputName 
 	var jsonData map[string]interface{}
 	err := json.Unmarshal([]byte(jsonString), &jsonData)
 	assert.NoError(t, err, "Output %s should be valid JSON", outputName)
-	
+
 	value, exists := jsonData[key]
 	assert.True(t, exists, "JSON output %s should contain key %s", outputName, key)
 	assert.Equal(t, expectedValue, value, "JSON output %s key %s should equal expected value", outputName, key)
@@ -107,7 +107,7 @@ func AssertOutputJSONContains(t testing.TB, ctx testctx.TestContext, outputName 
 func AssertResourceExists(t testing.TB, ctx testctx.TestContext, resourceType string, resourceName string) {
 	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "state", "list")
 	assert.NoError(t, err, "Terraform state list should not fail")
-	
+
 	resourceAddress := fmt.Sprintf("module.example.%s.%s", resourceType, resourceName)
 	assert.Contains(t, output, resourceAddress, "Resource %s should exist in Terraform state", resourceAddress)
 }
@@ -116,14 +116,14 @@ func AssertResourceExists(t testing.TB, ctx testctx.TestContext, resourceType st
 func AssertResourceCount(t testing.TB, ctx testctx.TestContext, resourceType string, expectedCount int) {
 	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "state", "list")
 	assert.NoError(t, err, "Terraform state list should not fail")
-	
+
 	count := 0
 	for _, line := range regexp.MustCompile(`\r?\n`).Split(output, -1) {
 		if regexp.MustCompile(fmt.Sprintf(`module\.example\.%s\.`, resourceType)).MatchString(line) {
 			count++
 		}
 	}
-	
+
 	assert.Equal(t, expectedCount, count, "Resource count for %s should match expected count", resourceType)
 }
 
@@ -136,12 +136,12 @@ func AssertNoResourcesOfType(t testing.TB, ctx testctx.TestContext, resourceType
 func AssertTerraformVersion(t testing.TB, ctx testctx.TestContext, minVersion string) {
 	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "version")
 	assert.NoError(t, err, "Terraform version should not fail")
-	
+
 	// Extract version from output (e.g., "Terraform v1.12.1")
 	versionRegex := regexp.MustCompile(`Terraform v(\d+\.\d+\.\d+)`)
 	matches := versionRegex.FindStringSubmatch(output)
 	assert.True(t, len(matches) > 1, "Should be able to extract Terraform version")
-	
+
 	// Compare versions (simplified, assumes semantic versioning)
 	assert.True(t, matches[1] >= minVersion, "Terraform version should be at least %s", minVersion)
 }
@@ -149,7 +149,7 @@ func AssertTerraformVersion(t testing.TB, ctx testctx.TestContext, minVersion st
 // AssertIdempotent verifies that a Terraform plan shows no changes after apply
 func AssertIdempotent(t testing.TB, ctx testctx.TestContext) {
 	planOutput := terraform.Plan(t, ctx.Terraform)
-	assert.True(t, 
+	assert.True(t,
 		regexp.MustCompile(`No changes|no changes`).MatchString(planOutput),
 		"Terraform plan should show no changes after apply")
 }

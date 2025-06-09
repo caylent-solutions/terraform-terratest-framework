@@ -35,14 +35,7 @@ format:
 
 
 functional-test:
-	@echo "Running functional tests (verbose output)..."
-	@$(MAKE) build-cli
-	@mkdir -p $(COVERAGE_DIR)
-	@go test -v -covermode=atomic -coverprofile=$(COVERAGE_DIR)/functional.out -coverpkg=./pkg/... ./tests/functional/... ; \
-	echo "\nFunctional Test Coverage of Packages:" ; \
-	go tool cover -func=$(COVERAGE_DIR)/functional.out | grep total: | awk '{print "  " $1 " " $2 " " $3}' ; \
-	echo "\nSummarizing functional test results..." ; \
-	go test -json ./tests/functional/... | go run scripts/test-summary.go "Functional Test Summary" || true
+	@go run scripts/functional-test/main.go "./tests/functional/..." "./pkg/..."
 
 install:
 	go mod tidy
@@ -106,21 +99,13 @@ test: unit-test functional-test
 	@echo "All tests passed! 🎉"
 
 test-coverage:
-	@go run scripts/test-coverage/main.go
+	@go run scripts/test-coverage/main.go scripts/coverage-groups.json
 
 test-coverage-json:
-	@go run scripts/test-coverage-json/main.go
-
-test-coverage-html:
-	@go run scripts/test-coverage-html/main.go
+	@go run scripts/test-coverage-json/main.go scripts/coverage-groups.json
 
 unit-test:
-	@echo "Cleaning Go test cache..."
-	@go clean -testcache
-	@echo "Running unit tests (verbose output)..."
-	@go test -v ./internal/... ./pkg/... ./cmd/tftest/... ; \
-	echo "\nSummarizing unit test results..." ; \
-	go test -json ./internal/... ./pkg/... ./cmd/tftest/... | go run scripts/test-summary.go "Unit Test Summary" || true
+	@go run scripts/unit-test/main.go "./internal/... ./pkg/... ./pkg/assertions/... ./cmd/tftest/..."
 
 update-tools:
 	@if [ ! -f ./bin/install-tools ]; then \

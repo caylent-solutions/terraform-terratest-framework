@@ -24,34 +24,60 @@ type GroupCoverage struct {
 	Files []FileCoverage `json:"files"`
 }
 
-type CoverageSummary struct {
-	Framework   GroupCoverage `json:"framework"`
-	CLI         GroupCoverage `json:"cli"`
-	Functional  GroupCoverage `json:"functional"`
-	UnitHelpers GroupCoverage `json:"unit_helpers"`
-	Combined    string        `json:"combined_total"`
+// CoverageGroup represents a group of tests to run coverage on
+type CoverageGroup struct {
+	Name       string `json:"name"`
+	Emoji      string `json:"emoji"`
+	OutputFile string `json:"outputFile"`
+	TestPath   string `json:"testPath"`
+	CoverPkg   string `json:"coverPkg"`
 }
 
 func main() {
+	// Get JSON file path from command line
+	if len(os.Args) < 2 {
+		fmt.Println("Error: JSON file path must be provided")
+		fmt.Println("Usage: go run scripts/test-coverage-json/main.go path/to/coverage-groups.json")
+		os.Exit(1)
+	}
+
+	jsonFilePath := os.Args[1]
+
+	// Read JSON from file
+	jsonData, err := os.ReadFile(jsonFilePath)
+	if err != nil {
+		fmt.Printf("Error reading coverage groups file: %v\n", err)
+		os.Exit(1)
+	}
+
+	var groups []CoverageGroup
+	if err := json.Unmarshal(jsonData, &groups); err != nil {
+		fmt.Printf("Error parsing coverage groups: %v\n", err)
+		os.Exit(1)
+	}
+
+	if len(groups) == 0 {
+		fmt.Println("Error: No coverage groups provided in the JSON file")
+		os.Exit(1)
+	}
+
+	// Create coverage directory if it doesn't exist
 	if err := os.MkdirAll(coverageDir, 0755); err != nil {
 		fmt.Printf("Error creating coverage directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	runTestWithCoverage("coverage-framework.out", "./internal/...", "")
-	runTestWithCoverage("coverage-pkg.out", "./pkg/...", "")
-	runTestWithCoverage("coverage-cli.out", "./cmd/tftest/...", "")
-	runTestWithCoverage("coverage-functional.out", "./tests/functional/...", "./pkg/...")
-	runTestWithCoverage("coverage-unit-helpers.out", "./tests/unit/...", "")
+	// Run tests for each group
+	for _, group := range groups {
+		runTestWithCoverage(group.OutputFile, group.TestPath, group.CoverPkg)
+		generateCoverageSummary(group.OutputFile)
+	}
 
-	generateCoverageSummary("coverage-framework.out")
-	generateCoverageSummary("coverage-pkg.out")
-	generateCoverageSummary("coverage-cli.out")
-	generateCoverageSummary("coverage-functional.out")
-	generateCoverageSummary("coverage-unit-helpers.out")
+	// Merge coverage profiles
+	mergeCoverageProfiles(groups)
 
-	mergeCoverageProfiles()
-	generateJSONCoverage()
+	// Generate JSON coverage
+	generateJSONCoverage(groups)
 }
 
 func runTestWithCoverage(outputFile, testPackages, coverpkg string) {
@@ -88,7 +114,7 @@ func generateCoverageSummary(coverageFile string) {
 	_ = os.WriteFile(summaryPath, output, 0644)
 }
 
-func mergeCoverageProfiles() {
+func mergeCoverageProfiles(groups []CoverageGroup) {
 	mergedPath := filepath.Join(coverageDir, "coverage.out")
 	mergedFile, err := os.Create(mergedPath)
 	if err != nil {
@@ -99,12 +125,10 @@ func mergeCoverageProfiles() {
 
 	mergedFile.WriteString("mode: set\n")
 
-	coverageFiles := []string{
-		"coverage-framework.out",
-		"coverage-pkg.out",
-		"coverage-cli.out",
-		"coverage-functional.out",
-		"coverage-unit-helpers.out",
+	// Get output files from groups
+	var coverageFiles []string
+	for _, group := range groups {
+		coverageFiles = append(coverageFiles, group.OutputFile)
 	}
 
 	for _, file := range coverageFiles {
@@ -132,44 +156,42 @@ func mergeCoverageProfiles() {
 	_ = os.WriteFile(summaryPath, output, 0644)
 }
 
-func generateJSONCoverage() {
-	frameworkSummaryPath := filepath.Join(coverageDir, "coverage-framework-summary.log")
-	cliSummaryPath := filepath.Join(coverageDir, "coverage-cli-summary.log")
-	functionalSummaryPath := filepath.Join(coverageDir, "coverage-functional-summary.log")
-	unitHelpersSummaryPath := filepath.Join(coverageDir, "coverage-unit-helpers-summary.log")
-	combinedSummaryPath := filepath.Join(coverageDir, "coverage-summary.log")
+func generateJSONCoverage(groups []CoverageGroup) {
+	// Create a map to store group coverage data
+	groupCoverages := make(map[string]GroupCoverage)
 
-	frameworkFiles, frameworkTotal := parseCoverageOutput(frameworkSummaryPath)
-	cliFiles, cliTotal := parseCoverageOutput(cliSummaryPath)
-	functionalFiles, functionalTotal := parseCoverageOutput(functionalSummaryPath)
-	unitHelpersFiles, unitHelpersTotal := parseCoverageOutput(unitHelpersSummaryPath)
-	_, combinedTotal := parseCoverageOutput(combinedSummaryPath)
+	// Process each group
+	for _, group := range groups {
+		summaryPath := filepath.Join(coverageDir, strings.Replace(group.OutputFile, ".out", "-summary.log", 1))
+		files, total := parseCoverageOutput(summaryPath)
 
-	summary := CoverageSummary{
-		Framework: GroupCoverage{
-			Name:  "framework",
-			Total: frameworkTotal,
-			Files: frameworkFiles,
-		},
-		CLI: GroupCoverage{
-			Name:  "cli",
-			Total: cliTotal,
-			Files: cliFiles,
-		},
-		Functional: GroupCoverage{
-			Name:  "functional",
-			Total: functionalTotal,
-			Files: functionalFiles,
-		},
-		UnitHelpers: GroupCoverage{
-			Name:  "unit_helpers",
-			Total: unitHelpersTotal,
-			Files: unitHelpersFiles,
-		},
-		Combined: combinedTotal,
+		// Create a simplified name for the JSON key
+		simpleName := strings.ToLower(strings.Split(group.Name, " ")[0])
+
+		groupCoverages[simpleName] = GroupCoverage{
+			Name:  group.Name,
+			Total: total,
+			Files: files,
+		}
 	}
 
-	jsonData, err := json.MarshalIndent(summary, "", "  ")
+	// Get combined coverage
+	combinedSummaryPath := filepath.Join(coverageDir, "coverage-summary.log")
+	_, combinedTotal := parseCoverageOutput(combinedSummaryPath)
+
+	// Create the final JSON structure
+	jsonMap := make(map[string]interface{})
+
+	// Add all groups to the JSON
+	for key, coverage := range groupCoverages {
+		jsonMap[key] = coverage
+	}
+
+	// Add combined total
+	jsonMap["combined_total"] = combinedTotal
+
+	// Marshal to JSON
+	jsonData, err := json.MarshalIndent(jsonMap, "", "  ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
 		os.Exit(1)
@@ -227,6 +249,7 @@ func parseCoverageOutput(filePath string) ([]FileCoverage, string) {
 	return files, totalCoverage
 }
 
+// parsePercentage converts a percentage string like "75.0%" to a float64 value
 func parsePercentage(s string) float64 {
 	s = strings.TrimSuffix(s, "%")
 	value := 0.0

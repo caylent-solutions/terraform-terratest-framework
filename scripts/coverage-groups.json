@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Framework Total Coverage",
+    "emoji": "🧱",
+    "outputFile": "coverage-framework.out",
+    "testPath": "./internal/...",
+    "coverPkg": ""
+  },
+  {
+    "name": "Package Total Coverage",
+    "emoji": "📦",
+    "outputFile": "coverage-pkg.out",
+    "testPath": "./pkg/...",
+    "coverPkg": ""
+  },
+  {
+    "name": "Assertions Coverage",
+    "emoji": "📦",
+    "outputFile": "coverage-assertions.out",
+    "testPath": "./pkg/assertions/...",
+    "coverPkg": ""
+  },
+  {
+    "name": "CLI Total Coverage",
+    "emoji": "🧪",
+    "outputFile": "coverage-cli.out",
+    "testPath": "./cmd/tftest/...",
+    "coverPkg": ""
+  },
+  {
+    "name": "Functional Test Coverage",
+    "emoji": "🧪",
+    "outputFile": "coverage-functional.out",
+    "testPath": "./tests/functional/...",
+    "coverPkg": "./pkg/..."
+  },
+  {
+    "name": "Unit Test Helpers Coverage",
+    "emoji": "🧪",
+    "outputFile": "coverage-unit-helpers.out",
+    "testPath": "./tests/unit/...",
+    "coverPkg": ""
+  }
+]
