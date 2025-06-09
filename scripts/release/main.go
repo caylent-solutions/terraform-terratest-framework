@@ -19,11 +19,13 @@ func main() {
 		os.Exit(1)
 	}
 	versionStr := strings.TrimSpace(string(currentVersion))
+	// Remove 'v' prefix for parsing
+	versionStr = strings.TrimPrefix(versionStr, "v")
 	fmt.Println("Current version:", versionStr)
 
 	parts := strings.Split(versionStr, ".")
 	if len(parts) != 3 {
-		fmt.Println("Invalid version format in VERSION file. Expected format: X.Y.Z")
+		fmt.Println("Invalid version format in VERSION file. Expected format: vX.Y.Z")
 		os.Exit(1)
 	}
 
@@ -66,16 +68,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Write VERSION file
-	err = os.WriteFile("VERSION", []byte(newVersion+"\n"), 0644)
+	// Write VERSION file with v prefix
+	err = os.WriteFile("VERSION", []byte("v"+newVersion+"\n"), 0644)
 	if err != nil {
 		fmt.Println("Error writing VERSION file:", err)
 		os.Exit(1)
 	}
 
-	updateMakefile(newVersion)
-
-	runCommand("git", "add", "VERSION", "Makefile")
+	runCommand("git", "add", "VERSION")
 	runCommand("git", "commit", "-m", fmt.Sprintf("release: cut %s [skip ci]", tagVersion))
 	runCommand("git", "tag", "-a", tagVersion, "-m", fmt.Sprintf("release: %s", tagVersion))
 
@@ -170,18 +170,4 @@ func determineFromCommits(commits []string) string {
 	}
 
 	return "patch"
-}
-
-func updateMakefile(newVersion string) {
-	content, err := os.ReadFile("Makefile")
-	if err != nil {
-		fmt.Println("Error reading Makefile:", err)
-		os.Exit(1)
-	}
-	re := regexp.MustCompile(`Version=v?[0-9]+\.[0-9]+\.[0-9]+`)
-	updated := re.ReplaceAllString(string(content), fmt.Sprintf("Version=v%s", newVersion))
-	if err := os.WriteFile("Makefile", []byte(updated), 0644); err != nil {
-		fmt.Println("Error writing Makefile:", err)
-		os.Exit(1)
-	}
 }
