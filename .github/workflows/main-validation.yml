@@ -53,6 +53,9 @@ jobs:
 
       - name: Run functional tests
         run: make functional-test
+        
+      - name: Run example tests
+        run: make test-example
 
       - name: Check test coverage
         id: coverage
