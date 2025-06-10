@@ -46,7 +46,6 @@ jobs:
         run: make lint
 
       - name: Build CLI test
-      - name: Build CLI test
         run: make build-cli
 
       - name: Run unit tests
@@ -57,20 +56,13 @@ jobs:
         
       - name: Run example tests
         run: make test-example
-        
-      - name: Run example tests
-        run: make test-example
 
       - name: Check test coverage
         id: coverage
         run: |
           REQUIRED_COVERAGE=40
           COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
-          REQUIRED_COVERAGE=40
-          COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
           echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
-            echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
           if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
             echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
             exit 1
