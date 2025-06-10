@@ -53,7 +53,7 @@ lint:
 	@mkdir -p ./bin
 	@echo "Building lint tool..."
 	@go build -o ./bin/lint ./scripts/lint/main.go
-	@./bin/lint --ignore="bin" || echo "Lint check failed ❌"
+	@./bin/lint --ignore="bin" --skip-prefix="github.com/caylent-solutions/terraform-terratest-framework/scripts" || echo "Lint check failed ❌"
 	@rm -f ./bin/lint
 	@echo "Lint check complete"
 

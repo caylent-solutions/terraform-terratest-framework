@@ -19,16 +19,13 @@ type TestEvent struct {
 }
 
 func main() {
-	// Get parameters from command line
-	testPaths := "./tests/functional/..."
-	coverPkgs := "./pkg/..."
-
-	if len(os.Args) > 1 {
-		testPaths = os.Args[1]
+	// Get test path from command line
+	if len(os.Args) < 2 {
+		fmt.Println("Error: Test path argument is required")
+		fmt.Println("Usage: go run scripts/functional-test/main.go <test-path>")
+		os.Exit(1)
 	}
-	if len(os.Args) > 2 {
-		coverPkgs = os.Args[2]
-	}
+	testPath := os.Args[1]
 
 	// Read version from VERSION file
 	version, err := os.ReadFile("VERSION")
@@ -61,7 +58,7 @@ func main() {
 	coverageFile := filepath.Join(coverageDir, "functional.out")
 	testCmd := exec.Command("go", "test", "-v", "-covermode=atomic",
 		fmt.Sprintf("-coverprofile=%s", coverageFile),
-		fmt.Sprintf("-coverpkg=%s", coverPkgs), testPaths)
+		"-coverpkg=./pkg/...", testPath)
 	testCmd.Stdout = os.Stdout
 	testCmd.Stderr = os.Stderr
 	testCmd.Run() // Ignore error as tests might fail but we still want to generate coverage
@@ -76,7 +73,7 @@ func main() {
 
 	// Run tests in JSON mode and process the output
 	fmt.Println("\nSummarizing functional test results...")
-	cmd := exec.Command("go", "test", "-json", testPaths)
+	cmd := exec.Command("go", "test", "-json", testPath)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Printf("Error creating pipe: %v\n", err)

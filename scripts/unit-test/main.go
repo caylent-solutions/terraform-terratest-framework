@@ -16,11 +16,13 @@ type TestEvent struct {
 }
 
 func main() {
-	// Get test paths from command line arguments or use defaults
-	testPaths := []string{"./internal/...", "./pkg/...", "./cmd/tftest/..."}
-	if len(os.Args) > 1 {
-		testPaths = strings.Split(os.Args[1], " ")
+	// Get test paths from command line arguments
+	if len(os.Args) <= 1 {
+		fmt.Println("Error: Test path argument is required")
+		fmt.Println("Usage: go run scripts/unit-test/main.go \"./path/to/tests/...\"")
+		os.Exit(1)
 	}
+	testPaths := strings.Split(os.Args[1], " ")
 
 	// Clean Go test cache
 	fmt.Println("Cleaning Go test cache...")

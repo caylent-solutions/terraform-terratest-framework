@@ -9,11 +9,17 @@ import (
 	"strings"
 )
 
-var ignoredDirs []string
+var (
+	ignoredDirs []string
+	skipPrefix  string
+)
 
 func main() {
 	ignoreFlag := flag.String("ignore", "", "Comma-separated list of directories to ignore during linting")
+	skipPrefixFlag := flag.String("skip-prefix", "", "Package prefix to skip during linting (e.g., for scripts packages)")
 	flag.Parse()
+
+	skipPrefix = *skipPrefixFlag
 
 	if *ignoreFlag != "" {
 		ignoredDirs = strings.Split(*ignoreFlag, ",")
@@ -92,8 +98,8 @@ func runGoVetChecks() int {
 	packages := strings.Split(strings.TrimSpace(string(pkgOutput)), "\n")
 
 	for _, pkg := range packages {
-		if strings.HasPrefix(pkg, "github.com/caylent-solutions/terraform-terratest-framework/scripts") {
-			continue // skip scripts package
+		if skipPrefix != "" && strings.HasPrefix(pkg, skipPrefix) {
+			continue // skip package with specified prefix
 		}
 		if shouldIgnoreFile(pkg) {
 			continue
