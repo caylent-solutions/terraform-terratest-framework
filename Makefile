@@ -96,12 +96,6 @@ run-specific-functional-test:
 test: unit-test functional-test
 	@echo "All tests passed! 🎉"
 
-test-sequential:
-	@echo "Running all tests sequentially..."
-	@$(MAKE) build-cli
-	@go test -p 1 -v ./internal/... ./pkg/... ./cmd/tftest/... ./tests/functional/...
-	@echo "All tests passed! 🎉"
-
 test-coverage:
 	@go run scripts/test-coverage/main.go scripts/coverage-groups.json
 
