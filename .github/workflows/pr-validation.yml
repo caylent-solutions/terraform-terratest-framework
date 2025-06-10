@@ -65,7 +65,8 @@ jobs:
         id: coverage
         run: |
           make test-coverage-json
-          COVERAGE=$(grep -o '"combined_total": "[^"]*"' tmp/coverage/coverage.json | cut -d'"' -f4 | sed 's/%//')
+          sudo apt-get install -y jq
+          COVERAGE=$(jq -r '.combined_total | rtrimstr("%") | tonumber' tmp/coverage/coverage.json)
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < 40" | bc -l) )); then
             echo "Test coverage is below 40% ($COVERAGE%)"
