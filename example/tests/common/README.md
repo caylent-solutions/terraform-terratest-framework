@@ -42,7 +42,7 @@ To disable idempotency testing (useful when there are known issues with provider
 TERRATEST_IDEMPOTENCY=false tftest run
 ```
 
-For more details on idempotency testing, see the [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.4.2/docs/WRITING_TESTS.md#idempotency-testing).
+For more details on idempotency testing, see the [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/WRITING_TESTS.md#idempotency-testing).
 
 ## Running the Tests
 
@@ -56,4 +56,4 @@ tftest run --common
 go test ./tests/common -run '^TestInputsMatchProvisioned$'
 ```
 
-For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.4.2/docs/CLI_USAGE.md).
+For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/CLI_USAGE.md).

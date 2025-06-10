@@ -24,9 +24,9 @@ What actually happened, including error messages and stack traces if applicable.
 
 ## Environment
 - OS: [e.g. Ubuntu 22.04, macOS 13.0]
-- Go version: [e.g. 1.23.0]
-- Terraform version: [e.g. 1.8.0]
-- Framework version: [e.g. v0.1.0]
+- Go version: [e.g. 1.24.4]
+- Terraform version: [e.g. 1.12.1]
+- Framework version: [e.g. v1.0.0]
 
 ## Additional Context
 Add any other context about the problem here, such as:

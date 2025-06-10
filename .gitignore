@@ -17,6 +17,7 @@ tmp
 *.test
 *.out
 coverage*.out
+go.sum
 
 # IDE
 .idea/

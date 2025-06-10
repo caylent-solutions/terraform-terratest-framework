@@ -72,7 +72,7 @@ The `testctx` package is the core of the Terraform Terratest Framework, providin
   })
   ```
 
-For more detailed documentation on the testctx package, see the [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.9.0/docs/TESTCTX_PACKAGE.md).
+For more detailed documentation on the testctx package, see the [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md).
 
 ### Using Assertions
 
@@ -98,7 +98,7 @@ func TestExample(t *testing.T) {
 }
 ```
 
-For a complete list of available assertions, see the [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/ASSERTIONS.md).
+For a complete list of available assertions, see the [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md).
 
 ### Common Tests
 
@@ -159,12 +159,12 @@ go test ./tests/common -run '^TestInputsMatchProvisioned
 
 ## References
 
-- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/README.md)
-- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/TESTCTX_PACKAGE.md)
-- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/ASSERTIONS.md)
-- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/DIRECTORY_STRUCTURE.md)
-- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/WRITING_TESTS.md)
-- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/CLI_USAGE.md)
+- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/README.md)
+- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md)
+- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md)
+- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/DIRECTORY_STRUCTURE.md)
+- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/WRITING_TESTS.md)
+- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/CLI_USAGE.md)
 
 # Format all test files
 make format
@@ -207,9 +207,9 @@ For more information on the `tftest` CLI tool, see the [CLI Usage Documentation]
 
 ## References
 
-- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/README.md)
-- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/TESTCTX_PACKAGE.md)
-- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/ASSERTIONS.md)
-- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/DIRECTORY_STRUCTURE.md)
-- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/WRITING_TESTS.md)
-- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v0.5.0/docs/CLI_USAGE.md)
+- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/README.md)
+- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md)
+- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md)
+- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/DIRECTORY_STRUCTURE.md)
+- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/WRITING_TESTS.md)
+- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/CLI_USAGE.md)
