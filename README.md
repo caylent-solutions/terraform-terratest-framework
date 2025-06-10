@@ -15,6 +15,7 @@ This framework provides a structured way to test Terraform modules by:
 ## Features
 
 - **Parallel Example Testing**: Run all examples in the `examples/` directory in parallel
+- **Sequential Testing Option**: Disable parallel execution with `--parallel=false` to avoid race conditions
 - **Idempotency Testing**: Verify that Terraform code is idempotent by running a plan after apply
 - **Common Assertions**: Pre-built assertions for common testing scenarios
 - **Custom Tests**: Support for custom test functions to verify specific resource behaviors
@@ -104,6 +105,20 @@ The test will run if:
 The test will be skipped if:
 - `TERRATEST_IDEMPOTENCY` is set to "false"
 
+### Controlling Parallel Test Execution
+
+By default, tests run in parallel, which can sometimes cause race conditions when tests interact with shared resources. You can disable parallel execution:
+
+```bash
+# Run tests sequentially
+tftest run --parallel=false
+```
+
+This is particularly useful when:
+- Tests interact with shared state files
+- Tests modify the same AWS resources
+- You're experiencing intermittent failures due to race conditions
+
 ## Available Assertions
 
 ### Basic Assertions
@@ -159,7 +174,10 @@ For examples of how to use this framework, see the [Examples Directory](examples
 To install the framework as a dependency in your Terraform module project:
 
 ```bash
-go get github.com/caylent-solutions/terraform-terratest-framework
+go get github.com/caylent-solutions/terraform-terratest-framework@v0.2.0
+
+# To install the CLI tool
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@v0.2.0
 ```
 
 This adds the framework to your module's `go.mod` file, allowing you to use its testing capabilities in your Go test files.
@@ -184,6 +202,9 @@ make install
 ```bash
 # Run all tests
 make test
+
+# Run all tests sequentially
+make test-sequential
 
 # List all functional tests with descriptions
 make list-functional-tests

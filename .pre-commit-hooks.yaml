@@ -1,0 +1,23 @@
+- id: format
+  name: Format code
+  description: Format Go code using gofmt and fix other formatting issues
+  entry: make format
+  language: system
+  pass_filenames: false
+  always_run: true
+
+- id: lint
+  name: Lint code
+  description: Check code for linting issues
+  entry: make lint
+  language: system
+  pass_filenames: false
+  always_run: true
+
+- id: test
+  name: Run tests
+  description: Run all tests to ensure code quality
+  entry: make test
+  language: system
+  pass_filenames: false
+  always_run: true

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Functional Test Coverage",
+    "emoji": "🧪",
+    "outputFile": "coverage-functional.out",
+    "testPath": "./tests/functional/...",
+    "coverPkg": "./pkg/..."
+  },
+  {
+    "name": "Unit Test Coverage",
+    "emoji": "🧪",
+    "outputFile": "coverage-unit.out",
+    "testPath": "./tests/unit/...",
+    "coverPkg": "./pkg/...,./internal/...,./cmd/..."
+  }
+]

@@ -89,7 +89,7 @@ package common
 import (
     "testing"
 
-    "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+    "github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
     "github.com/caylent-solutions/terraform-terratest-framework/examples/tests/common"
 )
 

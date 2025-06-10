@@ -2,6 +2,7 @@ package unit
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 
@@ -26,6 +27,13 @@ func AssertIdempotent(t *testing.T, ctx TestContext) {
 func AssertFileExists(t *testing.T, ctx TestContext) string {
 	filePath := ctx.GetOutput(t, "output_file_path")
 	assert.NotEmpty(t, filePath, "output_file_path should not be empty")
+
+	// Convert relative path to absolute path if needed
+	if !filepath.IsAbs(filePath) {
+		// Get the working directory from the terraform options
+		workingDir := ctx.GetTerraform().TerraformDir
+		filePath = filepath.Join(workingDir, filePath)
+	}
 
 	_, err := os.Stat(filePath)
 	assert.NoError(t, err, "File should exist at %s", filePath)
@@ -107,9 +115,9 @@ func AssertOutputListLength(t *testing.T, ctx TestContext, listKey string, lengt
 }
 
 // AssertOutputJSONContains checks that an output JSON contains the expected key and value
-func AssertOutputJSONContains(t *testing.T, ctx TestContext, jsonKey string, key string, value string) {
+func AssertOutputJSONContains(t *testing.T, ctx TestContext, jsonKey string, key string, value interface{}) {
 	// This is a simplified implementation
-	t.Logf("Checking that output JSON %s contains key %s with value %s", jsonKey, key, value)
+	t.Logf("Checking that output JSON %s contains key %s with value %v", jsonKey, key, value)
 }
 
 // AssertResourceExists checks that a resource of the given type and name exists

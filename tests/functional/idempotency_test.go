@@ -3,7 +3,7 @@ package functional
 import (
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 func TestIdempotency(t *testing.T) {

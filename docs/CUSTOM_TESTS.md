@@ -146,7 +146,7 @@ import (
     "github.com/gruntwork-io/terratest/modules/terraform"
     
     "github.com/caylent-solutions/terraform-terratest-framework/internal/assertions"
-    "github.com/caylent-solutions/terraform-terratest-framework/internal/testctx"
+    "github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 func TestS3Module(t *testing.T) {
