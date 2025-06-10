@@ -1,17 +1,19 @@
-package errors
+package unit
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	frameworkErrors "github.com/caylent-solutions/terraform-terratest-framework/internal/errors"
 )
 
 func TestErrorString(t *testing.T) {
 	// Test error with cause
 	cause := errors.New("underlying error")
-	err := &FrameworkError{
-		Type:    ConfigError,
+	err := &frameworkErrors.FrameworkError{
+		Type:    frameworkErrors.ConfigError,
 		Message: "config error message",
 		Cause:   cause,
 	}
@@ -19,8 +21,8 @@ func TestErrorString(t *testing.T) {
 	assert.Equal(t, expected, err.Error())
 
 	// Test error without cause
-	err = &FrameworkError{
-		Type:    ValidationError,
+	err = &frameworkErrors.FrameworkError{
+		Type:    frameworkErrors.ValidationError,
 		Message: "validation error message",
 	}
 	expected = "ValidationError: validation error message"
@@ -29,8 +31,8 @@ func TestErrorString(t *testing.T) {
 
 func TestUnwrap(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := &FrameworkError{
-		Type:    ConfigError,
+	err := &frameworkErrors.FrameworkError{
+		Type:    frameworkErrors.ConfigError,
 		Message: "config error message",
 		Cause:   cause,
 	}
@@ -39,40 +41,40 @@ func TestUnwrap(t *testing.T) {
 
 func TestNewConfigError(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := NewConfigError("config error message", cause)
-	assert.Equal(t, ConfigError, err.Type)
+	err := frameworkErrors.NewConfigError("config error message", cause)
+	assert.Equal(t, frameworkErrors.ConfigError, err.Type)
 	assert.Equal(t, "config error message", err.Message)
 	assert.Equal(t, cause, err.Cause)
 }
 
 func TestNewValidationError(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := NewValidationError("validation error message", cause)
-	assert.Equal(t, ValidationError, err.Type)
+	err := frameworkErrors.NewValidationError("validation error message", cause)
+	assert.Equal(t, frameworkErrors.ValidationError, err.Type)
 	assert.Equal(t, "validation error message", err.Message)
 	assert.Equal(t, cause, err.Cause)
 }
 
 func TestNewTerraformError(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := NewTerraformError("terraform error message", cause)
-	assert.Equal(t, TerraformError, err.Type)
+	err := frameworkErrors.NewTerraformError("terraform error message", cause)
+	assert.Equal(t, frameworkErrors.TerraformError, err.Type)
 	assert.Equal(t, "terraform error message", err.Message)
 	assert.Equal(t, cause, err.Cause)
 }
 
 func TestNewAssertionError(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := NewAssertionError("assertion error message", cause)
-	assert.Equal(t, AssertionError, err.Type)
+	err := frameworkErrors.NewAssertionError("assertion error message", cause)
+	assert.Equal(t, frameworkErrors.AssertionError, err.Type)
 	assert.Equal(t, "assertion error message", err.Message)
 	assert.Equal(t, cause, err.Cause)
 }
 
 func TestNewInternalError(t *testing.T) {
 	cause := errors.New("underlying error")
-	err := NewInternalError("internal error message", cause)
-	assert.Equal(t, InternalError, err.Type)
+	err := frameworkErrors.NewInternalError("internal error message", cause)
+	assert.Equal(t, frameworkErrors.InternalError, err.Type)
 	assert.Equal(t, "internal error message", err.Message)
 	assert.Equal(t, cause, err.Cause)
 }

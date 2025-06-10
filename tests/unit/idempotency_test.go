@@ -4,8 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/idempotency"
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 // TestIdempotencyEnabledDetailed tests the IdempotencyEnabled function
@@ -26,8 +28,14 @@ func TestIdempotencyEnabledDetailed(t *testing.T) {
 	os.Unsetenv("TERRATEST_IDEMPOTENCY")
 }
 
-// TestAssertIdempotentMock tests the AssertIdempotent function with mocking
-func TestAssertIdempotentMock(t *testing.T) {
-	// Skip this test since we can't easily mock terraform.Plan
-	t.Skip("Skipping test that requires mocking terraform.Plan function")
+// Note: Testing the Test and TestAll functions would require mocking the terraform module,
+// which is beyond the scope of a simple unit test. These functions primarily call terraform.Plan
+// which requires a real Terraform environment to execute properly.
+
+func TestIdempotencyPackage(t *testing.T) {
+	// This is a basic test to ensure the package can be imported and compiled
+	assert.NotPanics(t, func() {
+		_ = idempotency.Test
+		_ = idempotency.TestAll
+	})
 }

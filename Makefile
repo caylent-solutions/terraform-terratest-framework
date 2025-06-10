@@ -112,7 +112,7 @@ test-coverage-html:
 	@go run scripts/test-coverage-html/main.go scripts/coverage-groups.json
 
 unit-test:
-	@go run scripts/unit-test/main.go "./internal/... ./pkg/... ./pkg/assertions/... ./cmd/tftest/..."
+	@go run scripts/unit-test/main.go "./tests/unit/..."
 
 update-tools:
 	@if [ ! -f ./bin/install-tools ]; then \

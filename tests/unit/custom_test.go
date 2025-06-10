@@ -1,11 +1,13 @@
-package testctx
+package unit
 
 import (
 	"testing"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 // CustomTestFunc defines a function type for custom tests that can be run on each example
-type CustomTestFunc func(t *testing.T, ctx TestContext)
+type CustomTestFunc func(t *testing.T, ctx testctx.TestContext)
 
 // TestRunCustomTests tests the custom test runner
 func TestRunCustomTests(t *testing.T) {

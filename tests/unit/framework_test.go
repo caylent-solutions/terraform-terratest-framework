@@ -14,7 +14,7 @@ func TestIdempotencyEnabledFramework(t *testing.T) {
 }
 
 // Test the runner functions
-func TestInitTerraform(t *testing.T) {
+func TestInitTerraformFramework(t *testing.T) {
 	config := testctx.TestConfig{
 		Name: "test-config",
 		ExtraVars: map[string]interface{}{
@@ -45,7 +45,7 @@ func TestRun(t *testing.T) {
 	assert.Equal(t, config.ExtraVars, ctx.Terraform.Vars)
 }
 
-func TestRunCustomTests(t *testing.T) {
+func TestRunCustomTestsFramework(t *testing.T) {
 	// Create test contexts
 	results := map[string]testctx.TestContext{
 		"example1": {

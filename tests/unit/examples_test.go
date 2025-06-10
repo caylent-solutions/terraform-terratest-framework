@@ -1,12 +1,14 @@
-package examples
+package unit
 
 import (
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/examples"
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 func TestFindAllExamples(t *testing.T) {
@@ -46,14 +48,14 @@ func TestFindAllExamples(t *testing.T) {
 	file.Close()
 
 	// Test the function
-	examples := FindAllExamples(t, tempDir)
+	foundExamples := examples.FindAllExamples(t, tempDir)
 
 	// Verify results
-	assert.Equal(t, 3, len(examples))
+	assert.Equal(t, 3, len(foundExamples))
 
 	// Check that all directories were found
 	foundNames := make(map[string]bool)
-	for _, example := range examples {
+	for _, example := range foundExamples {
 		foundNames[example.Name] = true
 		assert.Equal(t, example.Name, example.Config.Name)
 		assert.Equal(t, filepath.Join(examplesDir, example.Name), example.Path)
@@ -67,7 +69,7 @@ func TestFindAllExamples(t *testing.T) {
 
 func TestConfigureExamples(t *testing.T) {
 	// Create test examples
-	examples := []Example{
+	testExamples := []examples.Example{
 		{
 			Name: "example1",
 			Path: "/path/to/example1",
@@ -87,7 +89,7 @@ func TestConfigureExamples(t *testing.T) {
 	}
 
 	// Create configurator function
-	configurator := func(example Example) testctx.TestConfig {
+	configurator := func(example examples.Example) testctx.TestConfig {
 		return testctx.TestConfig{
 			Name: example.Name + "-configured",
 			ExtraVars: map[string]interface{}{
@@ -98,7 +100,7 @@ func TestConfigureExamples(t *testing.T) {
 	}
 
 	// Test the function
-	configs := ConfigureExamples(examples, configurator)
+	configs := examples.ConfigureExamples(testExamples, configurator)
 
 	// Verify results
 	assert.Equal(t, 2, len(configs))

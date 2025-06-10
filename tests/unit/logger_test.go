@@ -1,22 +1,24 @@
-package logger
+package unit
 
 import (
 	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest/logger"
 )
 
 func TestLogLevelString(t *testing.T) {
 	tests := []struct {
-		level    LogLevel
+		level    logger.LogLevel
 		expected string
 	}{
-		{DEBUG, "DEBUG"},
-		{INFO, "INFO"},
-		{WARN, "WARN"},
-		{ERROR, "ERROR"},
-		{FATAL, "FATAL"},
+		{logger.DEBUG, "DEBUG"},
+		{logger.INFO, "INFO"},
+		{logger.WARN, "WARN"},
+		{logger.ERROR, "ERROR"},
+		{logger.FATAL, "FATAL"},
 	}
 
 	for _, test := range tests {
@@ -27,21 +29,21 @@ func TestLogLevelString(t *testing.T) {
 func TestParseLogLevel(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected LogLevel
+		expected logger.LogLevel
 		hasError bool
 	}{
-		{"DEBUG", DEBUG, false},
-		{"INFO", INFO, false},
-		{"WARN", WARN, false},
-		{"ERROR", ERROR, false},
-		{"FATAL", FATAL, false},
-		{"debug", DEBUG, false}, // Test case insensitivity
-		{"info", INFO, false},   // Test case insensitivity
-		{"invalid", INFO, true}, // Test invalid input
+		{"DEBUG", logger.DEBUG, false},
+		{"INFO", logger.INFO, false},
+		{"WARN", logger.WARN, false},
+		{"ERROR", logger.ERROR, false},
+		{"FATAL", logger.FATAL, false},
+		{"debug", logger.DEBUG, false}, // Test case insensitivity
+		{"info", logger.INFO, false},   // Test case insensitivity
+		{"invalid", logger.INFO, true}, // Test invalid input
 	}
 
 	for _, test := range tests {
-		level, err := ParseLogLevel(test.input)
+		level, err := logger.ParseLogLevel(test.input)
 		if test.hasError {
 			assert.Error(t, err, "ParseLogLevel should return an error for invalid input")
 		} else {
@@ -56,51 +58,34 @@ func TestLogger(t *testing.T) {
 	var buf bytes.Buffer
 
 	// Create a logger with the buffer as output
-	logger := New(INFO)
-	logger.SetOutput(&buf)
+	log := logger.New(logger.INFO)
+	log.SetOutput(&buf)
 
 	// Test logging at different levels
-	logger.Debug("Debug message")
+	log.Debug("Debug message")
 	assert.Empty(t, buf.String(), "Debug message should not be logged at INFO level")
 
 	buf.Reset()
-	logger.Info("Info message")
+	log.Info("Info message")
 	assert.Contains(t, buf.String(), "INFO: Info message", "Info message should be logged at INFO level")
 
 	buf.Reset()
-	logger.Warn("Warn message")
+	log.Warn("Warn message")
 	assert.Contains(t, buf.String(), "WARN: Warn message", "Warn message should be logged at INFO level")
 
 	buf.Reset()
-	logger.Error("Error message")
+	log.Error("Error message")
 	assert.Contains(t, buf.String(), "ERROR: Error message", "Error message should be logged at INFO level")
 
 	// Test changing log level
 	buf.Reset()
-	logger.SetLevel(ERROR)
-	logger.Info("Info message")
+	log.SetLevel(logger.ERROR)
+	log.Info("Info message")
 	assert.Empty(t, buf.String(), "Info message should not be logged at ERROR level")
 
 	buf.Reset()
-	logger.Error("Error message")
+	log.Error("Error message")
 	assert.Contains(t, buf.String(), "ERROR: Error message", "Error message should be logged at ERROR level")
-}
-
-func TestDefaultLogger(t *testing.T) {
-	// Test that the default logger functions don't crash
-	// We can't easily test their output without modifying the default logger
-	Debug("Debug message")
-	Info("Info message")
-	Warn("Warn message")
-	Error("Error message")
-
-	// Test setting the default log level
-	SetDefaultLogLevel(ERROR)
-
-	// This is just to ensure the function exists and can be called
-	assert.NotPanics(t, func() {
-		SetDefaultLogLevel(INFO)
-	}, "SetDefaultLogLevel should not panic")
 }
 
 func TestLoggerFormat(t *testing.T) {
@@ -108,11 +93,11 @@ func TestLoggerFormat(t *testing.T) {
 	var buf bytes.Buffer
 
 	// Create a logger with the buffer as output
-	logger := New(INFO)
-	logger.SetOutput(&buf)
+	log := logger.New(logger.INFO)
+	log.SetOutput(&buf)
 
 	// Test formatting
-	logger.Info("Count: %d, String: %s", 42, "test")
+	log.Info("Count: %d, String: %s", 42, "test")
 	logOutput := buf.String()
 
 	assert.Contains(t, logOutput, "Count: 42", "Log should contain formatted count")
@@ -124,11 +109,11 @@ func TestLoggerTimestamp(t *testing.T) {
 	var buf bytes.Buffer
 
 	// Create a logger with the buffer as output
-	logger := New(INFO)
-	logger.SetOutput(&buf)
+	log := logger.New(logger.INFO)
+	log.SetOutput(&buf)
 
 	// Test timestamp format
-	logger.Info("Test message")
+	log.Info("Test message")
 	logOutput := buf.String()
 
 	// Check for timestamp format YYYY-MM-DD HH:MM:SS

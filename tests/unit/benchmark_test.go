@@ -1,4 +1,4 @@
-package benchmark
+package unit
 
 import (
 	"errors"
@@ -6,11 +6,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/internal/benchmark"
 )
 
 func TestBenchmarkResultString(t *testing.T) {
 	// Test successful benchmark
-	result := &BenchmarkResult{
+	result := &benchmark.BenchmarkResult{
 		Name:     "test-benchmark",
 		Duration: 123 * time.Millisecond,
 		Success:  true,
@@ -20,7 +22,7 @@ func TestBenchmarkResultString(t *testing.T) {
 	assert.Equal(t, expected, result.String())
 
 	// Test failed benchmark
-	result = &BenchmarkResult{
+	result = &benchmark.BenchmarkResult{
 		Name:     "failed-benchmark",
 		Duration: 456 * time.Millisecond,
 		Success:  false,
@@ -33,7 +35,7 @@ func TestBenchmarkResultString(t *testing.T) {
 
 func TestBenchmarkFunction(t *testing.T) {
 	// Test successful benchmark
-	result := Benchmark("test-success", func() error {
+	result := benchmark.Benchmark("test-success", func() error {
 		time.Sleep(10 * time.Millisecond)
 		return nil
 	})
@@ -45,7 +47,7 @@ func TestBenchmarkFunction(t *testing.T) {
 
 	// Test failed benchmark
 	testErr := errors.New("test error")
-	result = Benchmark("test-failure", func() error {
+	result = benchmark.Benchmark("test-failure", func() error {
 		time.Sleep(10 * time.Millisecond)
 		return testErr
 	})
@@ -57,15 +59,14 @@ func TestBenchmarkFunction(t *testing.T) {
 }
 
 func TestNewBenchmarkSuite(t *testing.T) {
-	suite := NewBenchmarkSuite("test-suite")
+	suite := benchmark.NewBenchmarkSuite("test-suite")
 	assert.NotNil(t, suite)
 	assert.Equal(t, "test-suite", suite.Name)
 	assert.Empty(t, suite.Results)
-	assert.NotNil(t, suite.logger)
 }
 
 func TestBenchmarkSuiteRun(t *testing.T) {
-	suite := NewBenchmarkSuite("test-suite")
+	suite := benchmark.NewBenchmarkSuite("test-suite")
 
 	// Add a successful benchmark
 	result := suite.Run("test-benchmark", func() error {
@@ -93,7 +94,7 @@ func TestBenchmarkSuiteRun(t *testing.T) {
 }
 
 func TestBenchmarkSuiteSummary(t *testing.T) {
-	suite := NewBenchmarkSuite("test-suite")
+	suite := benchmark.NewBenchmarkSuite("test-suite")
 
 	// Add benchmarks
 	suite.Run("test1", func() error { return nil })
@@ -109,7 +110,7 @@ func TestBenchmarkSuiteSummary(t *testing.T) {
 
 func TestBenchmarkSuitePrintSummary(t *testing.T) {
 	// This test is mostly to ensure the function doesn't panic
-	suite := NewBenchmarkSuite("test-suite")
+	suite := benchmark.NewBenchmarkSuite("test-suite")
 
 	// Add benchmarks
 	suite.Run("test1", func() error { return nil })

@@ -1,13 +1,15 @@
-package testctx
+package unit
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 func TestInitTerraform(t *testing.T) {
-	config := TestConfig{
+	config := testctx.TestConfig{
 		Name: "test-config",
 		ExtraVars: map[string]interface{}{
 			"var1": "value1",
@@ -15,20 +17,20 @@ func TestInitTerraform(t *testing.T) {
 		},
 	}
 
-	options := InitTerraform("/path/to/example", config)
+	options := testctx.InitTerraform("/path/to/example", config)
 	assert.Equal(t, "/path/to/example", options.TerraformDir)
 	assert.Equal(t, config.ExtraVars, options.Vars)
 }
 
-func TestRun(t *testing.T) {
-	config := TestConfig{
+func TestRunInRunner(t *testing.T) {
+	config := testctx.TestConfig{
 		Name: "test-config",
 		ExtraVars: map[string]interface{}{
 			"var1": "value1",
 		},
 	}
 
-	ctx := Run("/path/to/example", config)
+	ctx := testctx.Run("/path/to/example", config)
 	assert.Equal(t, config, ctx.Config)
 	assert.Equal(t, "/path/to/example", ctx.ExamplePath)
 	assert.Equal(t, "test-config", ctx.Name)
@@ -37,20 +39,19 @@ func TestRun(t *testing.T) {
 	assert.Equal(t, config.ExtraVars, ctx.Terraform.Vars)
 }
 
-// TestRunCustomTestsImplementation tests the RunCustomTests function
-// Renamed to avoid conflict with the function in custom_test.go
-func TestRunCustomTestsImplementation(t *testing.T) {
+// TestRunCustomTestsInRunner tests the RunCustomTests function
+func TestRunCustomTestsInRunner(t *testing.T) {
 	// Create test contexts
-	results := map[string]TestContext{
+	results := map[string]testctx.TestContext{
 		"example1": {
 			Name: "example1",
-			Config: TestConfig{
+			Config: testctx.TestConfig{
 				Name: "example1",
 			},
 		},
 		"example2": {
 			Name: "example2",
-			Config: TestConfig{
+			Config: testctx.TestConfig{
 				Name: "example2",
 			},
 		},
@@ -60,12 +61,12 @@ func TestRunCustomTestsImplementation(t *testing.T) {
 	tested := make(map[string]bool)
 
 	// Create test function
-	testFunc := func(t *testing.T, ctx TestContext) {
+	testFunc := func(t *testing.T, ctx testctx.TestContext) {
 		tested[ctx.Name] = true
 	}
 
 	// Run custom tests
-	RunCustomTests(t, results, testFunc)
+	testctx.RunCustomTests(t, results, testFunc)
 
 	// Verify all examples were tested
 	assert.True(t, tested["example1"])

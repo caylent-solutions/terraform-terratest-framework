@@ -1,4 +1,4 @@
-package testctx
+package unit
 
 import (
 	"os"
@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/caylent-solutions/terraform-terratest-framework/pkg/testctx"
 )
 
 func TestDiscoverExamples(t *testing.T) {
@@ -39,7 +41,7 @@ func TestDiscoverExamples(t *testing.T) {
 	file.Close()
 
 	// Test the function
-	examples := DiscoverExamples(t, tempDir)
+	examples := testctx.DiscoverExamples(t, tempDir)
 
 	// Verify results
 	assert.Equal(t, 2, len(examples))
