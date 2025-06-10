@@ -67,7 +67,7 @@ jobs:
             echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
             exit 1
           fi
-          echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%
+          echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%)"
 
       #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
