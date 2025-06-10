@@ -7,8 +7,6 @@ install:
 	@echo "Installing dependencies..."
 	@go mod edit -replace github.com/caylent-solutions/terraform-terratest-framework=../
 	@go mod tidy
-	@cd .. && go install ./cmd/tftest
-	@echo "tftest installed at: $(shell go env GOPATH)/bin/tftest"
 	@echo "Dependencies installed successfully"
 
 # Run all tests with clean cache
@@ -16,12 +14,12 @@ test:
 	@echo "Cleaning Go test cache..."
 	@go clean -cache -testcache
 	@echo "Running all tests with clean cache..."
-	@GOFLAGS="-count=1" $(shell go env GOPATH)/bin/tftest run --parallel-fixtures=false --parallel-tests=false
+	@cd .. && go run ./cmd/tftest/main.go run --parallel-fixtures=false --parallel-tests=false
 
 # Format all test files
 format:
 	@echo "Formatting test files..."
-	@$(shell go env GOPATH)/bin/tftest format --all
+	@cd .. && go run ./cmd/tftest/main.go format --all
 
 # Clean up temporary files
 clean:

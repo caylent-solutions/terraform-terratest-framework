@@ -70,75 +70,42 @@ jobs:
           fi
           echo "Test coverage is $COVERAGE% (meets minimum requirement of 40%)"
 
-      - name: Send success notification to Slack
-        if: success()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "text": "<!here> ✅ Main Branch Validation Successful",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<!here> *QA Testing Needed*"
-                  }
-                },
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "✅ Main Branch Validation Successful"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "The main branch validation workflow completed successfully.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the workflow run>\n\nPlease perform manual QA testing and approve the release when ready."
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-      - name: Send failure notification to Slack
-        if: failure()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "text": "<!here> ❌ Main Branch Validation Failed",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<!here> *Action Required: Build Failed*"
-                  }
-                },
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "❌ Main Branch Validation Failed"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      #- name: Send failure notification to Slack
+      #  if: failure()
+      #  uses: slackapi/slack-github-action@v1.25.0
+      #  with:
+      #    payload: |
+      #      {
+      #        "text": "<!here> ❌ Main Branch Validation Failed",
+      #        "blocks": [
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "<!here> *Action Required: Build Failed*"
+      #            }
+      #          },
+      #          {
+      #            "type": "header",
+      #            "text": {
+      #              "type": "plain_text",
+      #              "text": "❌ Main Branch Validation Failed"
+      #            }
+      #          },
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
+      #            }
+      #          }
+      #        ]
+      #      }
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   codeql:
     name: CodeQL Analysis
@@ -313,4 +280,3 @@ jobs:
           git pull origin main
           git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin "v$NEW_VERSION"
-          
