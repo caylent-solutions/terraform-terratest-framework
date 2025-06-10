@@ -67,15 +67,14 @@ jobs:
       - name: Check test coverage
         id: coverage
         run: |
-          make test-coverage-json
-          sudo apt-get install -y jq
-          COVERAGE=$(jq -r '.combined_total | rtrimstr("%") | tonumber' tmp/coverage/coverage.json)
+          REQUIRED_COVERAGE=40
+          COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
           echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < 40" | bc -l) )); then
-            echo "Test coverage is below 40% ($COVERAGE%)"
+          if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
+            echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
             exit 1
           fi
-          echo "Test coverage is $COVERAGE% (meets minimum requirement of 40%)"
+          echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%)"
 
       - name: Find code owners
         id: codeowners
