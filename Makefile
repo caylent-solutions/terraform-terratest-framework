@@ -1,7 +1,7 @@
 .PHONY: build-cli clean clean-coverage configure format functional-test \
         install install-tools lint list-functional-tests pre-commit pre-commit-install \
         release run-specific-functional-test test test-coverage test-coverage-json \
-        test-html-coverage unit-test update-tools test-sequential
+        test-html-coverage unit-test update-tools test-sequential test-parallel-fixtures test-parallel-tests
 
 COVERAGE_DIR := tmp/coverage
 
