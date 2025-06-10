@@ -46,6 +46,7 @@ jobs:
         run: make lint
 
       - name: Build CLI test
+      - name: Build CLI test
         run: make build-cli
 
       - name: Run unit tests
@@ -56,13 +57,20 @@ jobs:
         
       - name: Run example tests
         run: make test-example
+        
+      - name: Run example tests
+        run: make test-example
 
       - name: Check test coverage
         id: coverage
         run: |
           REQUIRED_COVERAGE=40
           COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
+          REQUIRED_COVERAGE=40
+          COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
           echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
+            echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
           if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
             echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
             exit 1
@@ -71,6 +79,40 @@ jobs:
 
       #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
+      #- name: Send failure notification to Slack
+      #  if: failure()
+      #  uses: slackapi/slack-github-action@v1.25.0
+      #  with:
+      #    payload: |
+      #      {
+      #        "text": "<!here> ❌ Main Branch Validation Failed",
+      #        "blocks": [
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "<!here> *Action Required: Build Failed*"
+      #            }
+      #          },
+      #          {
+      #            "type": "header",
+      #            "text": {
+      #              "type": "plain_text",
+      #              "text": "❌ Main Branch Validation Failed"
+      #            }
+      #          },
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
+      #            }
+      #          }
+      #        ]
+      #      }
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       #- name: Send failure notification to Slack
       #  if: failure()
       #  uses: slackapi/slack-github-action@v1.25.0
@@ -279,3 +321,4 @@ jobs:
           git pull origin main
           git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin "v$NEW_VERSION"
+
