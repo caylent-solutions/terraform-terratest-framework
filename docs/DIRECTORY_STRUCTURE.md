@@ -32,11 +32,15 @@ The framework repository itself uses this structure:
 
 ```
 terraform-terratest-framework/
-├── examples/                      # Example code for users
-│   └── tests/                     # Example test implementations
-│       ├── common/                # Example common tests
-│       ├── helpers/               # Example helper functions
-│       └── ecs-public/            # Example specific tests
+├── example/                       # Complete working example of a module with tests
+│   ├── examples/                  # Example implementations
+│   │   ├── basic/                 # Basic example
+│   │   └── advanced/              # Advanced example
+│   └── tests/                     # Tests for the examples
+│       ├── common/                # Common tests
+│       ├── helpers/               # Helper functions
+│       ├── basic/                 # Tests for basic example
+│       └── advanced/              # Tests for advanced example
 ├── tests/                         # Tests for the framework itself
 │   ├── unit/                      # Unit tests for framework components
 │   ├── functional/                # Functional tests for framework

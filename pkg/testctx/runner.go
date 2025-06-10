@@ -116,8 +116,9 @@ func DiscoverAndRunAllTests(t *testing.T, moduleRootPath string, testFunc func(t
 	return results
 }
 
-// RunAllExamples runs all examples in the examples directory in parallel
+// RunAllExamples runs all examples in the examples directory
 // If configs is nil or empty, it will generate default configs for all examples
+// Parallelism is controlled by the TERRATEST_DISABLE_PARALLEL_TESTS environment variable
 func RunAllExamples(t *testing.T, moduleRootPath string, configs map[string]TestConfig) map[string]TestContext {
 	entries, err := os.ReadDir(moduleRootPath)
 	if err != nil {
@@ -168,23 +169,36 @@ func RunAllExamples(t *testing.T, moduleRootPath string, configs map[string]Test
 			continue
 		}
 
-		wg.Add(1)
-		go func(name, path string, cfg TestConfig) {
-			defer wg.Done()
+		// Run tests in parallel or sequentially based on environment variable
+		if IsParallelTestsEnabled() {
+			wg.Add(1)
+			go func(name, path string, cfg TestConfig) {
+				defer wg.Done()
 
-			// Run the test in a subtest to isolate failures
-			t.Run(fmt.Sprintf("Example_%s", name), func(t *testing.T) {
-				ctx := RunExample(t, path, cfg)
+				// Run the test in a subtest to isolate failures
+				t.Run(fmt.Sprintf("Example_%s", name), func(t *testing.T) {
+					ctx := RunExample(t, path, cfg)
+
+					// Store the result
+					resultsMutex.Lock()
+					results[name] = ctx
+					resultsMutex.Unlock()
+
+					// Note: RunExample now registers its own cleanup function
+					// so we don't need to call terraform.Destroy here
+				})
+			}(exampleName, examplePath, config)
+		} else {
+			// Run sequentially
+			t.Run(fmt.Sprintf("Example_%s", exampleName), func(t *testing.T) {
+				ctx := RunExample(t, examplePath, config)
 
 				// Store the result
 				resultsMutex.Lock()
-				results[name] = ctx
+				results[exampleName] = ctx
 				resultsMutex.Unlock()
-
-				// Note: RunExample now registers its own cleanup function
-				// so we don't need to call terraform.Destroy here
 			})
-		}(exampleName, examplePath, config)
+		}
 	}
 
 	wg.Wait()

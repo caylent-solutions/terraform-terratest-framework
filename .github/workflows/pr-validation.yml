@@ -1,0 +1,153 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Validate PR
+    if: ${{ github.actor != 'caylent-platform-bot[bot]' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Simulate merge
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git fetch origin ${{ github.base_ref }}
+          git checkout -b pr-validation origin/${{ github.base_ref }}
+          git merge --no-commit --no-ff ${{ github.event.pull_request.head.sha }}
+
+      - name: Install system dependencies for Python build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libssl-dev zlib1g-dev \
+            libbz2-dev libreadline-dev libsqlite3-dev curl \
+            libncursesw5-dev xz-utils tk-dev libxml2-dev \
+            libxmlsec1-dev libffi-dev liblzma-dev bc
+
+      - name: Install ASDF
+        run: |
+          git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.15.0
+          echo "$HOME/.asdf/bin" >> $GITHUB_PATH
+          echo "$HOME/.asdf/shims" >> $GITHUB_PATH
+          source $HOME/.asdf/asdf.sh
+
+      - name: Install ASDF plugins and tools
+        run: |
+          cd $GITHUB_WORKSPACE
+          cat .tool-versions | cut -d' ' -f1 | xargs -I{} asdf plugin add {} || true
+          asdf install
+          asdf reshim
+
+      - name: Install dependencies
+        run: make configure
+
+      - name: Lint code
+        run: make lint
+
+      - name: Build CLI
+        run: make build-cli
+
+      - name: Run unit tests
+        run: make unit-test
+
+      - name: Run functional tests
+        run: make functional-test
+
+      - name: Check test coverage
+        id: coverage
+        run: |
+          make test-coverage-json
+          COVERAGE=$(grep -o '"combined_total": "[^"]*"' tmp/coverage/coverage.json | cut -d'"' -f4 | sed 's/%//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 40" | bc -l) )); then
+            echo "Test coverage is below 40% ($COVERAGE%)"
+            exit 1
+          fi
+          echo "Test coverage is $COVERAGE% (meets minimum requirement of 40%)"
+
+      - name: Find code owners
+        id: codeowners
+        if: success()
+        run: |
+          DEFAULT_OWNER=""
+          if [ -f ".github/CODEOWNERS" ]; then
+            DEFAULT_OWNER=$(grep -E "^\*" .github/CODEOWNERS | awk '{print $2}')
+          fi
+
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }} ${{ github.event.pull_request.head.sha }})
+          echo "Changed files: $CHANGED_FILES"
+
+          SPECIFIC_OWNERS=""
+          if [ -f ".github/CODEOWNERS" ]; then
+            for FILE in $CHANGED_FILES; do
+              while [[ "$FILE" == */* ]]; do
+                DIR=$(dirname "$FILE")
+                MATCH=$(grep -E "^$DIR/" .github/CODEOWNERS | awk '{for(i=2;i<=NF;i++) print $i}')
+                if [ -n "$MATCH" ]; then
+                  SPECIFIC_OWNERS="$SPECIFIC_OWNERS $MATCH"
+                  break
+                fi
+                FILE="$DIR"
+              done
+            done
+          fi
+
+          if [ -z "$SPECIFIC_OWNERS" ]; then
+            OWNERS="$DEFAULT_OWNER"
+          else
+            OWNERS="$SPECIFIC_OWNERS"
+          fi
+
+          UNIQUE_OWNERS=$(echo "$OWNERS" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ' | xargs)
+          echo "Final owners: $UNIQUE_OWNERS"
+          echo "owners=$UNIQUE_OWNERS" >> $GITHUB_OUTPUT
+
+      - name: Send PR review request to Slack
+        if: success()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "<!here> :mag: PR Ready for Review",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<!here> *PR Review Needed*"
+                  }
+                },
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": ":mag: PR Ready for Review"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PR #${{ github.event.pull_request.number }}*: ${{ github.event.pull_request.title }}\nAll validation checks have passed! This PR is ready for review.\n<${{ github.event.pull_request.html_url }}|View Pull Request>"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Author:* ${{ github.event.pull_request.user.login }}\n*Code Owners:* ${{ steps.codeowners.outputs.owners }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

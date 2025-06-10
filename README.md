@@ -15,7 +15,7 @@ This framework provides a structured way to test Terraform modules by:
 ## Features
 
 - **Parallel Example Testing**: Run all examples in the `examples/` directory in parallel
-- **Sequential Testing Option**: Disable parallel execution with `--parallel=false` to avoid race conditions
+- **Flexible Parallelism Control**: Control parallelism at both test fixture and individual test levels
 - **Idempotency Testing**: Verify that Terraform code is idempotent by running a plan after apply
 - **Common Assertions**: Pre-built assertions for common testing scenarios
 - **Custom Tests**: Support for custom test functions to verify specific resource behaviors
@@ -73,10 +73,13 @@ For details on installing and using the tftest CLI, see the [CLI Usage Documenta
   export AWS_PROFILE=your-profile
   ```
 
-- **Idempotency Control** (optional):
+- **Test Control** (optional):
   ```bash
   # To disable idempotency testing
   export TERRATEST_IDEMPOTENCY=false
+  
+  # To control parallelism of tests within fixtures
+  export TERRATEST_DISABLE_PARALLEL_TESTS=true  # Disable parallel tests within fixtures
   ```
 
 ### Writing Tests
@@ -107,17 +110,34 @@ The test will be skipped if:
 
 ### Controlling Parallel Test Execution
 
-By default, tests run in parallel, which can sometimes cause race conditions when tests interact with shared resources. You can disable parallel execution:
+You can control parallelism at two levels:
+
+1. **Test Fixtures**: Control whether different test fixtures run in parallel
+2. **Tests Within Fixtures**: Control whether tests within a single fixture run in parallel
+
+By default, both levels of parallelism are disabled for maximum stability. You can enable them as needed:
 
 ```bash
-# Run tests sequentially
-tftest run --parallel=false
+# Run test fixtures in parallel
+tftest run --parallel-fixtures=true
+
+# Run tests within fixtures in parallel
+tftest run --parallel-tests=true
+
+# Enable both levels of parallelism
+tftest run --parallel-fixtures=true --parallel-tests=true
 ```
 
-This is particularly useful when:
+Controlling parallelism is particularly useful when:
 - Tests interact with shared state files
 - Tests modify the same AWS resources
 - You're experiencing intermittent failures due to race conditions
+
+You can also control test-level parallelism using an environment variable:
+```bash
+# Disable parallel tests within fixtures
+export TERRATEST_DISABLE_PARALLEL_TESTS=true
+```
 
 ## Available Assertions
 
@@ -163,21 +183,24 @@ For detailed documentation on all assertions, including usage examples and requi
 - [Error Handling](docs/ERROR_HANDLING.md) - Error handling strategy for the framework
 - [Logging](docs/LOGGING.md) - Logging framework for the framework
 - [Benchmarking](docs/BENCHMARKING.md) - Benchmarking and performance optimization
+- [CI/CD Pipeline](docs/CI_CD_PIPELINE.md) - Overview of the CI/CD pipeline and release process
 - [Contributing Guide](docs/CONTRIBUTING.md) - Guidelines for contributing to the project
 
 ## Examples
 
-For examples of how to use this framework, see the [Examples Directory](examples/README.md).
+For a complete working example of how to use this framework in a real Terraform module, see the [Example Directory](example/README.md). This example demonstrates best practices for structuring and testing Terraform modules using this framework.
+
+For simple test fixtures used by the framework's own tests, see the `tests/terraform-module-test-fixtures` directory.
 
 ## Installation
 
 To install the framework as a dependency in your Terraform module project:
 
 ```bash
-go get github.com/caylent-solutions/terraform-terratest-framework@v0.2.0
+go get github.com/caylent-solutions/terraform-terratest-framework@v1.0.0
 
 # To install the CLI tool
-go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@v0.2.0
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@v1.0.0
 ```
 
 This adds the framework to your module's `go.mod` file, allowing you to use its testing capabilities in your Go test files.
@@ -200,11 +223,11 @@ make install
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (unit tests and functional tests)
 make test
 
-# Run all tests sequentially
-make test-sequential
+# Run all tests including example tests
+make test-all
 
 # List all functional tests with descriptions
 make list-functional-tests
@@ -223,17 +246,19 @@ FUNCTIONAL_TEST=TestCliVersion make run-specific-functional-test
 
 ### Releasing
 
-Releases are managed using semantic versioning and automated with the `make release` command:
+Releases are typically managed through the GitHub Actions pipeline. However, for manual releases outside of the pipeline, you can use the `make release-manual` command:
 
 ```bash
-# Create a release based on commit messages
-make release
+# Create a manual release based on commit messages
+make release-manual
 
 # Explicitly specify the version bump type
-make release TYPE=major
-make release TYPE=minor
-make release TYPE=patch
+make release-manual TYPE=major
+make release-manual TYPE=minor
+make release-manual TYPE=patch
 ```
+
+Note: This manual release process should only be used in exceptional circumstances when the automated pipeline cannot be used.
 
 The release process automatically determines the version bump type based on conventional commit messages:
 - **Major version bump** is triggered by:

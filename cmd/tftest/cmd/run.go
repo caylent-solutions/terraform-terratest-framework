@@ -12,10 +12,11 @@ import (
 
 var (
 	// Run command flags
-	moduleRoot  string
-	examplePath string
-	commonOnly  bool
-	parallel    bool
+	moduleRoot       string
+	examplePath      string
+	commonOnly       bool
+	parallelFixtures bool
+	parallelTests    bool
 )
 
 // runCmd represents the run command
@@ -29,7 +30,8 @@ Examples:
   tftest run --example-path vpc  # Run tests for the vpc example
   tftest run --common            # Run only common tests
   tftest run --module-root /path/to/terraform-module  # Run all tests in the specified module
-  tftest run --parallel=false    # Run tests sequentially (disables parallel execution)
+  tftest run --parallel-fixtures=true   # Run test fixtures in parallel
+  tftest run --parallel-tests=true     # Run tests within fixtures in parallel
 
 This command expects a specific directory structure:
 - Examples in the 'examples/' directory
@@ -48,7 +50,8 @@ func init() {
 	runCmd.Flags().StringVar(&moduleRoot, "module-root", ".", "Path to the root of the Terraform module (runs all tests)")
 	runCmd.Flags().StringVar(&examplePath, "example-path", "", "Specific example to test (leave empty to test all)")
 	runCmd.Flags().BoolVar(&commonOnly, "common", false, "Run only common tests")
-	runCmd.Flags().BoolVar(&parallel, "parallel", true, "Run tests in parallel (set to false to run sequentially)")
+	runCmd.Flags().BoolVar(&parallelFixtures, "parallel-fixtures", false, "Run test fixtures in parallel (default: false)")
+	runCmd.Flags().BoolVar(&parallelTests, "parallel-tests", false, "Run tests within each fixture in parallel (default: false)")
 }
 
 // runTests executes the tests based on the provided flags
@@ -105,19 +108,31 @@ func runTests() {
 	}
 
 	logger.Info("Module root: %s", absPath)
-	if !parallel {
-		logger.Info("Running tests sequentially (parallel execution disabled)")
+	if !parallelFixtures {
+		logger.Info("Running test fixtures sequentially")
 	} else {
-		logger.Info("Running tests in parallel")
+		logger.Info("Running test fixtures in parallel")
+	}
+	if !parallelTests {
+		logger.Info("Running tests within fixtures sequentially")
+	} else {
+		logger.Info("Running tests within fixtures in parallel")
 	}
 	logger.Info("Starting tests...")
 
 	// Run the tests
 	args := []string{"test", testPath, "-v"}
 
-	// Add -p 1 flag if parallel is false to disable parallel execution
-	if !parallel {
+	// Add -p 1 flag if parallelFixtures is false to disable parallel execution of test fixtures
+	if !parallelFixtures {
 		args = append(args, "-p", "1")
+	}
+
+	// Set environment variable to control parallelism within test fixtures
+	if !parallelTests {
+		os.Setenv("TERRATEST_DISABLE_PARALLEL_TESTS", "true")
+	} else {
+		os.Setenv("TERRATEST_DISABLE_PARALLEL_TESTS", "false")
 	}
 
 	cmd := exec.Command("go", args...)

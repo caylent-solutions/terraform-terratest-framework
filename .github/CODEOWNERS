@@ -1,12 +1,23 @@
-# These owners will be the default owners for everything in the repo.
-# Unless a later match takes precedence, they will be requested for
-# review when someone opens a pull request.
-*       @matt-dresden-caylent
+# This file defines code owners for the repository
+# Code owners will be automatically requested for review on pull requests
 
-# Specific ownership for core components
-/internal/  @matt-dresden-caylent
-/tftest-cli/ @matt-dresden-caylent
+# Default owners for everything in the repo
+* @matt-dresden-caylent
 
-# Documentation ownership
-/docs/      @matt-dresden-caylent
-*.md        @matt-dresden-caylent
+# CLI specific code
+/cmd/tftest/ @matt-dresden-caylent
+
+# Core packages
+/pkg/ @matt-dresden-caylent
+
+# Internal implementation
+/internal/ @matt-dresden-caylent
+
+# Tests
+/tests/ @matt-dresden-caylent
+
+# GitHub Actions workflows
+/.github/workflows/ @matt-dresden-caylent
+
+# Example code
+/example/ @matt-dresden-caylent

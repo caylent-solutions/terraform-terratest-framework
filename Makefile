@@ -1,7 +1,8 @@
 .PHONY: build-cli clean clean-coverage configure format functional-test \
         install install-tools lint list-functional-tests pre-commit pre-commit-install \
-        release run-specific-functional-test test test-coverage test-coverage-json \
-        test-html-coverage unit-test update-tools test-sequential
+        release-manual run-specific-functional-test test test-coverage test-coverage-json \
+        test-html-coverage unit-test update-tools test-sequential test-parallel-fixtures test-parallel-tests \
+        test-example test-all
 
 COVERAGE_DIR := tmp/coverage
 
@@ -75,10 +76,10 @@ pre-commit:
 pre-commit-install:
 	pre-commit install
 
-release:
+release-manual:
 	@echo "Creating a new release..."
 	@mkdir -p ./bin
-	@go build -o ./bin/release ./scripts/release/main.go
+	@go build -o ./bin/release ./scripts/release-manual/main.go
 	@./bin/release $(TYPE)
 	@rm -f ./bin/release
 
@@ -114,3 +115,14 @@ update-tools:
 		go build -o ./bin/install-tools ./scripts/install-tools.go; \
 	fi
 	@./bin/install-tools --update
+
+test-example:
+	@echo "Running all tests in the example directory..."
+	@cd example && make install && make test && make test-common && make format && make clean && make clean-all
+	@echo "All example tests completed successfully! 🎉"
+
+test-all:
+	@echo "Running all tests (main tests and example tests)..."
+	@$(MAKE) test
+	@$(MAKE) test-example
+	@echo "All tests completed successfully! 🎉"
