@@ -222,8 +222,11 @@ make install
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (unit tests and functional tests)
 make test
+
+# Run all tests including example tests
+make test-all
 
 # List all functional tests with descriptions
 make list-functional-tests

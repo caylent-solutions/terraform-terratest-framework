@@ -19,6 +19,17 @@ func TestParallelFixturesFlag(t *testing.T) {
 
 	// Create a simple test file
 	testFile := filepath.Join(tempDir, "simple_test.go")
+
+	// Create a go.mod file to make this a valid Go module
+	goModFile := filepath.Join(tempDir, "go.mod")
+	goModContent := `module simple
+
+go 1.24
+`
+	if err := os.WriteFile(goModFile, []byte(goModContent), 0644); err != nil {
+		t.Fatalf("Failed to write go.mod file: %v", err)
+	}
+
 	content := `
 package simple
 
@@ -40,7 +51,8 @@ func TestExample2(t *testing.T) {
 	}
 
 	// Test with parallel fixtures enabled
-	cmd := exec.Command("go", "test", "-v", tempDir)
+	cmd := exec.Command("go", "test", "-v", "./...")
+	cmd.Dir = tempDir
 	cmd.Env = append(os.Environ(), "TERRATEST_DISABLE_PARALLEL_TESTS=false")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -48,7 +60,8 @@ func TestExample2(t *testing.T) {
 	}
 
 	// Test with parallel fixtures disabled
-	cmd = exec.Command("go", "test", "-v", "-p", "1", tempDir)
+	cmd = exec.Command("go", "test", "-v", "-p", "1", "./...")
+	cmd.Dir = tempDir
 	cmd.Env = append(os.Environ(), "TERRATEST_DISABLE_PARALLEL_TESTS=false")
 	output, err = cmd.CombinedOutput()
 	if err != nil {

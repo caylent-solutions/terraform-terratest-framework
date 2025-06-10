@@ -121,7 +121,7 @@ func TestAllAssertionTypes(t *testing.T) {
 			assertions.AssertOutputContains(t, ctx, "output_file_path", "output")
 
 			// Verify that the output_file_path output matches the regex pattern for a file path (contains a dot)
-			assertions.AssertOutputMatches(t, ctx, "output_file_path", ".*\\\\.*")
+			assertions.AssertOutputMatches(t, ctx, "output_file_path", ".*\\..*")
 
 			// Verify that the output_content output is not empty
 			assertions.AssertOutputNotEmpty(t, ctx, "output_content")
