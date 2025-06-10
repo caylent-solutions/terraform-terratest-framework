@@ -8,6 +8,8 @@ require (
 	github.com/stretchr/testify v1.10.0
 )
 
+replace github.com/caylent-solutions/terraform-terratest-framework => ../
+
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
