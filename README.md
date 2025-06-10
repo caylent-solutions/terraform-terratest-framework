@@ -183,6 +183,7 @@ For detailed documentation on all assertions, including usage examples and requi
 - [Error Handling](docs/ERROR_HANDLING.md) - Error handling strategy for the framework
 - [Logging](docs/LOGGING.md) - Logging framework for the framework
 - [Benchmarking](docs/BENCHMARKING.md) - Benchmarking and performance optimization
+- [CI/CD Pipeline](docs/CI_CD_PIPELINE.md) - Overview of the CI/CD pipeline and release process
 - [Contributing Guide](docs/CONTRIBUTING.md) - Guidelines for contributing to the project
 
 ## Examples
@@ -245,17 +246,19 @@ FUNCTIONAL_TEST=TestCliVersion make run-specific-functional-test
 
 ### Releasing
 
-Releases are managed using semantic versioning and automated with the `make release` command:
+Releases are typically managed through the GitHub Actions pipeline. However, for manual releases outside of the pipeline, you can use the `make release-manual` command:
 
 ```bash
-# Create a release based on commit messages
-make release
+# Create a manual release based on commit messages
+make release-manual
 
 # Explicitly specify the version bump type
-make release TYPE=major
-make release TYPE=minor
-make release TYPE=patch
+make release-manual TYPE=major
+make release-manual TYPE=minor
+make release-manual TYPE=patch
 ```
+
+Note: This manual release process should only be used in exceptional circumstances when the automated pipeline cannot be used.
 
 The release process automatically determines the version bump type based on conventional commit messages:
 - **Major version bump** is triggered by:

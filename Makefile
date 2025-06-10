@@ -1,6 +1,6 @@
 .PHONY: build-cli clean clean-coverage configure format functional-test \
         install install-tools lint list-functional-tests pre-commit pre-commit-install \
-        release run-specific-functional-test test test-coverage test-coverage-json \
+        release-manual run-specific-functional-test test test-coverage test-coverage-json \
         test-html-coverage unit-test update-tools test-sequential test-parallel-fixtures test-parallel-tests \
         test-example test-all
 
@@ -76,10 +76,10 @@ pre-commit:
 pre-commit-install:
 	pre-commit install
 
-release:
+release-manual:
 	@echo "Creating a new release..."
 	@mkdir -p ./bin
-	@go build -o ./bin/release ./scripts/release/main.go
+	@go build -o ./bin/release ./scripts/release-manual/main.go
 	@./bin/release $(TYPE)
 	@rm -f ./bin/release
 

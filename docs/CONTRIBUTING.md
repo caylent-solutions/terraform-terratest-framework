@@ -76,27 +76,41 @@ If you're a Caylent employee, please follow the trunk-based development workflow
    - Once approved, merge your PR to the main branch.
    - Delete your feature branch after merging.
 
-## Release Process
+## CI/CD Pipeline and Release Process
 
-Releases are managed using semantic versioning and automated with the `make release` command:
+The project uses a comprehensive CI/CD pipeline for validation, testing, and releasing. For detailed information, see the [CI/CD Pipeline Documentation](CI_CD_PIPELINE.md).
+
+### Pull Request Process
+
+When you submit a pull request:
+1. Automated checks will validate your code (linting, tests, coverage)
+2. Code owners will be automatically notified for review
+3. All checks must pass and reviews must be approved before merging
+
+### Automated Release Process
+
+Releases are managed automatically through GitHub Actions when changes are merged to the main branch:
+1. Automated tests and validations are run
+2. QA approval is required
+3. Version is determined based on commit messages
+4. Changelog is generated
+5. Changes are committed and tagged
+
+### Manual Release Process
+
+For exceptional circumstances when the automated pipeline cannot be used:
 
 ```bash
-# Create a release based on commit messages
-make release
+# Create a manual release based on commit messages
+make release-manual
 
 # Explicitly specify the version bump type
-make release TYPE=major
-make release TYPE=minor
-make release TYPE=patch
+make release-manual TYPE=major
+make release-manual TYPE=minor
+make release-manual TYPE=patch
 ```
 
-The release process:
-1. Determines the version bump type based on commit messages (or uses the specified type)
-2. Updates the VERSION file
-3. Updates version references in other files
-4. Commits the changes
-5. Creates a git tag
-6. Provides instructions for pushing the changes and tag
+This should only be used when the automated pipeline is unavailable.
 
 ## Development Guidelines
 

@@ -7,18 +7,18 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
       - id: lint
         name: lint
         entry: make lint
         language: system
         pass_filenames: false
         always_run: true
-        stages: [push]
+        stages: [pre-push]
       - id: test
         name: test
         entry: make test
         language: system
         pass_filenames: false
         always_run: true
-        stages: [push]
+        stages: [pre-push]
