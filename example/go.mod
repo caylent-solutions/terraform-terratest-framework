@@ -3,10 +3,12 @@ module github.com/caylent-solutions/terraform-modules/skeletons/generic-skeleton
 go 1.24.4
 
 require (
-	github.com/caylent-solutions/terraform-terratest-framework v1.0.0
+	github.com/caylent-solutions/terraform-terratest-framework v0.9.0
 	github.com/gruntwork-io/terratest v0.49.0
 	github.com/stretchr/testify v1.10.0
 )
+
+replace github.com/caylent-solutions/terraform-terratest-framework => ../
 
 require (
 	github.com/agext/levenshtein v1.2.3 // indirect

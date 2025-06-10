@@ -52,7 +52,7 @@ jobs:
       - name: Lint code
         run: make lint
 
-      - name: Build CLI
+      - name: Build CLI test
         run: make build-cli
 
       - name: Run unit tests
@@ -60,18 +60,21 @@ jobs:
 
       - name: Run functional tests
         run: make functional-test
+        
+      - name: Run example tests
+        run: make test-example
 
       - name: Check test coverage
         id: coverage
         run: |
-          make test-coverage-json
-          COVERAGE=$(grep -o '"combined_total": "[^"]*"' tmp/coverage/coverage.json | cut -d'"' -f4 | sed 's/%//')
+          REQUIRED_COVERAGE=40
+          COVERAGE=$(make test-coverage-json | jq -r '.combined_total | rtrimstr("%") | tonumber')
           echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < 40" | bc -l) )); then
-            echo "Test coverage is below 40% ($COVERAGE%)"
+          if (( $(echo "$COVERAGE < $REQUIRED_COVERAGE" | bc -l) )); then
+            echo "Test coverage is below ${REQUIRED_COVERAGE}% ($COVERAGE%)"
             exit 1
           fi
-          echo "Test coverage is $COVERAGE% (meets minimum requirement of 40%)"
+          echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%)"
 
       - name: Find code owners
         id: codeowners
@@ -110,44 +113,44 @@ jobs:
           echo "Final owners: $UNIQUE_OWNERS"
           echo "owners=$UNIQUE_OWNERS" >> $GITHUB_OUTPUT
 
-      - name: Send PR review request to Slack
-        if: success()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "text": "<!here> :mag: PR Ready for Review",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "<!here> *PR Review Needed*"
-                  }
-                },
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": ":mag: PR Ready for Review"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*PR #${{ github.event.pull_request.number }}*: ${{ github.event.pull_request.title }}\nAll validation checks have passed! This PR is ready for review.\n<${{ github.event.pull_request.html_url }}|View Pull Request>"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Author:* ${{ github.event.pull_request.user.login }}\n*Code Owners:* ${{ steps.codeowners.outputs.owners }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      #- name: Send PR review request to Slack
+      #  if: success()
+      #  uses: slackapi/slack-github-action@v1.25.0
+      #  with:
+      #    payload: |
+      #      {
+      #        "text": "<!here> :mag: PR Ready for Review",
+      #        "blocks": [
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "<!here> *PR Review Needed*"
+      #            }
+      #          },
+      #          {
+      #            "type": "header",
+      #            "text": {
+      #              "type": "plain_text",
+      #              "text": ":mag: PR Ready for Review"
+      #            }
+      #          },
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "*PR #${{ github.event.pull_request.number }}*: ${{ github.event.pull_request.title }}\nAll validation checks have passed! This PR is ready for review.\n<${{ github.event.pull_request.html_url }}|View Pull Request>"
+      #            }
+      #          },
+      #          {
+      #            "type": "section",
+      #            "text": {
+      #              "type": "mrkdwn",
+      #              "text": "*Author:* ${{ github.event.pull_request.user.login }}\n*Code Owners:* ${{ steps.codeowners.outputs.owners }}"
+      #            }
+      #          }
+      #        ]
+      #      }
+      #  env:
+      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

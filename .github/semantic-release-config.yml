@@ -11,3 +11,4 @@ changelog:
   changelog_file: CHANGELOG.md
   exclude_commit_patterns:
     - "^chore\\(release\\):"
+    
