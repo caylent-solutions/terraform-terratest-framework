@@ -52,7 +52,7 @@ jobs:
       - name: Lint code
         run: make lint
 
-      - name: Build CLI
+      - name: Build CLI test
         run: make build-cli
 
       - name: Run unit tests
