@@ -14,12 +14,12 @@ test:
 	@echo "Cleaning Go test cache..."
 	@go clean -cache -testcache
 	@echo "Running all tests with clean cache..."
-	@cd .. && go run ./cmd/tftest/main.go run --parallel-fixtures=false --parallel-tests=false
+	cd .. && go run ./cmd/tftest/main.go run --parallel-fixtures=false --parallel-tests=false --verbose=INFO --module-root=./example
 
 # Format all test files
 format:
 	@echo "Formatting test files..."
-	@cd .. && go run ./cmd/tftest/main.go format --all
+	@cd .. && go run ./cmd/tftest/main.go format --all --module-root=./example
 
 # Clean up temporary files
 clean:

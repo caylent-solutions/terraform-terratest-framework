@@ -118,7 +118,7 @@ update-tools:
 
 test-example:
 	@echo "Running all tests in the example directory..."
-	@cd example && make install && make test && make format && make clean
+	cd example && make install && make test && make format && make clean
 	@echo "All example tests completed successfully! 🎉"
 
 test-all:
