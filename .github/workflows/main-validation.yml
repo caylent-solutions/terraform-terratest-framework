@@ -184,7 +184,7 @@ jobs:
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY  }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           
       - name: Install Python semantic-release
         run: |
@@ -200,7 +200,7 @@ jobs:
           echo "Current version: $CURRENT_VERSION"
           
           # Use semantic-release to determine next version
-          NEW_VERSION=$(python -m semantic_release version --print | sed 's/^v//')
+          NEW_VERSION=$(python -m semantic_release version --print)
           echo "New version: $NEW_VERSION"
           
           # Ensure we have a non-empty version
@@ -244,9 +244,6 @@ jobs:
           git config --global user.name "caylent-platform-bot"
           git config --global user.email "caylent-platform-bot@users.noreply.github.com"
         
-          echo "machine github.com login caylent-platform-bot password ${GH_TOKEN}" > ~/.netrc
-          chmod 600 ~/.netrc
-        
           echo "🔀 Creating or resetting branch release-$VERSION"
           git checkout -B release-$VERSION
         
@@ -257,6 +254,7 @@ jobs:
           git commit -m "chore(release): $VERSION"
         
           echo "🚀 Pushing branch release-$VERSION"
+          # Use the token directly with the repository URL with correct format
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git push origin release-$VERSION
         
@@ -281,7 +279,7 @@ jobs:
           set -euo pipefail
 
           PR_URL="${{ steps.commit-changes.outputs.pr_url }}"
-          PR_NUMBER=$(echo "$PR_URL" | grep -o '[0-9]\+)
+          PR_NUMBER=$(echo "$PR_URL" | grep -o '[0-9]\+$')
           NEW_VERSION="${{ steps.semantic-release.outputs.version }}"
 
           echo "Waiting for PR #$PR_NUMBER to be merged..."
@@ -310,5 +308,7 @@ jobs:
           git fetch --all
           git checkout main
           git pull origin main
-          git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
-          git push origin "v$NEW_VERSION"
+          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin "$NEW_VERSION"
+          
