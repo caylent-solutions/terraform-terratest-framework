@@ -229,30 +229,46 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
-          # Use the correct output variable name
           VERSION="${{ steps.semantic-release.outputs.version }}"
           echo "VERSION: $VERSION"
-          
+        
           if [[ -z "$VERSION" ]]; then
             echo "ERROR: version is empty. Exiting."
             exit 1
           fi
-
+        
+          echo "🔍 GH_TOKEN is ${#GH_TOKEN} characters long"
+          echo "🔐 Authenticating with gh CLI..."
+          gh auth status || echo "⚠️ gh CLI authentication failed"
+        
           git config --global user.name "caylent-platform-bot[bot]"
           git config --global user.email "caylent-platform-bot[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          git checkout -b release-$VERSION
+          
+          echo "🔀 Creating or resetting branch release-$VERSION"
+          git checkout -B release-$VERSION
+        
+          echo "📦 Staging release files..."
           git add CHANGELOG.md VERSION
+        
+          echo "📝 Committing changes..."
           git commit -m "chore(release): $VERSION"
+        
+          echo "🚀 Pushing branch release-$VERSION"
           git push origin release-$VERSION
-
-          PR_URL=$(gh pr create \
-            --title "Release $VERSION" \
-            --body "Automated release PR for version $VERSION" \
-            --base main \
-            --head release-$VERSION)
-
+        
+          echo "🔁 Creating or reusing pull request..."
+          PR_URL=$(gh pr view --head release-$VERSION --json url -q .url || \
+            gh pr create \
+              --title "Release $VERSION" \
+              --body "Automated release PR for version $VERSION" \
+              --base main \
+              --head release-$VERSION)
+        
+          echo "✅ Pull request created or found: $PR_URL"
           echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+        
+          echo "🔀 Merging PR..."
           gh pr merge ${PR_URL} --admin --merge
 
       - name: Wait for PR to merge and create Git tag
