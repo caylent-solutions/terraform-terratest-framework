@@ -257,7 +257,8 @@ jobs:
           git commit -m "chore(release): $VERSION"
         
           echo "🚀 Pushing branch release-$VERSION"
-          git push https://caylent-platform-bot:${GH_TOKEN}@github.com/${{ github.repository }} release-$VERSION
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin release-$VERSION
         
           echo "🔁 Creating or reusing pull request..."
           PR_URL=$(gh pr view --head release-$VERSION --json url -q .url || \
@@ -311,4 +312,3 @@ jobs:
           git pull origin main
           git tag -a "v$NEW_VERSION" -m "Release $NEW_VERSION"
           git push origin "v$NEW_VERSION"
-
