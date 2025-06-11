@@ -70,41 +70,40 @@ jobs:
           echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%)"
 
       #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
-      #- name: Send failure notification to Slack
-      #  if: failure()
-      #  uses: slackapi/slack-github-action@v1.25.0
-      #  with:
-      #    payload: |
-      #      {
-      #        "text": "<!here> ❌ Main Branch Validation Failed",
-      #        "blocks": [
-      #          {
-      #            "type": "section",
-      #            "text": {
-      #              "type": "mrkdwn",
-      #              "text": "<!here> *Action Required: Build Failed*"
-      #            }
-      #          },
-      #          {
-      #            "type": "header",
-      #            "text": {
-      #              "type": "plain_text",
-      #              "text": "❌ Main Branch Validation Failed"
-      #            }
-      #          },
-      #          {
-      #            "type": "section",
-      #            "text": {
-      #              "type": "mrkdwn",
-      #              "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
-      #            }
-      #          }
-      #        ]
-      #      }
-      #  env:
-      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Send failure notification to Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "<!here> ❌ Main Branch Validation Failed - ${{ github.repository }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<!here> *Action Required: Build Failed*"
+                  }
+                },
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "❌ Main Branch Validation Failed - ${{ github.repository }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again.\n\n*Repository:* ${{ github.repository }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   codeql:
     name: CodeQL Analysis
@@ -302,3 +301,14 @@ jobs:
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           git push origin "$NEW_VERSION"
+
+      - name: Clean up release branch
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          VERSION="${{ steps.semantic-release.outputs.version }}"
+          BRANCH_NAME="release-$VERSION"
+          
+          # Delete the release branch
+          git push origin --delete $BRANCH_NAME
+          echo "✅ Deleted branch $BRANCH_NAME"
