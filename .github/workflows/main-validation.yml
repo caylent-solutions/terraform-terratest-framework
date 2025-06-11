@@ -76,7 +76,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "<!here> ❌ Main Branch Validation Failed",
+              "text": "<!here> ❌ Main Branch Validation Failed - ${{ github.repository }}",
               "blocks": [
                 {
                   "type": "section",
@@ -89,14 +89,14 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "❌ Main Branch Validation Failed"
+                    "text": "❌ Main Branch Validation Failed - ${{ github.repository }}"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
+                    "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again.\n\n*Repository:* ${{ github.repository }}"
                   }
                 }
               ]

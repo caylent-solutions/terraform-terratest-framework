@@ -119,7 +119,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "<!here> :mag: PR Ready for Review",
+              "text": "<!here> :mag: PR Ready for Review - ${{ github.repository }}",
               "blocks": [
                 {
                   "type": "section",
@@ -132,7 +132,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": ":mag: PR Ready for Review"
+                    "text": ":mag: PR Ready for Review - ${{ github.repository }}"
                   }
                 },
                 {
@@ -146,7 +146,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Author:* ${{ github.event.pull_request.user.login }}\n*Code Owners:* ${{ steps.codeowners.outputs.owners }}"
+                    "text": "*Author:* ${{ github.event.pull_request.user.login }}\n*Code Owners:* ${{ steps.codeowners.outputs.owners }}\n*Repository:* ${{ github.repository }}"
                   }
                 }
               ]
