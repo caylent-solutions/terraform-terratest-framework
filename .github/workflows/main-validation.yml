@@ -145,8 +145,10 @@ jobs:
   release:
     name: Release
     needs: [manual-approval]
-    if: ${{ github.actor != 'caylent-platform-bot[bot]' }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
     
     steps:
       - name: Checkout code
@@ -298,5 +300,5 @@ jobs:
           git checkout main
           git pull origin main
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
           git push origin "$NEW_VERSION"
