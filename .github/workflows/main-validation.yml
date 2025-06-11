@@ -233,7 +233,7 @@ jobs:
           echo "VERSION: $VERSION"
         
           if [[ -z "$VERSION" ]]; then
-            echo "ERROR: version is empty. Exiting."
+            echo "❌ ERROR: version is empty. Exiting."
             exit 1
           fi
         
@@ -241,10 +241,12 @@ jobs:
           echo "🔐 Authenticating with gh CLI..."
           gh auth status || echo "⚠️ gh CLI authentication failed"
         
-          git config --global user.name "caylent-platform-bot[bot]"
-          git config --global user.email "caylent-platform-bot[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
-          
+          git config --global user.name "caylent-platform-bot"
+          git config --global user.email "caylent-platform-bot@users.noreply.github.com"
+        
+          echo "machine github.com login caylent-platform-bot password ${GH_TOKEN}" > ~/.netrc
+          chmod 600 ~/.netrc
+        
           echo "🔀 Creating or resetting branch release-$VERSION"
           git checkout -B release-$VERSION
         
@@ -255,7 +257,7 @@ jobs:
           git commit -m "chore(release): $VERSION"
         
           echo "🚀 Pushing branch release-$VERSION"
-          git push origin release-$VERSION
+          git push https://caylent-platform-bot:${GH_TOKEN}@github.com/${{ github.repository }} release-$VERSION
         
           echo "🔁 Creating or reusing pull request..."
           PR_URL=$(gh pr view --head release-$VERSION --json url -q .url || \
@@ -269,7 +271,7 @@ jobs:
           echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
         
           echo "🔀 Merging PR..."
-          gh pr merge ${PR_URL} --admin --merge
+          gh pr merge "${PR_URL}" --admin --merge
 
       - name: Wait for PR to merge and create Git tag
         env:
