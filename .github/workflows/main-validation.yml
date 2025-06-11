@@ -200,16 +200,23 @@ jobs:
           echo "Current version: $CURRENT_VERSION"
           
           # Use semantic-release to determine next version
-          NEW_VERSION=$(python -m semantic_release version --print)
-          echo "New version: $NEW_VERSION"
+          RAW_VERSION=$(python -m semantic_release version --print)
+          echo "Raw version from semantic-release: $RAW_VERSION"
           
-          # Ensure we have a non-empty version
-          if [[ -z "$NEW_VERSION" ]]; then
+          # Ensure we have a non-empty version and add v prefix if needed
+          if [[ -z "$RAW_VERSION" ]]; then
             echo "No new version detected, using current version"
             NEW_VERSION=$CURRENT_VERSION
-            echo "Using current version: $NEW_VERSION"
+          else
+            # Add v prefix if not present
+            if [[ "$RAW_VERSION" != v* ]]; then
+              NEW_VERSION="v$RAW_VERSION"
+            else
+              NEW_VERSION="$RAW_VERSION"
+            fi
           fi
           
+          echo "Final version: $NEW_VERSION"
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Generate changelog
@@ -231,7 +238,6 @@ jobs:
         run: |
           VERSION="${{ steps.semantic-release.outputs.version }}"
           echo "VERSION: $VERSION"
-        
           if [[ -z "$VERSION" ]]; then
             echo "❌ ERROR: version is empty. Exiting."
             exit 1
@@ -254,8 +260,7 @@ jobs:
           git commit -m "chore(release): $VERSION"
         
           echo "🚀 Pushing branch release-$VERSION"
-          # Use the token directly with the repository URL with correct format
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git remote set-url origin "https://x-access-token:${{ steps.generate_token.outputs.token }}@github.com/${{ github.repository }}.git"
           git push origin release-$VERSION
         
           echo "🔁 Creating or reusing pull request..."
@@ -265,12 +270,11 @@ jobs:
               --body "Automated release PR for version $VERSION" \
               --base main \
               --head release-$VERSION)
-        
           echo "✅ Pull request created or found: $PR_URL"
           echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
         
           echo "🔀 Merging PR..."
-          gh pr merge "${PR_URL}" --admin --merge
+          gh pr merge "${PR_URL}" --admin --merge        
 
       - name: Wait for PR to merge and create Git tag
         env:
@@ -311,4 +315,3 @@ jobs:
           git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git push origin "$NEW_VERSION"
-          
