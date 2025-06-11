@@ -70,41 +70,40 @@ jobs:
           echo "Test coverage is $COVERAGE% (meets minimum requirement of ${REQUIRED_COVERAGE}%)"
 
       #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
-      #- name: Send failure notification to Slack
-      #  if: failure()
-      #  uses: slackapi/slack-github-action@v1.25.0
-      #  with:
-      #    payload: |
-      #      {
-      #        "text": "<!here> ❌ Main Branch Validation Failed",
-      #        "blocks": [
-      #          {
-      #            "type": "section",
-      #            "text": {
-      #              "type": "mrkdwn",
-      #              "text": "<!here> *Action Required: Build Failed*"
-      #            }
-      #          },
-      #          {
-      #            "type": "header",
-      #            "text": {
-      #              "type": "plain_text",
-      #              "text": "❌ Main Branch Validation Failed"
-      #            }
-      #          },
-      #          {
-      #            "type": "section",
-      #            "text": {
-      #              "type": "mrkdwn",
-      #              "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
-      #            }
-      #          }
-      #        ]
-      #      }
-      #  env:
-      #    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      #    SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Send failure notification to Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "<!here> ❌ Main Branch Validation Failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<!here> *Action Required: Build Failed*"
+                  }
+                },
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "❌ Main Branch Validation Failed"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The main branch validation workflow failed.\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View the failure details>\n\nPlease fix the issues and try again."
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   codeql:
     name: CodeQL Analysis
