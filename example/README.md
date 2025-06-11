@@ -29,7 +29,6 @@ terraform-module/
 ├── tests/                   # Tests for the module
 │   ├── common/              # Tests that run on all examples
 │   │   ├── module_test.go
-│   │   ├── input_validation_test.go
 │   │   └── README.md
 │   ├── helpers/             # Helper functions for tests
 │   │   ├── helpers.go
