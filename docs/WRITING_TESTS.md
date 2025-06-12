@@ -10,6 +10,30 @@ The framework supports a structured approach to testing:
 2. **Common Tests**: Tests in the `common` directory run on all examples
 3. **Helper Functions**: Reusable test helpers in the `helpers` directory
 
+## The TestCtx Package
+
+The `testctx` package is the core of the framework, providing essential functionality for running and managing Terraform tests. For detailed documentation, see the [TestCtx Package Documentation](TESTCTX_PACKAGE.md).
+
+Key functions include:
+
+```go
+// Run a single example
+ctx := testctx.RunSingleExample(t, "../../examples", "example1", testctx.TestConfig{
+    Name: "example1-test",
+})
+
+// Run all examples
+results := testctx.RunAllExamples(t, "../../examples", nil)
+
+// Run custom tests on all examples
+testctx.RunCustomTests(t, results, verifyS3Bucket)
+
+// Discover and run all examples
+testctx.DiscoverAndRunAllTests(t, "../../", func(t *testing.T, ctx testctx.TestContext) {
+    // Common assertions for all examples
+})
+```
+
 ## Example-Specific Tests
 
 Each example should have its own test directory with the same name:
@@ -97,6 +121,34 @@ func VerifyS3Bucket(t *testing.T, ctx testctx.TestContext, expectedEncryption st
 	// Helper logic to verify S3 bucket
 	// ...
 }
+```
+
+## Custom Test Functions
+
+You can create custom test functions to verify specific aspects of your Terraform module:
+
+```go
+// Define custom test functions
+verifyS3Bucket := func(t *testing.T, ctx testctx.TestContext) {
+    // S3 bucket verification logic
+}
+
+verifyIAMRoles := func(t *testing.T, ctx testctx.TestContext) {
+    // IAM role verification logic
+}
+
+// Run all examples
+results := testctx.RunAllExamples(t, "../../examples", nil)
+
+// Run custom tests on all examples
+testctx.RunCustomTests(t, results, verifyS3Bucket)
+testctx.RunCustomTests(t, results, verifyIAMRoles)
+
+// Or run all examples and custom tests in one go
+testctx.RunAllExamplesWithTests(t, "../../examples", nil, 
+    verifyS3Bucket, 
+    verifyIAMRoles,
+)
 ```
 
 ## Idempotency Testing

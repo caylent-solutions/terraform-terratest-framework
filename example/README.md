@@ -1,6 +1,6 @@
 # Example Terraform Module with Terratest Framework
 
-This directory contains a complete working example of how to use the [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework) to test Terraform modules. It serves as a reference implementation and demonstration of best practices for testing Terraform modules.
+This directory contains a complete working example of how to use the [Terraform Terratest Framework](../) to test Terraform modules. It serves as a reference implementation and demonstration of best practices for testing Terraform modules.
 
 ## Purpose of This Example
 
@@ -64,6 +64,11 @@ The `testctx` package is the core of the Terraform Terratest Framework, providin
   results := testctx.RunAllExamples(t, "../../examples", configs)
   ```
 
+- **RunCustomTests**: Runs custom test functions on all examples
+  ```go
+  testctx.RunCustomTests(t, results, verifyS3Bucket)
+  ```
+
 - **DiscoverAndRunAllTests**: Automatically discovers and runs all examples
   ```go
   testctx.DiscoverAndRunAllTests(t, "../../", func(t *testing.T, ctx testctx.TestContext) {
@@ -71,7 +76,7 @@ The `testctx` package is the core of the Terraform Terratest Framework, providin
   })
   ```
 
-For more detailed documentation on the testctx package, see the [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md).
+For more detailed documentation on the testctx package, see the [TestCtx Package Documentation](../docs/TESTCTX_PACKAGE.md).
 
 ### Using Assertions
 
@@ -97,7 +102,7 @@ func TestExample(t *testing.T) {
 }
 ```
 
-For a complete list of available assertions, see the [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md).
+For a complete list of available assertions, see the [Assertions Documentation](../docs/ASSERTIONS.md).
 
 ### Common Tests
 
@@ -145,25 +150,7 @@ make test
 make test-common
 
 # Run a specific test
-go test ./tests/common -run '^TestInputsMatchProvisioned
-
-## Developer Workflow
-
-1. **Clone the skeleton**: Start by cloning this skeleton to a new directory
-2. **Modify the module**: Update the module code to implement your functionality
-3. **Update examples**: Modify the examples to demonstrate your module's usage
-4. **Write tests**: Update the tests to verify your module's functionality
-5. **Run tests**: Run the tests using `make test`
-6. **Commit and push**: Commit your changes and push to your repository
-
-## References
-
-- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/README.md)
-- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md)
-- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md)
-- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/DIRECTORY_STRUCTURE.md)
-- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/WRITING_TESTS.md)
-- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/CLI_USAGE.md)
+go test ./tests/common -run '^TestInputsMatchProvisioned'
 
 # Format all test files
 make format
@@ -193,7 +180,7 @@ The `--parallel-fixtures=false` and `--parallel-tests=false` flags ensure that:
 
 This provides maximum stability and is recommended for most use cases.
 
-For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/main/docs/CLI_USAGE.md).
+For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](../docs/CLI_USAGE.md).
 
 ## Developer Workflow
 
@@ -206,9 +193,9 @@ For more information on the `tftest` CLI tool, see the [CLI Usage Documentation]
 
 ## References
 
-- [Terraform Terratest Framework](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/README.md)
-- [TestCtx Package Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/TESTCTX_PACKAGE.md)
-- [Assertions Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/ASSERTIONS.md)
-- [Directory Structure Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/DIRECTORY_STRUCTURE.md)
-- [Writing Tests Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/WRITING_TESTS.md)
-- [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/v1.0.0/docs/CLI_USAGE.md)
+- [Terraform Terratest Framework](../README.md)
+- [TestCtx Package Documentation](../docs/TESTCTX_PACKAGE.md)
+- [Assertions Documentation](../docs/ASSERTIONS.md)
+- [Directory Structure Documentation](../docs/DIRECTORY_STRUCTURE.md)
+- [Writing Tests Documentation](../docs/WRITING_TESTS.md)
+- [CLI Usage Documentation](../docs/CLI_USAGE.md)

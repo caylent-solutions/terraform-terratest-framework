@@ -86,6 +86,28 @@ For details on installing and using the tftest CLI, see the [CLI Usage Documenta
 
 For details on writing tests, see the [Writing Tests Documentation](docs/WRITING_TESTS.md).
 
+### TestCtx Package
+
+The `testctx` package is the core of the framework, providing essential functionality for running and managing Terraform tests:
+
+```go
+// Run a single example
+ctx := testctx.RunSingleExample(t, "../../examples", "example1", testctx.TestConfig{
+    Name: "example1-test",
+    ExtraVars: map[string]interface{}{
+        "region": "us-west-2",
+    },
+})
+
+// Run all examples
+results := testctx.RunAllExamples(t, "../../examples", nil)
+
+// Run custom tests on all examples
+testctx.RunCustomTests(t, results, verifyS3Bucket)
+```
+
+For detailed documentation on the `testctx` package, see the [TestCtx Package Documentation](docs/TESTCTX_PACKAGE.md).
+
 ### Idempotency Testing
 
 By default, the framework automatically runs idempotency tests for all Terraform examples. This ensures your Terraform code is idempotent (running it multiple times produces the same result).
@@ -177,6 +199,7 @@ For detailed documentation on all assertions, including usage examples and requi
 - [Directory Structure](docs/DIRECTORY_STRUCTURE.md) - Required directory structure for using the framework
 - [CLI Usage](docs/CLI_USAGE.md) - How to use the TFTest CLI
 - [Writing Tests](docs/WRITING_TESTS.md) - Guide to writing tests with the framework
+- [TestCtx Package](docs/TESTCTX_PACKAGE.md) - Documentation for the core testctx package
 - [Standard Tests](docs/STANDARD_TESTS.md) - Standard tests to run on every Terraform module
 - [Assertions Documentation](docs/ASSERTIONS.md) - Detailed guide to all built-in assertions
 - [Testing Guide](docs/TESTING_GUIDE.md) - Comprehensive guide to writing and organizing tests
@@ -197,13 +220,16 @@ For simple test fixtures used by the framework's own tests, see the `tests/terra
 To install the framework as a dependency in your Terraform module project:
 
 ```bash
-go get github.com/caylent-solutions/terraform-terratest-framework@v1.0.0
-
-# To install the CLI tool
-go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest@v1.0.0
+go get github.com/caylent-solutions/terraform-terratest-framework
 ```
 
 This adds the framework to your module's `go.mod` file, allowing you to use its testing capabilities in your Go test files.
+
+To install the CLI tool:
+
+```bash
+go install github.com/caylent-solutions/terraform-terratest-framework/cmd/tftest
+```
 
 ## Development
 

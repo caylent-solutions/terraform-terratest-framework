@@ -10,6 +10,25 @@ For details on the required directory structure, see the [Directory Structure Do
 
 For details on test organization and writing tests, see the [Writing Tests Documentation](WRITING_TESTS.md).
 
+## The TestCtx Package
+
+The `testctx` package is the core of the framework, providing essential functionality for running and managing Terraform tests. For detailed documentation, see the [TestCtx Package Documentation](TESTCTX_PACKAGE.md).
+
+Key functions include:
+
+```go
+// Run a single example
+ctx := testctx.RunSingleExample(t, "../../examples", "example1", testctx.TestConfig{
+    Name: "example1-test",
+})
+
+// Run all examples
+results := testctx.RunAllExamples(t, "../../examples", nil)
+
+// Run custom tests on all examples
+testctx.RunCustomTests(t, results, verifyS3Bucket)
+```
+
 ## Test Fixtures
 
 The framework includes test fixtures that demonstrate how to use the framework:
@@ -62,12 +81,14 @@ For details on required environment variables, see the [CLI Usage Documentation]
 
 3. **Create Helper Functions**: Extract reusable test logic into helper functions in the `helpers` directory
 
-4. **Clean Up Resources**: The framework automatically cleans up Terraform resources, but if your tests create additional resources, clean them up
+4. **Use the TestCtx Package Effectively**: Leverage the functions provided by the `testctx` package to simplify test setup and execution
 
-5. **Use Descriptive Test Names**: Name tests based on what they're verifying
+5. **Clean Up Resources**: The framework automatically cleans up Terraform resources, but if your tests create additional resources, clean them up
 
-6. **Error Handling**: Include proper error handling and descriptive assertion messages
+6. **Use Descriptive Test Names**: Name tests based on what they're verifying
 
-7. **AWS Authentication**: Ensure AWS credentials are properly configured before running tests
+7. **Error Handling**: Include proper error handling and descriptive assertion messages
 
-8. **Run Standard Tests**: Use the standard tests provided by the framework to ensure your module follows best practices
+8. **AWS Authentication**: Ensure AWS credentials are properly configured before running tests
+
+9. **Run Standard Tests**: Use the standard tests provided by the framework to ensure your module follows best practices
