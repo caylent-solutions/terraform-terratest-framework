@@ -84,4 +84,4 @@ The `--parallel-fixtures=false` and `--parallel-tests=false` flags ensure that:
 
 This provides maximum stability and is recommended for most use cases.
 
-For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](https://github.com/caylent-solutions/terraform-terratest-framework/blob/main/docs/CLI_USAGE.md).
+For more information on the `tftest` CLI tool, see the [CLI Usage Documentation](../../docs/CLI_USAGE.md).
