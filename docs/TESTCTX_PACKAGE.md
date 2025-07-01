@@ -10,6 +10,8 @@ The `testctx` package handles:
 - Parallel test execution control
 - Idempotency testing
 
+**Important**: Each use of `testctx` spins up a unique Terraform deployment that is tested and then destroyed. This means every call to `RunSingleExample`, `RunAllExamples`, etc. creates separate infrastructure instances for testing.
+
 ## Key Components
 
 ### TestContext
@@ -172,6 +174,76 @@ func TestDiscovery(t *testing.T) {
 }
 ```
 
+## Test Architecture & AI-Assisted Development
+
+### Deployment Lifecycle
+
+Each `testctx` usage follows this lifecycle:
+1. **Deploy**: Creates a unique Terraform deployment with generated resource names
+2. **Test**: Runs assertions against the deployed infrastructure
+3. **Destroy**: Automatically tears down all created resources
+
+This ensures test isolation but comes with infrastructure provisioning overhead.
+
+### AI-Assisted Development Considerations
+
+**Recommended Approach**: Use fewer tests per `testctx` (ideally 1 test per context)
+
+**Benefits**:
+- Smaller, focused test output that AI agents can easily parse and understand
+- Cleaner error messages when tests fail
+- Better context management for AI-assisted debugging
+- Easier to identify specific test failures
+
+**Trade-offs**:
+- Longer test cycles due to more separate deployments
+- Higher infrastructure provisioning overhead
+- Serial execution takes significantly longer
+
+**Alternative Approach**: Multiple tests per `testctx` for faster execution
+
+**Benefits**:
+- Faster test cycles (single deployment, multiple tests)
+- Lower infrastructure overhead
+- More efficient resource utilization
+
+**Trade-offs**:
+- Complex, interleaved test output that AI agents struggle to parse
+- Harder to isolate specific test failures
+- Large context sizes that may overwhelm AI agents
+
+### Choosing Your Strategy
+
+```go
+// AI-Friendly: One test per context (recommended for AI-assisted development)
+func TestVPCCreation(t *testing.T) {
+    ctx := testctx.RunSingleExample(t, "../../examples", "basic", testctx.TestConfig{
+        Name: "vpc-creation-test",
+    })
+    assertions.AssertOutputNotEmpty(t, ctx, "vpc_id")
+}
+
+func TestVPCTags(t *testing.T) {
+    ctx := testctx.RunSingleExample(t, "../../examples", "basic", testctx.TestConfig{
+        Name: "vpc-tags-test",
+    })
+    assertions.AssertOutputContains(t, ctx, "vpc_tags", "Environment")
+}
+
+// Efficiency-Focused: Multiple tests per context (faster but less AI-friendly)
+func TestVPCComprehensive(t *testing.T) {
+    ctx := testctx.RunSingleExample(t, "../../examples", "basic", testctx.TestConfig{
+        Name: "vpc-comprehensive-test",
+    })
+    
+    // Multiple tests in single deployment
+    assertions.AssertOutputNotEmpty(t, ctx, "vpc_id")
+    assertions.AssertOutputContains(t, ctx, "vpc_tags", "Environment")
+    assertions.AssertResourceCountExact(t, ctx, "aws_vpc", 1)
+    // ... many more tests
+}
+```
+
 ## Best Practices
 
 1. **Use RunSingleExample for Example-Specific Tests**: When writing tests for a specific example, use `RunSingleExample` to focus on that example.
@@ -183,3 +255,5 @@ func TestDiscovery(t *testing.T) {
 4. **Clean Up Resources**: The framework automatically cleans up Terraform resources, but if your tests create additional resources, clean them up.
 
 5. **Use Descriptive Test Names**: Set meaningful names in `TestConfig` to make test failures easier to understand.
+
+6. **Consider Your Development Workflow**: Choose between AI-friendly (fewer tests per context) or efficiency-focused (more tests per context) approaches based on your team's needs.

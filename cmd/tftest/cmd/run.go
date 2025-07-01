@@ -17,6 +17,7 @@ var (
 	commonOnly       bool
 	parallelFixtures bool
 	parallelTests    bool
+	testTimeout      string
 )
 
 // runCmd represents the run command
@@ -52,6 +53,7 @@ func init() {
 	runCmd.Flags().BoolVar(&commonOnly, "common", false, "Run only common tests")
 	runCmd.Flags().BoolVar(&parallelFixtures, "parallel-fixtures", false, "Run test fixtures in parallel (default: false)")
 	runCmd.Flags().BoolVar(&parallelTests, "parallel-tests", false, "Run tests within each fixture in parallel (default: false)")
+	runCmd.Flags().StringVar(&testTimeout, "timeout", "", "Test timeout duration (e.g., 20m, 1h)")
 }
 
 // runTests executes the tests based on the provided flags
@@ -120,8 +122,24 @@ func runTests() {
 	}
 	logger.Info("Starting tests...")
 
+	// Print environment variables for debugging
+	logger.Info("Environment variables:")
+	logger.Info("  GO_TEST_TIMEOUT=%s", os.Getenv("GO_TEST_TIMEOUT"))
+	logger.Info("  TERRATEST_IDEMPOTENCY=%s", os.Getenv("TERRATEST_IDEMPOTENCY"))
+	logger.Info("  AWS_PROFILE=%s", os.Getenv("AWS_PROFILE"))
+	logger.Info("  AWS_DEFAULT_REGION=%s", os.Getenv("AWS_DEFAULT_REGION"))
+
 	// Run the tests
 	args := []string{"test", testPath, "-v"}
+
+	// Add timeout if specified or from environment variable
+	timeoutValue := testTimeout
+	if timeoutValue == "" {
+		timeoutValue = os.Getenv("GO_TEST_TIMEOUT")
+	}
+	if timeoutValue != "" {
+		args = append(args, "-timeout", timeoutValue)
+	}
 
 	// Add -p 1 flag if parallelFixtures is false to disable parallel execution of test fixtures
 	if !parallelFixtures {
