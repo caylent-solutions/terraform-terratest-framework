@@ -112,17 +112,45 @@ func AssertResourceExists(t testing.TB, ctx testctx.TestContext, resourceType st
 	assert.Contains(t, output, resourceAddress, "Resource %s should exist in Terraform state", resourceAddress)
 }
 
+// matchModuleExampleResource builds a regexp matching Terraform `state list`
+// addresses for a resource of resourceType that belongs to the module under
+// test. The framework's examples instantiate the module under test as
+// `module "example"`, so its resources are addressed under `module.example` --
+// optionally with a count/for_each index on the module (`module.example["k"]`)
+// and at any submodule depth (`module.example.module.inner.<type>...`). Only
+// `.module.<name>` segments may appear between `module.example` and the type
+// segment, so a same-named data source (`module.example.data.<type>...`) or any
+// other intermediate segment is correctly excluded. resourceType is matched as
+// a complete address segment (it must be followed by a `.`), so counting
+// "aws_lb" never matches "aws_lb_listener".
+//
+// The previous pattern (`module\.example\.<type>\.`) only matched resources
+// that were DIRECT children of an unindexed module.example, and silently
+// returned 0 for resources that were count/for_each-indexed on the module or
+// nested inside a submodule.
+func matchModuleExampleResource(resourceType string) *regexp.Regexp {
+	return regexp.MustCompile(fmt.Sprintf(`^module\.example(\[[^\]]+\])?(?:\.module\.[^.]+)*\.%s\.`, regexp.QuoteMeta(resourceType)))
+}
+
+// countResourcesOfType counts how many resource instances of resourceType
+// appear in the given `terraform state list` output.
+func countResourcesOfType(stateList string, resourceType string) int {
+	pattern := matchModuleExampleResource(resourceType)
+	count := 0
+	for _, line := range regexp.MustCompile(`\r?\n`).Split(stateList, -1) {
+		if pattern.MatchString(line) {
+			count++
+		}
+	}
+	return count
+}
+
 // AssertResourceCount checks if the number of resources of a specific type matches the expected count
 func AssertResourceCount(t testing.TB, ctx testctx.TestContext, resourceType string, expectedCount int) {
 	output, err := terraform.RunTerraformCommandE(t, ctx.Terraform, "state", "list")
 	assert.NoError(t, err, "Terraform state list should not fail")
 
-	count := 0
-	for _, line := range regexp.MustCompile(`\r?\n`).Split(output, -1) {
-		if regexp.MustCompile(fmt.Sprintf(`module\.example\.%s\.`, resourceType)).MatchString(line) {
-			count++
-		}
-	}
+	count := countResourcesOfType(output, resourceType)
 
 	assert.Equal(t, expectedCount, count, "Resource count for %s should match expected count", resourceType)
 }
