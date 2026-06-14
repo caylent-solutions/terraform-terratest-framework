@@ -50,6 +50,12 @@ func TestCountResourcesOfType(t *testing.T) {
 			want:         1,
 		},
 		{
+			name:         "same-named data source under module.example is not counted as a resource",
+			stateList:    "module.example.data.aws_subnet.selected\nmodule.example.aws_subnet.this",
+			resourceType: "aws_subnet",
+			want:         1,
+		},
+		{
 			name:         "no matching resources",
 			stateList:    "module.example.aws_s3_bucket.this",
 			resourceType: "aws_lb_listener",
